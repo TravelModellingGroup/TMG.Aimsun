@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2046
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "TMG.Aimsun", "TMG.Aimsun.pyproj", "{65137642-FC78-4537-B8DD-704968F6AB6D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{65137642-FC78-4537-B8DD-704968F6AB6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65137642-FC78-4537-B8DD-704968F6AB6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6BE4ED78-DCCB-4DEF-AB6C-0BDC4734A439}
+	EndGlobalSection
+EndGlobal
