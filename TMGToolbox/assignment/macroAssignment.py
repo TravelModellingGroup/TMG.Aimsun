@@ -7,9 +7,8 @@ from PyMacroAdjustmentPlugin import *
 from PyMacroPTPlugin import *
 import sys
 import os
-sys.path.append("D:\Users\Bilal\Desktop")
-#from PyFrankWolfe import *
-import AUtilities as _util
+sys.path.append(xtmf['toolboxPath'])
+import utilities as _util
 
 
 system = GKSystem.getSystem()
@@ -76,6 +75,8 @@ for skim in skims:
 	name = "D:\Users\Bilal\Documents\GTA_AIMSUN\\" + str(skim.getId()) + "_" + str(skim.getVehicle().getId())+ "_"+ str(skim.getVehicle().getName())+ "_" + str(skim.getFrom().toString()) + "_" + str(skim.getDuration().toString()) + ".csv"
 	print name
 	_util.exportMatrixCSV(name, skim)
+
+
 '''
 
 
