@@ -63,21 +63,6 @@ experiment.setScenario( scenario )
 experiment.setOutputPathAssignment( PathAssignment )
 
 
-'''if str(xtmf_parameters["simulatorEngine"]) == "eMicro":
-    experiment.setEngineMode( GKExperiment.EngineMode(0))
-elif str(xtmf_parameters["simulatorEngine"]) == "eMeso":
-    experiment.setEngineMode( GKExperiment.EngineMode(1))
-elif str(xtmf_parameters["simulatorEngine"]) == "eHybrid":
-    experiment.setEngineMode( GKExperiment.EngineMode(2))
-elif str(xtmf_parameters["simulatorEngine"]) == "eDynamicMacro":
-    experiment.setEngineMode( GKExperiment.EngineMode(3))
-
-
-if xtmf_parameters["engineMode"] == "eIterative":
-    experiment.setSimulatorEngine(0)
-elif xtmf_parameters["engineMode"] == "eOneShot":
-    experiment.setSimulatorEngine(1)'''
-
 system.executeAction( "execute", experiment, [], "static assignment") 
 experiment.getStatsManager().createTrafficState() 
 
