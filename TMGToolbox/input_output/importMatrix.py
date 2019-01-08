@@ -16,12 +16,17 @@ import sys
 import os
 sys.path.append( xtmf_parameters['toolboxPath'] )
 from common import utilities as _util
+import pandas
+import PySide2.QtCore as qt
 
 fileLocation = str(xtmf_parameters['matrix_location'])
 thirdNormalized = bool(xtmf_parameters['third_normalized'])
 header = bool(xtmf_parameters['includes_header'])
 matrixId = str(xtmf_parameters['matrix_id'])
 centroidConfigurationId = str(xtmf_parameters['centroid_configuration'])
+vehicleEID = str(xtmf_parameters['vehicle_type'])
+initialTime = str(xtmf_parameters['intial_time'])
+durationTime = str(xtmf_parameters['duration_time'])
 
 system = GKSystem.getSystem()
 model = system.getActiveModel()
@@ -49,10 +54,41 @@ matrix.setStoreType( 0 )
 matrix.setCentroidConfiguration(centroidConfiguration)
 matrix.setValueToAllCells(0.0)
 
+if catalog.findObjectByExternalId(vehicleEID) is None:
+    raise Exception("The specified vehicle type '%s' does not exist") %(vehicleEID)
+else:
+    vehicleType = catalog.findObjectByExternalId(vehicleEID)
+    matrix.setVehicle(vehicleType)
+
+initialTime = initialTime.split(":")
+startTime = qt.Qtime(int(initialTime[0]),int(initialTime[1]))
+matrix.setFrom(startTime)
+durationTime = durationTime.split(":")
+matrix.setDuration(GKTimeDuration(int(durationTime[0]), int(durationTime[1])))
+
+##trying to find the "contents" variable. need to figure out whether people will specify demand vehicle, start time, duration. 
+
 #read file and import
 
 with open(filelocation) as csvfile:
     reader = csv.reader(csvfile)
+    if header == True:
+        reader.next()
     for line in reader:
+        if thirdNormalized == True:
+            originEID = line[0]
+            destinationEID = line[1]
+            value = float(line[2])
+            if catalog.findObjectByExternalId(originEID) is None:
+                raise Exception("The specified centroid '%s' does not exist") %(originEID)
+            else:
+                origin = catalog.findObjectByExternalId(originEID)
+            if catalog.findObjectByExternalId(destinationEID) is None:
+                raise Exception("The specified centroid '%s' does not exist") %(destinationEID)
+            else:
+                destination = catalog.findObjectByExternalId(destinationEID)
+            matrix.setTrips(origin, destination, value)
+        else:
+            raise Exception("Functionality has not been implemented yet")
 
         
