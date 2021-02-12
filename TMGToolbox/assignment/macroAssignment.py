@@ -47,8 +47,8 @@ params.setFrankWolfeMethod ( 0 )
 experiment.setParameters( params ) '''
 
 experiment = GKSystem.getSystem().newObject( "MacroExperiment", model )
-experiment.setEngine( "FrankWolfe" ) 
-params = experiment.createParameters() 
+experiment.setEngine( "FrankWolfe" )
+params = experiment.createParameters()
 params.setMaxIterations ( 50 )
 params.setMaxRelativeGap ( 0.001 )
 params.setFrankWolfeMethod ( CFrankWolfeParams.eNormal )
@@ -63,8 +63,8 @@ experiment.setScenario( scenario )
 experiment.setOutputPathAssignment( PathAssignment )
 
 
-system.executeAction( "execute", experiment, [], "static assignment") 
-experiment.getStatsManager().createTrafficState() 
+system.executeAction( "execute", experiment, [], "static assignment")
+experiment.getStatsManager().createTrafficState()
 
 skims = experiment.getOutputData().getSkimMatrices(model)
 for skim in skims:
@@ -79,11 +79,8 @@ for skim in skims:
 
 
 '''
-
-
 replication = system.newObject( "GKReplication", model )
 replication.setExperiment(experiment)
-
 print 'created replication'
 cmd3 = model.createNewCmd( model.getType( "GKPathAssignment" ))
 model.getCommander().addCommand( cmd3 )
@@ -97,5 +94,3 @@ GKSystem.getSystem().executeAction( "retrieve", replication, [], "" )
 
 
 model.getCommander().addCommand( None )
-
-

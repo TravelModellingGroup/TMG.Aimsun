@@ -23,16 +23,12 @@
     <Compile Include="TMGToolbox\assignment\dynamicAssignment.py" />
     <Compile Include="TMGToolbox\assignment\macroAssignment.py" />
     <Compile Include="TMGToolbox\common\utilities.py" />
-    <Compile Include="TMGToolbox\input_output\importMatrix.py">
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="TMG.Aimsun" />
     <Folder Include="TMGToolbox\" />
     <Folder Include="TMGToolbox\assignment" />
     <Folder Include="TMGToolbox\common" />
-    <Folder Include="TMGToolbox\input_output\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>
