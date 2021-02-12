@@ -6,12 +6,12 @@
     <ProjectGuid>{65137642-fc78-4537-b8dd-704968f6ab6d}</ProjectGuid>
     <ProjectHome />
     <StartupFile />
-    <SearchPath>..\..\..\..\..\Program Files\Aimsun\Aimsun Next 20\plugins\python</SearchPath>
+    <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <InterpreterId>MSBuild|venv|$(MSBuildProjectFullPath)</InterpreterId>
+    <InterpreterId />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
@@ -19,19 +19,13 @@
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="aimsum_bridge.py" />
+    <Compile Include="TMG.Aimsun\AimsunBridge.py" />
     <Compile Include="TMGToolbox\assignment\dynamicAssignment.py" />
     <Compile Include="TMGToolbox\assignment\macroAssignment.py" />
     <Compile Include="TMGToolbox\common\utilities.py" />
-<<<<<<< HEAD
-=======
-    <Compile Include="tmgtoolbox\input_output\export_network_package.py" />
-    <Compile Include="tmgtoolbox\input_output\import_matrix.py" />
-    <Compile Include="tmgtoolbox\input_output\import_network_package.py" />
-    <Compile Include="tmgtoolbox\input_output\__init__.py" />
->>>>>>> Updated project settings
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="TMG.Aimsun" />
     <Folder Include="TMGToolbox\" />
     <Folder Include="TMGToolbox\assignment" />
     <Folder Include="TMGToolbox\common" />
