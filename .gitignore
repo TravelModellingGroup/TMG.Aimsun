@@ -334,3 +334,8 @@ venv/
 
 # .idea folder
 .idea/
+
+
+temp/
+
+.vscode/launch.json
