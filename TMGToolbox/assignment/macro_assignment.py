@@ -62,6 +62,22 @@ print "created experiment with id %d" %int(experiment.getId())
 experiment.setScenario( scenario )
 experiment.setOutputPathAssignment( PathAssignment )
 
+experiment = GKSystem.getSystem().newObject( "MacroExperiment", model )
+experiment.setEngine( "FrankWolfe" )
+params = experiment.createParameters()
+params.setMaxIterations ( 50 )
+params.setMaxRelativeGap ( 0.001 )
+params.setFrankWolfeMethod ( CFrankWolfeParams.eNormal )
+experiment.setParameters( params )
+
+
+model.getCatalog().add( experiment )
+
+print "created experiment with id %d" %int(experiment.getId())
+
+experiment.setScenario( scenario )
+experiment.setOutputPathAssignment( PathAssignment )
+
 
 system.executeAction( "execute", experiment, [], "static assignment")
 experiment.getStatsManager().createTrafficState()
