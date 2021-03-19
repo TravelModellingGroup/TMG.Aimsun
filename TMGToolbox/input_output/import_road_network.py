@@ -1,8 +1,8 @@
 import sys
-#from PyANGBasic import *
-#from PyANGKernel import *
+from PyANGKernel import *
 from PyANGApp import *
 from PyANGConsole import *
+from PyANGKernel import *
 
 '''
 '''
@@ -26,10 +26,11 @@ class ImportRoadNetwork:
 
 if __name__ == "__main__":
     console = ANGConsole()
+
     print(sys.argv[1])
     if console.open(sys.argv[1]):
         model = console.getModel()
-        print(model)
+        print(dir(model))
         console.save(sys.argv[1])
         console.close()
     else:
