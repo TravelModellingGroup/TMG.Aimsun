@@ -1,10 +1,15 @@
+# This script reads the network files from EMME and builds
+# a road and transit network in Aimsun
+
 # Load in the required libraries
 import sys
 import time
 from PyANGBasic import *
 from PyANGKernel import *
 from PyANGConsole import *
+import shlex
 
+# Function to read the base network file
 def readFile(filename):
     lines = []
     nodes = []
@@ -22,15 +27,10 @@ def readFile(filename):
                 nodes.append(line.split())
             elif currentlyReading == 'links':
                 links.append(line.split())
-    
-    # test if the function is working properly
-    # for node in nodes:
-    #     print(node)
-    # for link in links:
-    #     print(link)
 
     return links, nodes
 
+# Function to create a node object in Aimsun
 def addNode(node):
     # Create new node
     newNode = GKSystem.getSystem().newObject("GKNode", model)
@@ -41,49 +41,34 @@ def addNode(node):
     # Set the position of the node in space
     newNode.setPosition(GKPoint(float(node[2]), float(node[3])))
     # For now ignoring the Data1, Data 2, Data 3, and Label columns
-    # Add node to the active layer
-    # layer = model.getGeoModel().getActiveLayer()
-    # model.getGeoModel().add(layer, newNode)
 
+# Function to create a link (section) object in Aimsun
 def addLink(link):
     # Create the link
     newLink = GKSystem.getSystem().newObject("GKSection", model)
     # Set the name to reflect start and end nodes
     newLink.setName(f"link{link[1]}_{link[2]}")
-    # newLink.setName(f"link{linkNumber}")
-
     # Set the start and end nodes for the link
     sectionType = model.getType("GKNode")
-    # fromNode = model.getCatalog().findByName(f"node{link[1]}", sectionType, True)
     fromNode = model.getCatalog().findObjectByExternalId(link[1], sectionType)
     newLink.setOrigin(fromNode)
-    # toNode = model.getCatalog().findByName(f"node{link[2]}", sectionType, True)
     toNode = model.getCatalog().findObjectByExternalId(link[2], sectionType)
     newLink.setDestination(toNode)
     newLink.addPoint(newLink.getOrigin().getPosition())
     newLink.addPoint(newLink.getDestination().getPosition())
     newLink.setFromPoints(newLink.getPoints(), 0)
-
     # Connect the origin and destination nodes to the link
     originConnection = GKSystem.getSystem().newObject("GKObjectConnection", model)
     originConnection.setOwner(fromNode)
     originConnection.setConnectionObject(newLink)
     fromNode.addConnection(originConnection)
-    # originConnection.setConnectionType(0)
     destinationConnection = GKSystem.getSystem().newObject("GKObjectConnection", model)
     destinationConnection.setOwner(toNode)
     destinationConnection.setConnectionObject(newLink)
     toNode.addConnection(destinationConnection)
-    # destinationConnection.setConnectionType(0)
-    
-
     # add the lanes
     numberOfLanes = int(float(link[6]))
-    # cmd = GKSectionChangeNbLanesCmd()
-    # model.getCommander().addCommand(cmd)
-    # cmd.setData(newLink, numberOfLanes)
     for l in range(numberOfLanes):
-        # lane = GKSystem.getSystem().newObject("GKSectionLane", model)
         lane = GKSectionLane()
         newLink.addLane(lane)
     #TODO add set the allowed modes on the link
@@ -95,64 +80,37 @@ def addLink(link):
     # Add Data 3 which is capacity per lane per hour
     capacityPerLane = float(link[10])
     newLink.setCapacity(float(numberOfLanes) * capacityPerLane)
-    # Add the link to the active layer
-    # layer = model.getGeoModel().getActiveLayer()
-    # model.getGeoModel().add(layer, newLink)
 
+# Function to connect links (sections) in Aimsun
 def buildTurnings():
     # Get all of the links and nodes
     print("Adding lane turnings")
     # Assume that all links that are connected by nodes have all lanes 
     # turning to each other
     nodeType = model.getType("GKNode")
-
     geomodel = model.getGeoModel()
-    # layer = model.getGeoModel().getActiveLayer()
     for types in model.getCatalog().getUsedSubTypesFromType( nodeType ):
         for node in iter(types.values()):
-            # print(f"node: {node.getName()}")
             linksIn = []
             linksOut = []
             linkType = model.getType("GKSection")
             connectedLinks = node.getConnections()
             for linkConnection in iter(connectedLinks):
                 link = linkConnection.getConnectionObject()
-                # print(f"connected link: {link.getName()}")
                 origin = link.getOrigin()
                 destination = link.getDestination()
                 if origin == node:
                     linksOut.append(link)
                 if destination == node:
                     linksIn.append(link)
-            # This uses the builtin function to find links within 1m of the node
-            # nearbyLinks = geomodel.findClosestObjects(node.getPosition(), 1.0, linkType)
-            # for link in nearbyLinks:
-            #     origin = link.getOrigin()
-            #     destination = link.getDestination()
-            #     if origin == node:
-            #         linksOut.append(link)
-            #     if destination == node:
-            #         linksIn.append(link)
-            # This looks through all the links to find the ones connected to the node
-            # for linkTypes in model.getCatalog().getUsedSubTypesFromType( linkType ):
-            #     for link in iter(linkTypes.values()):
-            #         origin = link.getOrigin()
-            #         destination = link.getDestination()
-            #         if origin == node:
-            #             linksOut.append(link)
-            #         if destination == node:
-            #             linksIn.append(link)
             for entering in linksIn:
-                # print(f"from link: {entering.getName()}")
                 for exiting in linksOut:
-                    # print(f"to link: {exiting.getName()}")
                     newTurn = GKSystem.getSystem().newObject("GKTurning", model)
                     newTurn.setConnection(entering, exiting)
                     node.addTurning(newTurn, True)
-                    # Add the link to the active layer
-                    # model.getGeoModel().add(layer, newTurn)
-    print("Complete")
+    print("Build Turnings Complete")
 
+# Function to add all visual objects to the gui network layer
 def drawLinksAndNodes(layer):
     modelToAddTo = model.getGeoModel()
     print("Adding Nodes")
@@ -170,13 +128,185 @@ def drawLinksAndNodes(layer):
     for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
         for s in iter(types.values()):
             modelToAddTo.add(layer, s)
-    
+    print("Adding Transit Stops")
+    sectionType = model.getType("GKBusStop")
+    for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
+        for s in iter(types.values()):
+            modelToAddTo.add(layer, s)
+    print("Object drawn to Geo Model")
 
+# Function to read the transit.221 file and return the relevant information for the import to Aimsun
+def readTransitFile(filename):
+    nodes = []
+    stops = []
+    lines = []
+    transitLines = []
+    currentlyReadingLine = None
+    lineInfo = None
+    lineNodes = []
+    lineStops = []
+    with open(filename, 'r') as f:
+        lines = f.readlines()
+    for line in lines:
+        if line[0] == 'c' or line[0] == 't':
+            if currentlyReadingLine != None:
+                nodes.append(lineNodes)
+                stops.append(lineStops)
+                transitLines.append(lineInfo)
+            # Clear all the currently reading item
+            currentlyReadingLine = None
+            lineInfo = None
+            lineNodes = []
+            lineStops = []
+        elif line[0] == 'a':
+            # if there is a line that was being read add it
+            if currentlyReadingLine != None:
+                nodes.append(lineNodes)
+                stops.append(lineStops)
+                transitLines.append(lineInfo)
+            # set the new line details
+            lineInfo = shlex.split(line[1:])
+            currentlyReadingLine = lineInfo[0]
+            lineNodes = []
+            lineStops = []
+        # if not comment or heading read into current transit line
+        else:
+            pathDetails = shlex.split(line)
+            # TODO add error if path=yes
+            if pathDetails[0] != 'path=no':
+                lineNodes.append(pathDetails[0])
+                dwt = float(pathDetails[1][5:])
+                lineStops.append(dwt)
+    # if get to the end of the file add the last line that was read
+    if currentlyReadingLine != None:
+        nodes.append(lineNodes)
+        stops.append(lineStops)
+        transitLines.append(lineInfo)
+
+    return nodes, stops, transitLines
+
+# Function to create the bus stop objects in the Aimsun network
+def addBusStop(fromNodeId, toNodeId, lineId, start):
+    line = lineId
+    busStop=GKSystem.getSystem().newObject("GKBusStop",model)
+    model.getCatalog().add(busStop)
+    if start==True:
+        busStop.setName(f"stop_{fromNodeId}_line_{line}")
+        busStop.setExternalId(f"stop_{fromNodeId}_line_{line}")
+    else:
+        busStop.setName(f"stop_{toNodeId}_line_{line}")
+        busStop.setExternalId(f"stop_{toNodeId}_line_{line}")
+    busStop.setStopType(0) # set the stop type to normal
+    # Set the start and end nodes for the link
+    sectionType = model.getType("GKNode")
+    fromNode = model.getCatalog().findObjectByExternalId(fromNodeId, sectionType)
+    toNode = model.getCatalog().findObjectByExternalId(toNodeId, sectionType)
+    connectedLinks = fromNode.getConnections()
+    stopLink = None
+    for linkConnection in iter(connectedLinks):
+        link = linkConnection.getConnectionObject()
+        origin = link.getOrigin()
+        destination = link.getDestination()
+        if (origin == fromNode and destination == toNode):
+            stopLink = link
+            break
+    stopLink.addTopObject(busStop)
+    lanes = stopLink.getNbFullLanes()
+    if lanes <1:
+        lanes=1
+    busStop.setLanes(lanes-1,lanes-1) #default to the rightmost lane
+    # TODO add a parameter that allows trams to be added to the centre lane
+    if start==True:
+        busStop.setPosition(10.0) # 10m from start of link
+    else:
+        busStop.setPosition(stopLink.getLaneLength2D(lanes-1)-10.0) # 10m back from end of link
+    busStop.setLength(10.0) # Placeholder default length
+    # TODO add a parameter to set the stop length and position
+
+# Function to build the transit lines Aimsun
+def addTransitLine(lineId, lineName, pathList, stopsList):
+    cmd = model.createNewCmd( model.getType( "GKPublicLine" ) )
+    cmd.setModel( model )
+    model.getCommander().addCommand( cmd )
+    ptLine = cmd.createdObject()
+    ptLine.setExternalId(lineId)
+    ptLine.setName(lineName)
+    busStops = []
+    links = []
+    # Build the list of bus stops
+    # If there is no stop at a node add None to the list
+    for i in range(len(pathList)):
+        stop = pathList[i]
+        # add a stop if there is a non zero dwell time or if is end of line
+        if stopsList[i] != 0.0 or i==(len(pathList)-1):
+            busStop=model.getCatalog().findObjectByExternalId(f"stop_{stop}_line_{lineId}")
+            if busStop != None:
+                busStops.append(busStop)
+            else:
+                print(f"stop_{stop}_line_{lineId} not found")
+        else:
+            busStops.append(None)
+    # Build the public transit line out of the path defined in the node list names pathList
+    for i in range(1, len(pathList)):
+        sectionType = model.getType("GKNode")
+        fromNode = model.getCatalog().findObjectByExternalId(pathList[i-1], sectionType)
+        toNode = model.getCatalog().findObjectByExternalId(pathList[i], sectionType)
+        connectedLinks = fromNode.getConnections()
+        pathLink = None
+        for linkConnection in iter(connectedLinks):
+            link = linkConnection.getConnectionObject()
+            origin = link.getOrigin()
+            destination = link.getDestination()
+            if (origin == fromNode and destination == toNode):
+                pathLink = link
+                break
+        if pathLink!=None:
+            ptLine.add(pathLink, None)
+        else:
+            continue
+    # add the stop list to the line
+    # TODO fix bug where can only have the same number of stops as links (temp fix for now)
+    ptLine.setStops(busStops[1:])
+    if ptLine.isCorrect()[0]==True:
+        print (f"Transit Line {lineId} {lineName} was imported")
+    else:
+        print (f"Issue importing Transit Line {lineId} {lineName}")
+
+# Function to create the transit lines from reading the file to adding to the network
+def importTransit(fileName):
+    # read the transit file
+    print("Importing Transit Network")
+    print("Reading transit file")
+    nodes, stops, lines = readTransitFile(fileName)
+    # add each line one at a time
+    lineName = None
+    lineId = None
+    pathList = None
+    stopsList = None
+    for i in range(len(lines)):
+        lineName = lines[i][5]
+        lineId = lines[i][0]
+        pathList = nodes[i]
+        stopsList = stops[i]
+        print(f"Adding Line {lineId} {lineName}")
+        # add all of the stops in the line to the network
+        for j in range(len(pathList)):
+            # add the first stop at the begining of the link
+            if j==0:
+                addBusStop(pathList[j],pathList[j+1],lineId,True)
+            # add a stop if there is a non zero dwell time or if is end of line
+            elif stopsList[j] != 0.0 or j==(len(pathList)-1):
+                addBusStop(pathList[j-1],pathList[j],lineId,False)
+        # add the transit line
+        addTransitLine(lineId,lineName,pathList,stopsList)
+    print("Transit Import Complete")
+
+# Main script to complete the full netowrk import
 def main(argv):
     overallStartTime = time.perf_counter()
-    if len(argv) < 4:
+    if len(argv) < 5:
         print("Incorrect Number of Arguments")
-        print("Arguments: -script script.py blankAimsunProjectFile.ang baseNetowrkFile.211 outputNetworkFile.ang")
+        print("Arguments: -script script.py blankAimsunProjectFile.ang baseNetowrkFile.211 transitFile.221 outputNetworkFile.ang")
         return -1
     # Start a console
     console = ANGConsole()
@@ -189,18 +319,9 @@ def main(argv):
         console.getLog().addError("Cannot load the network")
         print("cannot load network")
         return -1
-    
     # Import the new network
     print("Import Network")
-    # print("Set Active Layer Draw Mode")
-    # layer = model.getGeoModel().getActiveLayer()
-    # print(layer.getDrawMode())
-    # layer.setDrawMode(1)
-    # print(layer.getDrawMode())
     print("Read Data File")
-    # File for Frabitztown Test Network
-    # links, nodes = readFile('Y:/Research/2021/AimsunScripts/Frabitztown/base.211')
-    # File for Toronto
     links, nodes = readFile(argv[2])
     nodeStartTime = time.perf_counter()
     print("Adding Nodes")
@@ -229,22 +350,29 @@ def main(argv):
     linkEndTime = time.perf_counter()
     print(f"Link Import Time: {linkEndTime-linkStartTime}s")
     turnStartTime = time.perf_counter()
+    # Build the turns (connections betweek links)
     buildTurnings()
     turnEndTime = time.perf_counter()
     print(f"Time to Build Turns: {turnEndTime-turnStartTime}s")
-
+    # Import the transit network
+    transitStartTime = time.perf_counter()
+    importTransit(argv[3])
+    transitEndTime = time.perf_counter()
+    print(f"Time to import transit: {transitEndTime-transitStartTime}s")
+    # Draw all graphical elements to the visible network layer
     layer = model.getGeoModel().findLayer("Network")
     drawLinksAndNodes(layer)
-
-    
     print("Finished Import")
+    # Save the network to file
     print("Save Network")
-    console.save(argv[3])
-
+    console.save(argv[4])
     overallEndTime = time.perf_counter()
     print(f"Overall Runtime: {overallEndTime-overallStartTime}s")
+    # Reset the Aimsun undo buffer
+    model.getCommander().addCommand( None )
 
 # This node positions is in the Aimsun docs as needed for macro models
+# Not sure what it does for now
 # print("Update Node Positions")
 # sectionType = model.getType("GKNode")
 # for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
