@@ -62,7 +62,6 @@ if centroidConfiguration is None:
 if catalog.findObjectByExternalId(matrixId) is not None:
     while catalog.findObjectByExternalId(matrixId) is not None:
         obj = catalog.findObjectByExternalId(matrixId)
-        # _util.deleteObject(obj)
         cmd = obj.getDelCmd()
         model.getCommander().addCommand(cmd)
         model.getCommander().addCommand(None)
@@ -89,8 +88,6 @@ matrix.setFrom(startTime)
 durationTime = durationTime.split(":")
 matrix.setDuration(GKTimeDuration(int(durationTime[0]), int(durationTime[1]), int(durationTime[2])))
 
-##trying to find the "contents" variable. need to figure out whether people will specify demand vehicle, start time, duration. 
-
 #read file and import
 
 with open(fileLocation) as csvfile:
@@ -103,8 +100,6 @@ with open(fileLocation) as csvfile:
             originEID = f"centroid_{line[0]}"
             destinationEID = f"centroid_{line[1]}"
             value = float(line[2])
-            # origin = centroidConfiguration.getCentroidByExternalId(originEID, True)
-            # destination = centroidConfiguration.getCentroidByExternalId(destinationEID, False)
             origin = catalog.findObjectByExternalId(originEID, sectionType)
             destination = catalog.findObjectByExternalId(destinationEID, sectionType)
             if origin is None:
