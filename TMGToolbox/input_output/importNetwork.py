@@ -339,6 +339,7 @@ def createCentroidConfiguration(name, listOfCentroidIds):
     model.getCommander().addCommand( cmd )
     centroidConfig = cmd.createdObject()
     centroidConfig.setName(name)
+    centroidConfig.setExternalId(name)
     print("create and add the centroids")
     for centroidId in listOfCentroidIds:
         centroid = createCentroid(centroidId)
