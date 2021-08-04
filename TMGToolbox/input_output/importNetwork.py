@@ -328,6 +328,7 @@ def createCentroid(nodeId):
     nodeConnection = GKSystem.getSystem().newObject("GKCenConnection", model)
     nodeConnection.setOwner(centroid)
     nodeConnection.setConnectionObject(node)
+    nodeConnection.setConnectionType(3)
     centroid.addConnection(nodeConnection)
     centroid.setPositionByConnections()
     return centroid
