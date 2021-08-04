@@ -54,10 +54,9 @@ else:
 catalog = model.getCatalog()
 #find the centroid configuration
 sectionType = model.getType("GKCentroidConfiguration")
-if catalog.findObjectByExternalId(centroidConfigurationId, sectionType) is None:
+centroidConfiguration = catalog.findObjectByExternalId(centroidConfigurationId, sectionType)
+if centroidConfiguration is None:
     raise Exception(f"The specified centroid configuration '{centroidConfigurationId}' does not exist")
-else:
-    centroidConfiguration = catalog.findObjectByExternalId(centroidConfigurationId)
 
 #check if matrix with given id exists and delete it if it does
 if catalog.findObjectByExternalId(matrixId) is not None:
@@ -96,6 +95,7 @@ matrix.setDuration(GKTimeDuration(int(durationTime[0]), int(durationTime[1]), in
 
 with open(fileLocation) as csvfile:
     reader = csv.reader(csvfile)
+    sectionType = model.getType("GKCentroid")
     if header == True:
         next(reader)
     for line in reader:
@@ -103,15 +103,14 @@ with open(fileLocation) as csvfile:
             originEID = f"centroid_{line[0]}"
             destinationEID = f"centroid_{line[1]}"
             value = float(line[2])
-            sectionType = model.getType("GKCentroid")
-            if catalog.findObjectByExternalId(originEID, sectionType) is None:
+            # origin = centroidConfiguration.getCentroidByExternalId(originEID, True)
+            # destination = centroidConfiguration.getCentroidByExternalId(destinationEID, False)
+            origin = catalog.findObjectByExternalId(originEID, sectionType)
+            destination = catalog.findObjectByExternalId(destinationEID, sectionType)
+            if origin is None:
                 raise Exception(f"The specified centroid '{originEID}' does not exist")
-            else:
-                origin = catalog.findObjectByExternalId(originEID, sectionType)
-            if catalog.findObjectByExternalId(destinationEID, sectionType) is None:
+            if destination is None:
                 raise Exception(f"The specified centroid '{destinationEID}' does not exist")
-            else:
-                destination = catalog.findObjectByExternalId(destinationEID, sectionType)
             matrix.setTrips(origin, destination, value)
         else:
             raise Exception("Functionality has not been implemented yet")
