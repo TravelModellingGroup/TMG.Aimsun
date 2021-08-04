@@ -310,7 +310,6 @@ def importTransit(fileName):
         addTransitLine(lineId,lineName,pathList,stopsList)
     print("Transit Import Complete")
 
-# TODO figure out bug where centroids aren't getting saved to the network (they are added but not saved)
 def createCentroid(nodeId):
     # First check if the centroid already exists
     # If yes return centroid
@@ -326,7 +325,7 @@ def createCentroid(nodeId):
     sectionType = model.getType("GKNode")
     node = model.getCatalog().findObjectByExternalId(nodeId, sectionType)
     print(f"node {node.getName()}")
-    nodeConnection = GKSystem.getSystem().newObject("GKObjectConnection", model)
+    nodeConnection = GKSystem.getSystem().newObject("GKCenConnection", model)
     nodeConnection.setOwner(centroid)
     nodeConnection.setConnectionObject(node)
     centroid.addConnection(nodeConnection)
@@ -346,7 +345,6 @@ def createCentroidConfiguration(name, listOfCentroidIds):
         if centroidConfig.contains(centroid):
             continue
         centroidConfig.addCentroid(centroid)
-    
     # save the centroid configuration
     print("save to folder")
     folderName = "GKModel::centroidsConf"
