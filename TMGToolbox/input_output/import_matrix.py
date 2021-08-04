@@ -42,14 +42,14 @@ durationTime = str(xtmf_parameters['duration_time'])
 
 # Start a console
 console = ANGConsole()
+model = None
 # Load a network
 if console.open(argv[1]): 
-    global model
     model = console.getModel()
     print("open network")
 else:
     console.getLog().addError("Cannot load the network")
-    print("cannot load network")
+    raise Exception("cannot load network")
 
 catalog = model.getCatalog()
 #find the centroid configuration
