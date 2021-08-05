@@ -15,7 +15,7 @@ import os
 # Brigde for now to run on input files
 argv = sys.argv
 if len(argv) < 3:
-    print("Incorrect Number of arguments")
+    print("Incorrect number of arguments")
     print("Arguments: -script script.py aimsunNetowrk.ang outputNetworkFile.ang")
     raise Exception("Invalid input arguments")
 xtmf_parameters = {
@@ -26,10 +26,10 @@ model = None
 # Load a network
 if console.open(argv[1]): 
     model = console.getModel()
-    print("open network")
+    print("Open network")
 else:
     console.getLog().addError("Cannot load the network")
-    raise Exception("cannot load network")
+    raise Exception("Cannot load network")
 
 catalog = model.getCatalog()
 system = GKSystem.getSystem()
@@ -49,7 +49,7 @@ cmd = model.createNewCmd( model.getType( "MacroScenario" ))
 model.getCommander().addCommand( cmd )
 scenario = cmd.createdObject()
 scenario.setDemand(trafficDemand)
-print(f"created scenario {scenario.getId()}")
+print(f"Create scenario {scenario.getId()}")
 
 cmd1 = model.createNewCmd( model.getType( "GKPathAssignment" ))
 model.getCommander().addCommand( cmd1 )
@@ -60,21 +60,6 @@ dataToOutput.setGenerateSkims(1)
 
 scenario.setOutputData(dataToOutput)
 
-'''cmd2 = model.createNewCmd( model.getType( "MacroExperiment" ))
-cmd2.setScenario( scenario )
-model.getCommander().addCommand( cmd2 )
-experiment = cmd2.createdObject()
-experiment.setEngine('FrankeWolfe')
-experiment.setOutputPathAssignment(PathAssignment)'''
-
-'''experiment = GKSystem.getSystem().newObject( "MacroExperiment", model )
-experiment.setEngine("FrankWolfe")
-params = experiment.createParameters()
-params.setMaxIterations ( 50 )
-params.setMaxRelativeGap ( 0.001 )
-params.setFrankWolfeMethod ( 0 )
-experiment.setParameters( params ) '''
-
 experiment = GKSystem.getSystem().newObject( "MacroExperiment", model )
 experiment.setEngine( "FrankWolfe" )
 params = experiment.createParameters()
@@ -83,18 +68,14 @@ params.setMaxRelativeGap ( 0.001 )
 params.setFrankWolfeMethod ( CFrankWolfeParams.eNormal )
 experiment.setParameters( params )
 
-
 model.getCatalog().add( experiment )
-
-# print "created experiment with id %d" %int(experiment.getId())
-
 experiment.setScenario( scenario )
 experiment.setOutputPathAssignment( PathAssignment )
-
 
 system.executeAction( "execute", experiment, [], "static assignment")
 experiment.getStatsManager().createTrafficState()
 
+# TODO rewrite this code for desired output format
 # skims = experiment.getOutputData().getSkimMatrices(model)
 # for skim in skims:
 #     def convert_to_int(time):
@@ -106,20 +87,6 @@ experiment.getStatsManager().createTrafficState()
 #     print name
 #     _util.exportMatrixCSV(name, skim)
 
-
-'''
-replication = system.newObject( "GKReplication", model )
-replication.setExperiment(experiment)
-print 'created replication'
-cmd3 = model.createNewCmd( model.getType( "GKPathAssignment" ))
-model.getCommander().addCommand( cmd3 )
-res = cmd.createdObject()
-cool = system.executeAction( "execute", replication, [], "")
-print cool
-print 'executed replication'
-print replication.getId()
-GKSystem.getSystem().executeAction( "retrieve", replication, [], "" )
-'''
 # Save to the network file
 folderName = "GKModel::top::scenarios"
 folder = model.getCreateRootFolder().findFolder( folderName )
@@ -133,8 +100,7 @@ if folder == None:
     folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
 folder.append(trafficDemand)
 # Save the network file
-print("Save Network")
+print("Save network")
 console.save(argv[2])
-
 
 model.getCommander().addCommand( None )
