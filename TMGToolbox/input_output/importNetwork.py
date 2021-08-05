@@ -358,7 +358,18 @@ def createCentroidConfiguration(name, listOfCentroidIds):
 
 # Reads the modes file and defines all possible modes on the netowrk
 def defineModes(filename):
+    # Delete the default modes
+    sectionType = model.getType("GKVehicle")
+    for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
+        for s in iter(types.values()):
+            if s != None:
+                cmd = s.getDelCmd()
+                model.getCommander().addCommand(cmd)
+    model.getCommander().addCommand(None)
+    # make list of nodes and vehicles created
     modes = []
+    vehicleTypes = []
+    # read the file
     with open(filename, 'r') as f:
         lines = f.readlines()
     for line in lines:
@@ -369,8 +380,19 @@ def defineModes(filename):
             newMode.setName(lineItems[2])
             newMode.setExternalId(lineItems[1])
             modes.append(newMode)
-    return modes
-
+            # Create a vehicle type
+            newVeh = GKSystem.getSystem().newObject("GKVehicle", model)
+            newVeh.setName(lineItems[2])
+            newVeh.setTransportationMode(newMode)
+            vehicleTypes.append(newVeh)
+    # save vehicle in netowrk file
+    folderName = "GKModel::vehicles"
+    folder = model.getCreateRootFolder().findFolder( folderName )
+    if folder == None:
+        folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
+    for veh in vehicleTypes:
+        folder.append(veh)
+    return modes, vehicleTypes
 
 # Main script to complete the full netowrk import
 def main(argv):
