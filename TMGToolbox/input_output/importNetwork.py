@@ -100,6 +100,53 @@ def addLink(link):
     capacityPerLane = float(link[10])
     newLink.setCapacity(float(numberOfLanes) * capacityPerLane)
 
+def addDummyLink(transitVehicle, node, nextLink, transitLine):
+    # Create the link
+    newLink = GKSystem.getSystem().newObject("GKSection", model)
+    newLink.setName(f"dummylink_{transitLine.getExternalId()}")
+    newLink.setExternalId(f"dummylink_{transitLine.getExternalId()}")
+    # Set the start end end points of the link
+    nodePoint = node.getPosition()
+    linkLength = 20.00
+    newLink.addPoint(GKPoint(nodePoint.x-linkLength, nodePoint.y))
+    newLink.addPoint(nodePoint)
+    newLink.setFromPoints(newLink.getPoints(), 0)
+    # Set the desination link to the node
+    newLink.setDestination(node)
+    destinationConnection = GKSystem.getSystem().newObject("GKObjectConnection", model)
+    destinationConnection.setOwner(node)
+    destinationConnection.setConnectionObject(newLink)
+    node.addConnection(destinationConnection)
+    # make one lane for dummy link
+    lane = GKSectionLane()
+    newLink.addLane(lane)
+    # Set the allowed mode to only include transit vehicle
+    newLink.setUseRoadTypeNonAllowedVehicles(False)
+    # create list of banned vehicles
+    bannedVehicles = []
+    sectionType = model.getType("GKVehicle")
+    for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
+        for vehicle in iter(types.values()):
+            if vehicle != transitVehicle:
+                bannedVehicles.append(vehicle)
+    # set the banned vehicles on the section
+    if len(bannedVehicles)>0:
+        newLink.setNonAllowedVehicles(bannedVehicles)
+    # Make the turning object to the first link in the transit line
+    newTurn = GKSystem.getSystem().newObject("GKTurning", model)
+    newTurn.setConnection(newLink, nextLink)
+    node.addTurning(newTurn, True)
+    # add a transit stop
+    busStop = GKSystem.getSystem().newObject("GKBusStop", model)
+    model.getCatalog().add(busStop)
+    busStop.setName(f"stop_{node.getExternalId()}_line_{transitLine.getExternalId()}")
+    busStop.setExternalId(f"stop_{node.getExternalId()}_line_{transitLine.getExternalId()}")
+    busStop.setStopType(0) # set the stop type to normal
+    nextLink.addTopObject(busStop)
+    busStop.setLanes(0,0) # dummy link only has one lane
+    busStop.setPosition(linkLength/2) # stop at midpoint of link
+    return newLink
+
 # Function to connect links (sections) in Aimsun
 def buildTurnings():
     # Get all of the links and nodes
@@ -248,7 +295,7 @@ def addBusStop(fromNodeId, toNodeId, lineId, start):
     # TODO add a parameter to set the stop length and position
 
 # Function to build the transit lines Aimsun
-def addTransitLine(lineId, lineName, pathList, stopsList):
+def addTransitLine(lineId, lineName, pathList, stopsList, transitVehicle):
     cmd = model.createNewCmd( model.getType( "GKPublicLine" ) )
     cmd.setModel( model )
     model.getCommander().addCommand( cmd )
@@ -257,17 +304,26 @@ def addTransitLine(lineId, lineName, pathList, stopsList):
     ptLine.setName(lineName)
     busStops = []
     links = []
+    # Add the dummy link at the start of the line
+    sectionType = model.getType("GKNode")
+    startNode = model.getCatalog().findObjectByExternalId(pathList[0], sectionType)
+    sectionType = model.getType("GKSection")
+    firstLink = model.getCatalog().findByName(f"link{pathList[0]}_{pathList[1]}", sectionType)
+    dummyLink = addDummyLink(transitVehicle, startNode, firstLink, ptLine)
+    ptLine.add(dummyLink, None)
     # Build the list of bus stops
     # If there is no stop at a node add None to the list
     for i in range(len(pathList)):
         stop = pathList[i]
         # add a stop if there is a non zero dwell time or if is end of line
         if stopsList[i] != 0.0 or i==(len(pathList)-1):
+            sectionType = model.getType("GKBusStop")
             busStop=model.getCatalog().findObjectByExternalId(f"stop_{stop}_line_{lineId}")
             if busStop != None:
                 busStops.append(busStop)
             else:
                 print(f"stop_{stop}_line_{lineId} not found")
+                busStops.append(None)
         else:
             busStops.append(None)
     # Build the public transit line out of the path defined in the node list names pathList
@@ -289,8 +345,7 @@ def addTransitLine(lineId, lineName, pathList, stopsList):
         else:
             continue
     # add the stop list to the line
-    # TODO fix bug where can only have the same number of stops as links (temp fix for now)
-    ptLine.setStops(busStops[1:])
+    ptLine.setStops(busStops)
     if ptLine.isCorrect()[0]==True:
         print (f"Transit Line {lineId} {lineName} was imported")
     else:
@@ -310,19 +365,21 @@ def importTransit(fileName):
     for i in range(len(lines)):
         lineName = lines[i][5]
         lineId = lines[i][0]
+        sectionType = model.getType("GKVehicle")
+        lineVehicle = model.getCatalog().findObjectByExternalId(f"transitVeh_{lines[i][2]}", sectionType)
         pathList = nodes[i]
         stopsList = stops[i]
         print(f"Adding Line {lineId} {lineName}")
         # add all of the stops in the line to the network
         for j in range(len(pathList)):
-            # add the first stop at the begining of the link
+            # fist stop will be on dummy link so don't add bus stop
             if j==0:
-                addBusStop(pathList[j],pathList[j+1],lineId,True)
+                continue
             # add a stop if there is a non zero dwell time or if is end of line
-            elif stopsList[j] != 0.0 or j==(len(pathList)-1):
+            if stopsList[j] != 0.0 or j==(len(pathList)-1):
                 addBusStop(pathList[j-1],pathList[j],lineId,False)
         # add the transit line
-        addTransitLine(lineId,lineName,pathList,stopsList)
+        addTransitLine(lineId,lineName,pathList,stopsList,lineVehicle)
     print("Transit Import Complete")
 
 def createCentroid(nodeId):
