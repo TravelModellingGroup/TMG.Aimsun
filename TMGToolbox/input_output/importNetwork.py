@@ -394,6 +394,36 @@ def defineModes(filename):
         folder.append(veh)
     return modes, vehicleTypes
 
+def importTransitVehicles(filename):
+    vehicles = []
+    # read the file
+    with open(filename, 'r') as f:
+        lines = f.readlines()
+    for line in lines:
+        lineItems = shlex.split(line)
+        if len(line)>0 and len(lineItems)>=12 and line[0]=='a':
+            newVeh = GKSystem.getSystem().newObject("GKVehicle", model)
+            newVeh.setName(lineItems[2])
+            newVeh.setExternalId(f"transitVeh_{lineItems[1]}")
+            sectionType = model.getType("GKTransportationMode")
+            mode = model.getCatalog().findObjectByExternalId(lineItems[3], sectionType)
+            if mode != None:
+                newVeh.setTransportationMode(mode)
+            # Set capacity type to passengers
+            newVeh.setCapacityType(0)
+            newVeh.setCapacity(float(lineItems[6]))
+            newVeh.setSeatingCapacity(float(lineItems[5]))
+            # TODO find where to add auto equivalent value
+            vehicles.append(newVeh)
+    # Save the transit vehicles within the aimsun network file
+    folderName = "GKModel::vehicles"
+    folder = model.getCreateRootFolder().findFolder( folderName )
+    if folder == None:
+        folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
+    for veh in vehicles:
+        folder.append(veh)
+    return vehicles
+
 # Main script to complete the full netowrk import
 def main(argv):
     overallStartTime = time.perf_counter()
@@ -457,6 +487,7 @@ def main(argv):
     print(f"Time to add centroids: {centroidEndTime-centroidStartTime}")
     # Import the transit network
     transitStartTime = time.perf_counter()
+    importTransitVehicles(f"{argv[2]}/vehicles.202")
     importTransit(f"{argv[2]}/transit.221")
     transitEndTime = time.perf_counter()
     print(f"Time to import transit: {transitEndTime-transitStartTime}s")
