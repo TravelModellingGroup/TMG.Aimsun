@@ -397,9 +397,9 @@ def defineModes(filename):
 # Main script to complete the full netowrk import
 def main(argv):
     overallStartTime = time.perf_counter()
-    if len(argv) < 6:
+    if len(argv) < 3:
         print("Incorrect Number of Arguments")
-        print("Arguments: -script script.py blankAimsunProjectFile.ang baseNetowrkFile.211 transitFile.221 modesFile.201 outputNetworkFile.ang")
+        print("Arguments: -script script.py blankAimsunProjectFile.ang networkDirectory outputNetworkFile.ang")
         return -1
     # Start a console
     console = ANGConsole()
@@ -415,9 +415,9 @@ def main(argv):
     # Import the new network
     print("Import Network")
     print("Define modes")
-    modes = defineModes(argv[4])
+    modes = defineModes(f"{argv[2]}/modes.201")
     print("Read Data File")
-    links, nodes, centroids = readFile(argv[2])
+    links, nodes, centroids = readFile(f"{argv[2]}/base.211")
     nodeStartTime = time.perf_counter()
     print("Adding Nodes")
     print(f"Number of Nodes to Import: {len(nodes)}")
@@ -457,7 +457,7 @@ def main(argv):
     print(f"Time to add centroids: {centroidEndTime-centroidStartTime}")
     # Import the transit network
     transitStartTime = time.perf_counter()
-    importTransit(argv[3])
+    importTransit(f"{argv[2]}/transit.221")
     transitEndTime = time.perf_counter()
     print(f"Time to import transit: {transitEndTime-transitStartTime}s")
     # Draw all graphical elements to the visible network layer
@@ -466,7 +466,7 @@ def main(argv):
     print("Finished Import")
     # Save the network to file
     print("Save Network")
-    console.save(argv[5])
+    console.save(argv[3])
     overallEndTime = time.perf_counter()
     print(f"Overall Runtime: {overallEndTime-overallStartTime}s")
     # Reset the Aimsun undo buffer
