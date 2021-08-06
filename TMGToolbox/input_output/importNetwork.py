@@ -19,7 +19,7 @@ def readFile(filename):
     with open(filename, 'r') as f:
         lines = f.readlines()
     for line in lines:
-        if line[0] == 'c':
+        if len(line)==0 or line[0] == 'c':
             continue
         elif line[0] == 't':
             currentlyReading = line.split()[1]
