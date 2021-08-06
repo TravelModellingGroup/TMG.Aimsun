@@ -356,12 +356,56 @@ def createCentroidConfiguration(name, listOfCentroidIds):
     folder.append(centroidConfig)
     return centroidConfig
 
+# Reads the modes file and defines all possible modes on the netowrk
+def defineModes(filename):
+    # Delete the default modes
+    sectionType = model.getType("GKVehicle")
+    for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
+        for s in iter(types.values()):
+            if s != None:
+                cmd = s.getDelCmd()
+                model.getCommander().addCommand(cmd)
+    model.getCommander().addCommand(None)
+    # make list of nodes and vehicles created
+    modes = []
+    vehicleTypes = []
+    # read the file
+    with open(filename, 'r') as f:
+        lines = f.readlines()
+    for line in lines:
+        # Check that the line isn't blank
+        if len(line)==0:
+            continue
+        if line[0] == 'a':
+            lineItems = shlex.split(line)
+            # Check that the line has at least the required info
+            if len(lineItems) < 3:
+                continue
+            # Create a mode object
+            newMode = GKSystem.getSystem().newObject("GKTransportationMode", model)
+            newMode.setName(lineItems[2])
+            newMode.setExternalId(lineItems[1])
+            modes.append(newMode)
+            # Create a vehicle type
+            newVeh = GKSystem.getSystem().newObject("GKVehicle", model)
+            newVeh.setName(lineItems[2])
+            newVeh.setTransportationMode(newMode)
+            vehicleTypes.append(newVeh)
+    # save vehicle in netowrk file
+    folderName = "GKModel::vehicles"
+    folder = model.getCreateRootFolder().findFolder( folderName )
+    if folder == None:
+        folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
+    for veh in vehicleTypes:
+        folder.append(veh)
+    return modes, vehicleTypes
+
 # Main script to complete the full netowrk import
 def main(argv):
     overallStartTime = time.perf_counter()
-    if len(argv) < 5:
+    if len(argv) < 6:
         print("Incorrect Number of Arguments")
-        print("Arguments: -script script.py blankAimsunProjectFile.ang baseNetowrkFile.211 transitFile.221 outputNetworkFile.ang")
+        print("Arguments: -script script.py blankAimsunProjectFile.ang baseNetowrkFile.211 transitFile.221 modesFile.201 outputNetworkFile.ang")
         return -1
     # Start a console
     console = ANGConsole()
@@ -376,6 +420,8 @@ def main(argv):
         return -1
     # Import the new network
     print("Import Network")
+    print("Define modes")
+    modes = defineModes(argv[4])
     print("Read Data File")
     links, nodes, centroids = readFile(argv[2])
     nodeStartTime = time.perf_counter()
@@ -426,7 +472,7 @@ def main(argv):
     print("Finished Import")
     # Save the network to file
     print("Save Network")
-    console.save(argv[4])
+    console.save(argv[5])
     overallEndTime = time.perf_counter()
     print(f"Overall Runtime: {overallEndTime-overallStartTime}s")
     # Reset the Aimsun undo buffer
