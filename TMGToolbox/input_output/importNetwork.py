@@ -373,14 +373,9 @@ def defineModes(filename):
     with open(filename, 'r') as f:
         lines = f.readlines()
     for line in lines:
-        # Check that the line isn't blank
-        if len(line)==0:
-            continue
-        if line[0] == 'a':
+        lineItems = shlex.split(line)
+        if len(line)>0 and len(lineItems) >= 3 and line[0] == 'a':
             lineItems = shlex.split(line)
-            # Check that the line has at least the required info
-            if len(lineItems) < 3:
-                continue
             # Create a mode object
             newMode = GKSystem.getSystem().newObject("GKTransportationMode", model)
             newMode.setName(lineItems[2])
