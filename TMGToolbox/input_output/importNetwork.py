@@ -85,12 +85,6 @@ def addLink(link, allVehicles):
         mode = vehicle.getTransportationMode().getExternalId()
         if mode not in allowedModes:
             bannedVehicles.append(vehicle)
-    # sectionType = model.getType("GKVehicle")
-    # for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
-    #     for vehicle in iter(types.values()):
-    #         mode = vehicle.getTransportationMode().getExternalId()
-    #         if mode not in allowedModes:
-    #             bannedVehicles.append(vehicle)
     # set the banned vehicles on the section
     if len(bannedVehicles)>0:
         newLink.setNonAllowedVehicles(bannedVehicles)
@@ -131,11 +125,6 @@ def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles):
     for vehicle in allVehicles:
         if vehicle != transitVehicle:
             bannedVehicles.append(vehicle)
-    # sectionType = model.getType("GKVehicle")
-    # for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
-    #     for vehicle in iter(types.values()):
-    #         if vehicle != transitVehicle:
-    #             bannedVehicles.append(vehicle)
     # set the banned vehicles on the section
     if len(bannedVehicles)>0:
         newLink.setNonAllowedVehicles(bannedVehicles)
