@@ -47,7 +47,7 @@ def addNode(node):
     # For now ignoring the Data1, Data 2, Data 3, and Label columns
 
 # Function to create a link (section) object in Aimsun
-def addLink(link):
+def addLink(link, allVehicles):
     # Create the link
     newLink = GKSystem.getSystem().newObject("GKSection", model)
     # Set the name to reflect start and end nodes
@@ -81,12 +81,16 @@ def addLink(link):
     # create list of banned vehicles
     bannedVehicles = []
     allowedModes = link[4]
-    sectionType = model.getType("GKVehicle")
-    for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
-        for vehicle in iter(types.values()):
-            mode = vehicle.getTransportationMode().getExternalId()
-            if mode not in allowedModes:
-                bannedVehicles.append(vehicle)
+    for vehicle in allVehicles:
+        mode = vehicle.getTransportationMode().getExternalId()
+        if mode not in allowedModes:
+            bannedVehicles.append(vehicle)
+    # sectionType = model.getType("GKVehicle")
+    # for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
+    #     for vehicle in iter(types.values()):
+    #         mode = vehicle.getTransportationMode().getExternalId()
+    #         if mode not in allowedModes:
+    #             bannedVehicles.append(vehicle)
     # set the banned vehicles on the section
     if len(bannedVehicles)>0:
         newLink.setNonAllowedVehicles(bannedVehicles)
@@ -100,7 +104,7 @@ def addLink(link):
     capacityPerLane = float(link[10])
     newLink.setCapacity(float(numberOfLanes) * capacityPerLane)
 
-def addDummyLink(transitVehicle, node, nextLink, transitLine):
+def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles):
     # Create the link
     newLink = GKSystem.getSystem().newObject("GKSection", model)
     newLink.setName(f"dummylink_{transitLine.getExternalId()}")
@@ -124,11 +128,14 @@ def addDummyLink(transitVehicle, node, nextLink, transitLine):
     newLink.setUseRoadTypeNonAllowedVehicles(False)
     # create list of banned vehicles
     bannedVehicles = []
-    sectionType = model.getType("GKVehicle")
-    for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
-        for vehicle in iter(types.values()):
-            if vehicle != transitVehicle:
-                bannedVehicles.append(vehicle)
+    for vehicle in allVehicles:
+        if vehicle != transitVehicle:
+            bannedVehicles.append(vehicle)
+    # sectionType = model.getType("GKVehicle")
+    # for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
+    #     for vehicle in iter(types.values()):
+    #         if vehicle != transitVehicle:
+    #             bannedVehicles.append(vehicle)
     # set the banned vehicles on the section
     if len(bannedVehicles)>0:
         newLink.setNonAllowedVehicles(bannedVehicles)
@@ -295,7 +302,7 @@ def addBusStop(fromNodeId, toNodeId, lineId, start):
     # TODO add a parameter to set the stop length and position
 
 # Function to build the transit lines Aimsun
-def addTransitLine(lineId, lineName, pathList, stopsList, transitVehicle):
+def addTransitLine(lineId, lineName, pathList, stopsList, transitVehicle, allVehicles):
     cmd = model.createNewCmd( model.getType( "GKPublicLine" ) )
     cmd.setModel( model )
     model.getCommander().addCommand( cmd )
@@ -309,7 +316,7 @@ def addTransitLine(lineId, lineName, pathList, stopsList, transitVehicle):
     startNode = model.getCatalog().findObjectByExternalId(pathList[0], sectionType)
     sectionType = model.getType("GKSection")
     firstLink = model.getCatalog().findByName(f"link{pathList[0]}_{pathList[1]}", sectionType)
-    dummyLink = addDummyLink(transitVehicle, startNode, firstLink, ptLine)
+    dummyLink = addDummyLink(transitVehicle, startNode, firstLink, ptLine, allVehicles)
     ptLine.add(dummyLink, None)
     # Build the list of bus stops
     # If there is no stop at a node add None to the list
@@ -357,6 +364,12 @@ def importTransit(fileName):
     print("Importing Transit Network")
     print("Reading transit file")
     nodes, stops, lines = readTransitFile(fileName)
+    # Cache the vehicle types
+    allVehicles=[]
+    sectionType = model.getType("GKVehicle")
+    for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
+        for vehicle in iter(types.values()):
+            allVehicles.append(vehicle)
     # add each line one at a time
     lineName = None
     lineId = None
@@ -379,7 +392,7 @@ def importTransit(fileName):
             if stopsList[j] != 0.0 or j==(len(pathList)-1):
                 addBusStop(pathList[j-1],pathList[j],lineId,False)
         # add the transit line
-        addTransitLine(lineId,lineName,pathList,stopsList,lineVehicle)
+        addTransitLine(lineId,lineName,pathList,stopsList,lineVehicle,allVehicles)
     print("Transit Import Complete")
 
 def createCentroid(nodeId):
@@ -518,6 +531,13 @@ def main(argv):
     print("Import Network")
     print("Define modes")
     modes = defineModes(f"{argv[2]}/modes.201")
+    importTransitVehicles(f"{argv[2]}/vehicles.202")
+    # Cache the vehicle types
+    allVehicles=[]
+    sectionType = model.getType("GKVehicle")
+    for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
+        for vehicle in iter(types.values()):
+            allVehicles.append(vehicle)
     print("Read Data File")
     links, nodes, centroids = readFile(f"{argv[2]}/base.211")
     nodeStartTime = time.perf_counter()
@@ -540,7 +560,7 @@ def main(argv):
     infoStepSize = int(len(links)/10)
     for link in links:
         counter += 1
-        addLink(link)
+        addLink(link, allVehicles)
         # output the progress of the import
         if (counter % infoStepSize) == 0:
             print(f"{counter} links added")
@@ -559,7 +579,6 @@ def main(argv):
     print(f"Time to add centroids: {centroidEndTime-centroidStartTime}")
     # Import the transit network
     transitStartTime = time.perf_counter()
-    importTransitVehicles(f"{argv[2]}/vehicles.202")
     importTransit(f"{argv[2]}/transit.221")
     transitEndTime = time.perf_counter()
     print(f"Time to import transit: {transitEndTime-transitStartTime}s")
