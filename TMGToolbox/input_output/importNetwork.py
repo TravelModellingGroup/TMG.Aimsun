@@ -76,6 +76,21 @@ def addLink(link):
         lane = GKSectionLane()
         newLink.addLane(lane)
     #TODO add set the allowed modes on the link
+    # set the allowed mode by link not road type
+    newLink.setUseRoadTypeNonAllowedVehicles(False)
+    # create list of banned vehicles
+    bannedVehicles = []
+    allowedModes = link[4]
+    sectionType = model.getType("GKVehicle")
+    for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
+        for vehicle in iter(types.values()):
+            mode = vehicle.getTransportationMode().getExternalId()
+            if mode not in allowedModes:
+                bannedVehicles.append(vehicle)
+    # set the banned vehicles on the section
+    if len(bannedVehicles)>0:
+        newLink.setNonAllowedVehicles(bannedVehicles)
+
     #TODO add the type, not sure how to represent this
     #TODO add the volume delay function
     # Add Data 2 which is free flow speed
