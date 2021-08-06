@@ -19,7 +19,7 @@ def readFile(filename):
     with open(filename, 'r') as f:
         lines = f.readlines()
     for line in lines:
-        if line[0] == 'c':
+        if len(line)==0 or line[0] == 'c':
             continue
         elif line[0] == 't':
             currentlyReading = line.split()[1]
@@ -76,6 +76,21 @@ def addLink(link):
         lane = GKSectionLane()
         newLink.addLane(lane)
     #TODO add set the allowed modes on the link
+    # set the allowed mode by link not road type
+    newLink.setUseRoadTypeNonAllowedVehicles(False)
+    # create list of banned vehicles
+    bannedVehicles = []
+    allowedModes = link[4]
+    sectionType = model.getType("GKVehicle")
+    for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
+        for vehicle in iter(types.values()):
+            mode = vehicle.getTransportationMode().getExternalId()
+            if mode not in allowedModes:
+                bannedVehicles.append(vehicle)
+    # set the banned vehicles on the section
+    if len(bannedVehicles)>0:
+        newLink.setNonAllowedVehicles(bannedVehicles)
+
     #TODO add the type, not sure how to represent this
     #TODO add the volume delay function
     # Add Data 2 which is free flow speed
@@ -373,14 +388,8 @@ def defineModes(filename):
     with open(filename, 'r') as f:
         lines = f.readlines()
     for line in lines:
-        # Check that the line isn't blank
-        if len(line)==0:
-            continue
-        if line[0] == 'a':
-            lineItems = shlex.split(line)
-            # Check that the line has at least the required info
-            if len(lineItems) < 3:
-                continue
+        lineItems = shlex.split(line)
+        if len(line)>0 and len(lineItems) >= 3 and line[0] == 'a':
             # Create a mode object
             newMode = GKSystem.getSystem().newObject("GKTransportationMode", model)
             newMode.setName(lineItems[2])
@@ -400,12 +409,42 @@ def defineModes(filename):
         folder.append(veh)
     return modes, vehicleTypes
 
+def importTransitVehicles(filename):
+    vehicles = []
+    # read the file
+    with open(filename, 'r') as f:
+        lines = f.readlines()
+    for line in lines:
+        lineItems = shlex.split(line)
+        if len(line)>0 and len(lineItems)>=12 and line[0]=='a':
+            newVeh = GKSystem.getSystem().newObject("GKVehicle", model)
+            newVeh.setName(lineItems[2])
+            newVeh.setExternalId(f"transitVeh_{lineItems[1]}")
+            sectionType = model.getType("GKTransportationMode")
+            mode = model.getCatalog().findObjectByExternalId(lineItems[3], sectionType)
+            if mode != None:
+                newVeh.setTransportationMode(mode)
+            # Set capacity type to passengers
+            newVeh.setCapacityType(0)
+            newVeh.setCapacity(float(lineItems[6]))
+            newVeh.setSeatingCapacity(float(lineItems[5]))
+            # TODO find where to add auto equivalent value
+            vehicles.append(newVeh)
+    # Save the transit vehicles within the aimsun network file
+    folderName = "GKModel::vehicles"
+    folder = model.getCreateRootFolder().findFolder( folderName )
+    if folder == None:
+        folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
+    for veh in vehicles:
+        folder.append(veh)
+    return vehicles
+
 # Main script to complete the full netowrk import
 def main(argv):
     overallStartTime = time.perf_counter()
-    if len(argv) < 6:
+    if len(argv) < 3:
         print("Incorrect Number of Arguments")
-        print("Arguments: -script script.py blankAimsunProjectFile.ang baseNetowrkFile.211 transitFile.221 modesFile.201 outputNetworkFile.ang")
+        print("Arguments: -script script.py blankAimsunProjectFile.ang networkDirectory outputNetworkFile.ang")
         return -1
     # Start a console
     console = ANGConsole()
@@ -421,9 +460,9 @@ def main(argv):
     # Import the new network
     print("Import Network")
     print("Define modes")
-    modes = defineModes(argv[4])
+    modes = defineModes(f"{argv[2]}/modes.201")
     print("Read Data File")
-    links, nodes, centroids = readFile(argv[2])
+    links, nodes, centroids = readFile(f"{argv[2]}/base.211")
     nodeStartTime = time.perf_counter()
     print("Adding Nodes")
     print(f"Number of Nodes to Import: {len(nodes)}")
@@ -463,7 +502,8 @@ def main(argv):
     print(f"Time to add centroids: {centroidEndTime-centroidStartTime}")
     # Import the transit network
     transitStartTime = time.perf_counter()
-    importTransit(argv[3])
+    importTransitVehicles(f"{argv[2]}/vehicles.202")
+    importTransit(f"{argv[2]}/transit.221")
     transitEndTime = time.perf_counter()
     print(f"Time to import transit: {transitEndTime-transitStartTime}s")
     # Draw all graphical elements to the visible network layer
@@ -472,7 +512,7 @@ def main(argv):
     print("Finished Import")
     # Save the network to file
     print("Save Network")
-    console.save(argv[5])
+    console.save(argv[3])
     overallEndTime = time.perf_counter()
     print(f"Overall Runtime: {overallEndTime-overallStartTime}s")
     # Reset the Aimsun undo buffer
