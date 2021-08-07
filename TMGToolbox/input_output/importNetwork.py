@@ -402,7 +402,7 @@ def createCentroid(nodeId):
     nodeConnection = GKSystem.getSystem().newObject("GKCenConnection", model)
     nodeConnection.setOwner(centroid)
     nodeConnection.setConnectionObject(node)
-    nodeConnection.setConnectionType(3)
+    nodeConnection.setConnectionType(3) # to and from connection
     centroid.addConnection(nodeConnection)
     centroid.setPositionByConnections()
     return centroid
@@ -429,6 +429,27 @@ def createCentroidConfiguration(name, listOfCentroidIds):
         folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
     folder.append(centroidConfig)
     return centroidConfig
+
+def createTransitCentroidConnections(centroidConfiguration):
+    centroids = centroidConfiguration.getCentroids()
+    geomodel = model.getGeoModel()
+    sectionType = model.getType("GKBusStop")
+    for centroid in centroids:
+        # Get all stops within 3km distance
+        nearbyStops = geomodel.findClosestObjects(centroid.getPosition(),3000.0,sectionType)
+        # If no stops within 3km get the closest stop
+        if nearbyStops is None:
+            nearbyStops = geomodel.findClosestObject(centroid.getPosition(), sectionType)
+        # If no stops found move to the next centroid
+        if nearbyStops is None:
+            continue
+        for stop in nearbyStops:
+            stopConnection = GKSystem.getSystem().newObject("GKCenConnection", model)
+            stopConnection.setOwner(centroid)
+            stopConnection.setConnectionObject(stop)
+            stopConnection.setConnectionType(3) # to and from connection
+            centroid.addConnection(stopConnection)
+    return centroidConfiguration
 
 # Reads the modes file and defines all possible modes on the netowrk
 def defineModes(filename):
@@ -569,6 +590,7 @@ def main(argv):
     # Import the transit network
     transitStartTime = time.perf_counter()
     importTransit(f"{argv[2]}/transit.221")
+    createTransitCentroidConnections(centroidConfig)
     transitEndTime = time.perf_counter()
     print(f"Time to import transit: {transitEndTime-transitStartTime}s")
     # Draw all graphical elements to the visible network layer
