@@ -34,7 +34,21 @@ def readServiceTables(fileLocation, header=True):
         serviceTables.append((transitLine, departures, arrivals))
     return serviceTables
 
-def addServiceToLine(lineId, departures, arrivals):
+# Function uses the dummy link at the start of the transit line to find the transit vehicle
+def findTransitVehicle(transitLine):
+    transitVehicle = None
+    vehType = model.getType("GKVehicle")
+    sectionType = model.getType("GKSection")
+    dummyLinkId = f"dummylink_{transitLine.getExternalId()}"
+    dummyLink = model.getCatalog().findObjectByExternalId(dummyLinkId, sectionType)
+    for types in model.getCatalog().getUsedSubTypesFromType( vehType ):
+        for veh in iter(types.values()):
+            if dummyLink.canUseVehicle(veh) == True:
+                transitVehicle = veh
+                return transitVehicle
+    return transitVehicle
+
+def addServiceToLine(lineId, departures, arrivals, vehicle=None):
     sectionType = model.getType("GKPublicLine")
     transitLine = model.getCatalog().findObjectByExternalId(lineId, sectionType)
     timeTable = GKSystem.getSystem().newObject("GKPublicLineTimeTable", model)
@@ -48,11 +62,15 @@ def addServiceToLine(lineId, departures, arrivals):
     duration = GKTimeDuration(0,0,0)
     duration = duration.addSecs(timeDelta)
     schedule.setDuration(duration)
+    departureVeh = vehicle
+    if departureVeh == None:
+        departureVeh = findTransitVehicle(transitLine)
     for d in departures:
         timeElements = d.split(":")
         departureTime = datetime.time(int(timeElements[0]),int(timeElements[1]),int(timeElements[2]))
         departure = GKPublicLineTimeTableScheduleDeparture()
         departure.setDepartureTime(departureTime)
+        departure.setVehicle(departureVeh)
         schedule.addDepartureTime(departure)
     # TODO add in the dwell times
     timeTable.addSchedule(schedule)
