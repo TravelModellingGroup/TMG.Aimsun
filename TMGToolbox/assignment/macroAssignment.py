@@ -90,13 +90,13 @@ experiment.getStatsManager().createTrafficState()
 # Save to the network file
 folderName = "GKModel::top::scenarios"
 folder = model.getCreateRootFolder().findFolder( folderName )
-if folder == None:
+if folder is None:
     folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
 folder.append(scenario)
 folder.append(experiment)
 folderName = "GKModel::trafficDemand"
 folder = model.getCreateRootFolder().findFolder( folderName )
-if folder == None:
+if folder is None:
     folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
 folder.append(trafficDemand)
 # Save the network file

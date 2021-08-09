@@ -14,13 +14,13 @@ def readServiceTables(fileLocation, header=True):
     arrivals = []
     with open(fileLocation) as csvfile:
         reader = csv.reader(csvfile)
-        if header==True:
+        if header is True:
             next(reader)
         for line in reader:
             # Check that the line has reuqired number of values
             if len(line) >= 3:
                 # if there is a change in the transit line being read add to the output
-                if transitLine != None and line[0] != transitLine:
+                if transitLine is not None and line[0] != transitLine:
                     serviceTables.append((transitLine, departures, arrivals))
                     transitLine = None
                     departures = []
@@ -30,7 +30,7 @@ def readServiceTables(fileLocation, header=True):
                 departures.append(line[1])
                 arrivals.append(line[2])
     # add in the last line
-    if transitLine != None:
+    if transitLine is not None:
         serviceTables.append((transitLine, departures, arrivals))
     return serviceTables
 
@@ -43,7 +43,7 @@ def findTransitVehicle(transitLine):
     dummyLink = model.getCatalog().findObjectByExternalId(dummyLinkId, sectionType)
     for types in model.getCatalog().getUsedSubTypesFromType( vehType ):
         for veh in iter(types.values()):
-            if dummyLink.canUseVehicle(veh) == True:
+            if dummyLink.canUseVehicle(veh) is True:
                 transitVehicle = veh
                 return transitVehicle
     return transitVehicle
@@ -63,7 +63,7 @@ def addServiceToLine(lineId, departures, arrivals, vehicle=None):
     duration = duration.addSecs(timeDelta)
     schedule.setDuration(duration)
     departureVeh = vehicle
-    if departureVeh == None:
+    if departureVeh is None:
         departureVeh = findTransitVehicle(transitLine)
     for d in departures:
         timeElements = d.split(":")

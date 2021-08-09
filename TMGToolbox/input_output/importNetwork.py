@@ -122,7 +122,7 @@ def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles):
     # create list of banned vehicles
     bannedVehicles = []
     for vehicle in allVehicles:
-        if vehicle != transitVehicle:
+        if vehicle is not transitVehicle:
             bannedVehicles.append(vehicle)
     # set the banned vehicles on the section
     if len(bannedVehicles)>0:
@@ -160,9 +160,9 @@ def buildTurnings():
                 link = linkConnection.getConnectionObject()
                 origin = link.getOrigin()
                 destination = link.getDestination()
-                if origin == node:
+                if origin is node:
                     linksOut.append(link)
-                if destination == node:
+                if destination is node:
                     linksIn.append(link)
             for entering in linksIn:
                 for exiting in linksOut:
@@ -215,7 +215,7 @@ def readTransitFile(filename):
         lines = f.readlines()
     for line in lines:
         if line[0] == 'c' or line[0] == 't':
-            if currentlyReadingLine != None:
+            if currentlyReadingLine is not None:
                 nodes.append(lineNodes)
                 stops.append(lineStops)
                 transitLines.append(lineInfo)
@@ -226,7 +226,7 @@ def readTransitFile(filename):
             lineStops = []
         elif line[0] == 'a':
             # if there is a line that was being read add it
-            if currentlyReadingLine != None:
+            if currentlyReadingLine is not None:
                 nodes.append(lineNodes)
                 stops.append(lineStops)
                 transitLines.append(lineInfo)
@@ -244,7 +244,7 @@ def readTransitFile(filename):
                 dwt = float(pathDetails[1][5:])
                 lineStops.append(dwt)
     # if get to the end of the file add the last line that was read
-    if currentlyReadingLine != None:
+    if currentlyReadingLine is not None:
         nodes.append(lineNodes)
         stops.append(lineStops)
         transitLines.append(lineInfo)
@@ -256,7 +256,7 @@ def addBusStop(fromNodeId, toNodeId, lineId, start):
     line = lineId
     busStop=GKSystem.getSystem().newObject("GKBusStop",model)
     model.getCatalog().add(busStop)
-    if start==True:
+    if start is True:
         busStop.setName(f"stop_{fromNodeId}_line_{line}")
         busStop.setExternalId(f"stop_{fromNodeId}_line_{line}")
     else:
@@ -273,7 +273,7 @@ def addBusStop(fromNodeId, toNodeId, lineId, start):
         link = linkConnection.getConnectionObject()
         origin = link.getOrigin()
         destination = link.getDestination()
-        if (origin == fromNode and destination == toNode):
+        if (origin is fromNode and destination is toNode):
             stopLink = link
             break
     stopLink.addTopObject(busStop)
@@ -282,7 +282,7 @@ def addBusStop(fromNodeId, toNodeId, lineId, start):
         lanes=1
     busStop.setLanes(lanes-1,lanes-1) #default to the rightmost lane
     # TODO add a parameter that allows trams to be added to the centre lane
-    if start==True:
+    if start is True:
         busStop.setPosition(10.0) # 10m from start of link
     else:
         busStop.setPosition(stopLink.getLaneLength2D(lanes-1)-10.0) # 10m back from end of link
@@ -314,7 +314,7 @@ def addTransitLine(lineId, lineName, pathList, stopsList, transitVehicle, allVeh
         if stopsList[i] != 0.0 or i==(len(pathList)-1):
             sectionType = model.getType("GKBusStop")
             busStop=model.getCatalog().findObjectByExternalId(f"stop_{stop}_line_{lineId}")
-            if busStop != None:
+            if busStop is not None:
                 busStops.append(busStop)
             else:
                 print(f"stop_{stop}_line_{lineId} not found")
@@ -332,14 +332,14 @@ def addTransitLine(lineId, lineName, pathList, stopsList, transitVehicle, allVeh
             link = linkConnection.getConnectionObject()
             origin = link.getOrigin()
             destination = link.getDestination()
-            if (origin == fromNode and destination == toNode):
+            if (origin is fromNode and destination is toNode):
                 pathLink = link
                 break
-        if pathLink!=None:
+        if pathLink is not None:
             ptLine.add(pathLink, None)
     # add the stop list to the line
     ptLine.setStops(busStops)
-    if ptLine.isCorrect()[0]==True:
+    if ptLine.isCorrect()[0] is True:
         print (f"Transit Line {lineId} {lineName} was imported")
     else:
         print (f"Issue importing Transit Line {lineId} {lineName}")
@@ -385,7 +385,7 @@ def createCentroid(nodeId):
     # If no create new centroid and connect to the node
     sectionType = model.getType("GKCentroid")
     existingCentroid = model.getCatalog().findObjectByExternalId(f"centroid_{nodeId}", sectionType)
-    if existingCentroid != None:
+    if existingCentroid is not None:
         return existingCentroid
     # Create the centroid
     centroid = GKSystem.getSystem().newObject("GKCentroid", model)
@@ -420,7 +420,7 @@ def createCentroidConfiguration(name, listOfCentroidIds):
     print("save to folder")
     folderName = "GKModel::centroidsConf"
     folder = model.getCreateRootFolder().findFolder( folderName )
-    if folder == None:
+    if folder is None:
         folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
     folder.append(centroidConfig)
     return centroidConfig
@@ -436,7 +436,7 @@ def createTransitCentroidConnections(centroidConfiguration):
         if nearbyStops is None:
             nearbyStops = geomodel.findClosestObject(centroid.getPosition(), sectionType)
         # If no stops found move to the next centroid
-        if nearbyStops != None:
+        if nearbyStops is not None:
             for stop in nearbyStops:
                 stopConnection = GKSystem.getSystem().newObject("GKCenConnection", model)
                 stopConnection.setOwner(centroid)
@@ -451,7 +451,7 @@ def defineModes(filename):
     sectionType = model.getType("GKVehicle")
     for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
         for s in iter(types.values()):
-            if s != None:
+            if s is not None:
                 cmd = s.getDelCmd()
                 model.getCommander().addCommand(cmd)
     model.getCommander().addCommand(None)
@@ -477,7 +477,7 @@ def defineModes(filename):
     # save vehicle in netowrk file
     folderName = "GKModel::vehicles"
     folder = model.getCreateRootFolder().findFolder( folderName )
-    if folder == None:
+    if folder is None:
         folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
     for veh in vehicleTypes:
         folder.append(veh)
@@ -496,7 +496,7 @@ def importTransitVehicles(filename):
             newVeh.setExternalId(f"transitVeh_{lineItems[1]}")
             sectionType = model.getType("GKTransportationMode")
             mode = model.getCatalog().findObjectByExternalId(lineItems[3], sectionType)
-            if mode != None:
+            if mode is not None:
                 newVeh.setTransportationMode(mode)
             # Set capacity type to passengers
             newVeh.setCapacityType(0)
@@ -507,7 +507,7 @@ def importTransitVehicles(filename):
     # Save the transit vehicles within the aimsun network file
     folderName = "GKModel::vehicles"
     folder = model.getCreateRootFolder().findFolder( folderName )
-    if folder == None:
+    if folder is None:
         folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
     for veh in vehicles:
         folder.append(veh)

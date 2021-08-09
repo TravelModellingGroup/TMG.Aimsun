@@ -93,10 +93,10 @@ matrix.setDuration(GKTimeDuration(int(durationTime[0]), int(durationTime[1]), in
 with open(fileLocation) as csvfile:
     reader = csv.reader(csvfile)
     sectionType = model.getType("GKCentroid")
-    if header == True:
+    if header is True:
         next(reader)
     for line in reader:
-        if thirdNormalized == True:
+        if thirdNormalized is True:
             originEID = f"centroid_{line[0]}"
             destinationEID = f"centroid_{line[1]}"
             value = float(line[2])
@@ -113,7 +113,7 @@ with open(fileLocation) as csvfile:
 # Save add the matrix to the network file
 folderName = "GKCentroidConfiguration::matrices"
 folder = model.getCreateRootFolder().findFolder( folderName )
-if folder == None:
+if folder is None:
     folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
 folder.append(matrix)
 # Save the network file
