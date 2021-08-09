@@ -19,19 +19,18 @@ def readFile(filename):
     with open(filename, 'r') as f:
         lines = f.readlines()
     for line in lines:
-        if len(line)==0 or line[0] == 'c':
-            continue
-        elif line[0] == 't':
-            currentlyReading = line.split()[1]
-        elif line[0] == 'a':
-            if currentlyReading == 'nodes':
-                nodes.append(line.split())
-                # a* indicates that the node is a centroid
-                if line[1] == "*":
-                    centroids.append(line.split()[1])
-            elif currentlyReading == 'links':
-                links.append(line.split())
-
+        # Check if the line isn't blank
+        if len(line)!=0:
+            if line[0] == 't':
+                currentlyReading = line.split()[1]
+            if line[0] == 'a':
+                if currentlyReading == 'nodes':
+                    nodes.append(line.split())
+                    # a* indicates that the node is a centroid
+                    if line[1] == "*":
+                        centroids.append(line.split()[1])
+                elif currentlyReading == 'links':
+                    links.append(line.split())
     return links, nodes, centroids
 
 # Function to create a node object in Aimsun
@@ -123,7 +122,7 @@ def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles):
     # create list of banned vehicles
     bannedVehicles = []
     for vehicle in allVehicles:
-        if vehicle != transitVehicle:
+        if vehicle is not transitVehicle:
             bannedVehicles.append(vehicle)
     # set the banned vehicles on the section
     if len(bannedVehicles)>0:
@@ -161,9 +160,9 @@ def buildTurnings():
                 link = linkConnection.getConnectionObject()
                 origin = link.getOrigin()
                 destination = link.getDestination()
-                if origin == node:
+                if origin is node:
                     linksOut.append(link)
-                if destination == node:
+                if destination is node:
                     linksIn.append(link)
             for entering in linksIn:
                 for exiting in linksOut:
@@ -257,7 +256,7 @@ def addBusStop(fromNodeId, toNodeId, lineId, start):
     line = lineId
     busStop=GKSystem.getSystem().newObject("GKBusStop",model)
     model.getCatalog().add(busStop)
-    if start==True:
+    if start is True:
         busStop.setName(f"stop_{fromNodeId}_line_{line}")
         busStop.setExternalId(f"stop_{fromNodeId}_line_{line}")
     else:
@@ -274,7 +273,7 @@ def addBusStop(fromNodeId, toNodeId, lineId, start):
         link = linkConnection.getConnectionObject()
         origin = link.getOrigin()
         destination = link.getDestination()
-        if (origin == fromNode and destination == toNode):
+        if (origin is fromNode and destination is toNode):
             stopLink = link
             break
     stopLink.addTopObject(busStop)
@@ -283,7 +282,7 @@ def addBusStop(fromNodeId, toNodeId, lineId, start):
         lanes=1
     busStop.setLanes(lanes-1,lanes-1) #default to the rightmost lane
     # TODO add a parameter that allows trams to be added to the centre lane
-    if start==True:
+    if start is True:
         busStop.setPosition(10.0) # 10m from start of link
     else:
         busStop.setPosition(stopLink.getLaneLength2D(lanes-1)-10.0) # 10m back from end of link
@@ -333,16 +332,14 @@ def addTransitLine(lineId, lineName, pathList, stopsList, transitVehicle, allVeh
             link = linkConnection.getConnectionObject()
             origin = link.getOrigin()
             destination = link.getDestination()
-            if (origin == fromNode and destination == toNode):
+            if (origin is fromNode and destination is toNode):
                 pathLink = link
                 break
-        if pathLink!=None:
+        if pathLink != None:
             ptLine.add(pathLink, None)
-        else:
-            continue
     # add the stop list to the line
     ptLine.setStops(busStops)
-    if ptLine.isCorrect()[0]==True:
+    if ptLine.isCorrect()[0] is True:
         print (f"Transit Line {lineId} {lineName} was imported")
     else:
         print (f"Issue importing Transit Line {lineId} {lineName}")
@@ -373,10 +370,8 @@ def importTransit(fileName):
         stopsList = stops[i]
         print(f"Adding Line {lineId} {lineName}")
         # add all of the stops in the line to the network
-        for j in range(len(pathList)):
-            # fist stop will be on dummy link so don't add bus stop
-            if j==0:
-                continue
+        # fist stop will be on dummy link so don't add bus stop
+        for j in range(1, len(pathList)):
             # add a stop if there is a non zero dwell time or if is end of line
             if stopsList[j] != 0.0 or j==(len(pathList)-1):
                 addBusStop(pathList[j-1],pathList[j],lineId,False)
@@ -418,14 +413,14 @@ def createCentroidConfiguration(name, listOfCentroidIds):
     print("create and add the centroids")
     for centroidId in listOfCentroidIds:
         centroid = createCentroid(centroidId)
-        if centroidConfig.contains(centroid):
-            continue
-        centroidConfig.addCentroid(centroid)
+        # Add the centroid to the centroid configuration if not already included
+        if centroidConfig.contains(centroid) is False:
+            centroidConfig.addCentroid(centroid)
     # save the centroid configuration
     print("save to folder")
     folderName = "GKModel::centroidsConf"
     folder = model.getCreateRootFolder().findFolder( folderName )
-    if folder == None:
+    if folder is None:
         folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
     folder.append(centroidConfig)
     return centroidConfig
@@ -482,7 +477,7 @@ def defineModes(filename):
     # save vehicle in netowrk file
     folderName = "GKModel::vehicles"
     folder = model.getCreateRootFolder().findFolder( folderName )
-    if folder == None:
+    if folder is None:
         folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
     for veh in vehicleTypes:
         folder.append(veh)
@@ -512,7 +507,7 @@ def importTransitVehicles(filename):
     # Save the transit vehicles within the aimsun network file
     folderName = "GKModel::vehicles"
     folder = model.getCreateRootFolder().findFolder( folderName )
-    if folder == None:
+    if folder is None:
         folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
     for veh in vehicles:
         folder.append(veh)

@@ -14,7 +14,7 @@ def readServiceTables(fileLocation, header=True):
     arrivals = []
     with open(fileLocation) as csvfile:
         reader = csv.reader(csvfile)
-        if header==True:
+        if header is True:
             next(reader)
         for line in reader:
             # Check that the line has reuqired number of values
@@ -43,7 +43,7 @@ def findTransitVehicle(transitLine):
     dummyLink = model.getCatalog().findObjectByExternalId(dummyLinkId, sectionType)
     for types in model.getCatalog().getUsedSubTypesFromType( vehType ):
         for veh in iter(types.values()):
-            if dummyLink.canUseVehicle(veh) == True:
+            if dummyLink.canUseVehicle(veh) is True:
                 transitVehicle = veh
                 return transitVehicle
     return transitVehicle
@@ -63,7 +63,7 @@ def addServiceToLine(lineId, departures, arrivals, vehicle=None):
     duration = duration.addSecs(timeDelta)
     schedule.setDuration(duration)
     departureVeh = vehicle
-    if departureVeh == None:
+    if departureVeh is None:
         departureVeh = findTransitVehicle(transitLine)
     for d in departures:
         timeElements = d.split(":")
