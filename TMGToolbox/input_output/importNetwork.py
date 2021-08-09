@@ -441,14 +441,13 @@ def createTransitCentroidConnections(centroidConfiguration):
         if nearbyStops is None:
             nearbyStops = geomodel.findClosestObject(centroid.getPosition(), sectionType)
         # If no stops found move to the next centroid
-        if nearbyStops is None:
-            continue
-        for stop in nearbyStops:
-            stopConnection = GKSystem.getSystem().newObject("GKCenConnection", model)
-            stopConnection.setOwner(centroid)
-            stopConnection.setConnectionObject(stop)
-            stopConnection.setConnectionType(3) # to and from connection
-            centroid.addConnection(stopConnection)
+        if nearbyStops != None:
+            for stop in nearbyStops:
+                stopConnection = GKSystem.getSystem().newObject("GKCenConnection", model)
+                stopConnection.setOwner(centroid)
+                stopConnection.setConnectionObject(stop)
+                stopConnection.setConnectionType(3) # to and from connection
+                centroid.addConnection(stopConnection)
     return centroidConfiguration
 
 # Reads the modes file and defines all possible modes on the netowrk
