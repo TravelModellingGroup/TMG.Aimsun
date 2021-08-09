@@ -29,7 +29,7 @@ def readFile(filename):
                     # a* indicates that the node is a centroid
                     if line[1] == "*":
                         centroids.append(line.split()[1])
-                if currentlyReading == 'links':
+                elif currentlyReading == 'links':
                     links.append(line.split())
     return links, nodes, centroids
 
@@ -215,7 +215,7 @@ def readTransitFile(filename):
         lines = f.readlines()
     for line in lines:
         if line[0] == 'c' or line[0] == 't':
-            if currentlyReadingLine is not None:
+            if currentlyReadingLine != None:
                 nodes.append(lineNodes)
                 stops.append(lineStops)
                 transitLines.append(lineInfo)
@@ -226,7 +226,7 @@ def readTransitFile(filename):
             lineStops = []
         elif line[0] == 'a':
             # if there is a line that was being read add it
-            if currentlyReadingLine is not None:
+            if currentlyReadingLine != None:
                 nodes.append(lineNodes)
                 stops.append(lineStops)
                 transitLines.append(lineInfo)
@@ -244,7 +244,7 @@ def readTransitFile(filename):
                 dwt = float(pathDetails[1][5:])
                 lineStops.append(dwt)
     # if get to the end of the file add the last line that was read
-    if currentlyReadingLine is not None:
+    if currentlyReadingLine != None:
         nodes.append(lineNodes)
         stops.append(lineStops)
         transitLines.append(lineInfo)
@@ -314,7 +314,7 @@ def addTransitLine(lineId, lineName, pathList, stopsList, transitVehicle, allVeh
         if stopsList[i] != 0.0 or i==(len(pathList)-1):
             sectionType = model.getType("GKBusStop")
             busStop=model.getCatalog().findObjectByExternalId(f"stop_{stop}_line_{lineId}")
-            if busStop is not None:
+            if busStop != None:
                 busStops.append(busStop)
             else:
                 print(f"stop_{stop}_line_{lineId} not found")
@@ -335,7 +335,7 @@ def addTransitLine(lineId, lineName, pathList, stopsList, transitVehicle, allVeh
             if (origin is fromNode and destination is toNode):
                 pathLink = link
                 break
-        if pathLink is not None:
+        if pathLink != None:
             ptLine.add(pathLink, None)
     # add the stop list to the line
     ptLine.setStops(busStops)
@@ -385,7 +385,7 @@ def createCentroid(nodeId):
     # If no create new centroid and connect to the node
     sectionType = model.getType("GKCentroid")
     existingCentroid = model.getCatalog().findObjectByExternalId(f"centroid_{nodeId}", sectionType)
-    if existingCentroid is not None:
+    if existingCentroid != None:
         return existingCentroid
     # Create the centroid
     centroid = GKSystem.getSystem().newObject("GKCentroid", model)
@@ -436,7 +436,7 @@ def createTransitCentroidConnections(centroidConfiguration):
         if nearbyStops is None:
             nearbyStops = geomodel.findClosestObject(centroid.getPosition(), sectionType)
         # If no stops found move to the next centroid
-        if nearbyStops is not None:
+        if nearbyStops != None:
             for stop in nearbyStops:
                 stopConnection = GKSystem.getSystem().newObject("GKCenConnection", model)
                 stopConnection.setOwner(centroid)
@@ -451,7 +451,7 @@ def defineModes(filename):
     sectionType = model.getType("GKVehicle")
     for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
         for s in iter(types.values()):
-            if s is not None:
+            if s != None:
                 cmd = s.getDelCmd()
                 model.getCommander().addCommand(cmd)
     model.getCommander().addCommand(None)
@@ -496,7 +496,7 @@ def importTransitVehicles(filename):
             newVeh.setExternalId(f"transitVeh_{lineItems[1]}")
             sectionType = model.getType("GKTransportationMode")
             mode = model.getCatalog().findObjectByExternalId(lineItems[3], sectionType)
-            if mode is not None:
+            if mode != None:
                 newVeh.setTransportationMode(mode)
             # Set capacity type to passengers
             newVeh.setCapacityType(0)

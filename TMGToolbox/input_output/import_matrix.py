@@ -59,8 +59,8 @@ if centroidConfiguration is None:
     raise Exception(f"The specified centroid configuration '{centroidConfigurationId}' does not exist")
 
 #check if matrix with given id exists and delete it if it does
-if catalog.findObjectByExternalId(matrixId) is not None:
-    while catalog.findObjectByExternalId(matrixId) is not None:
+if catalog.findObjectByExternalId(matrixId) != None:
+    while catalog.findObjectByExternalId(matrixId) != None:
         obj = catalog.findObjectByExternalId(matrixId)
         cmd = obj.getDelCmd()
         model.getCommander().addCommand(cmd)

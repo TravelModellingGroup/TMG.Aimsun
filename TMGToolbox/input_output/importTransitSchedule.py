@@ -20,7 +20,7 @@ def readServiceTables(fileLocation, header=True):
             # Check that the line has reuqired number of values
             if len(line) >= 3:
                 # if there is a change in the transit line being read add to the output
-                if transitLine is not None and line[0] != transitLine:
+                if transitLine != None and line[0] != transitLine:
                     serviceTables.append((transitLine, departures, arrivals))
                     transitLine = None
                     departures = []
@@ -30,7 +30,7 @@ def readServiceTables(fileLocation, header=True):
                 departures.append(line[1])
                 arrivals.append(line[2])
     # add in the last line
-    if transitLine is not None:
+    if transitLine != None:
         serviceTables.append((transitLine, departures, arrivals))
     return serviceTables
 
