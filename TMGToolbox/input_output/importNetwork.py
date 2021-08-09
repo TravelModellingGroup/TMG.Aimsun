@@ -19,19 +19,18 @@ def readFile(filename):
     with open(filename, 'r') as f:
         lines = f.readlines()
     for line in lines:
-        if len(line)==0 or line[0] == 'c':
-            continue
-        elif line[0] == 't':
-            currentlyReading = line.split()[1]
-        elif line[0] == 'a':
-            if currentlyReading == 'nodes':
-                nodes.append(line.split())
-                # a* indicates that the node is a centroid
-                if line[1] == "*":
-                    centroids.append(line.split()[1])
-            elif currentlyReading == 'links':
-                links.append(line.split())
-
+        # Check if the line isn't blank
+        if len(line)!=0:
+            if line[0] == 't':
+                currentlyReading = line.split()[1]
+            if line[0] == 'a':
+                if currentlyReading == 'nodes':
+                    nodes.append(line.split())
+                    # a* indicates that the node is a centroid
+                    if line[1] == "*":
+                        centroids.append(line.split()[1])
+                if currentlyReading == 'links':
+                    links.append(line.split())
     return links, nodes, centroids
 
 # Function to create a node object in Aimsun
@@ -338,8 +337,6 @@ def addTransitLine(lineId, lineName, pathList, stopsList, transitVehicle, allVeh
                 break
         if pathLink!=None:
             ptLine.add(pathLink, None)
-        else:
-            continue
     # add the stop list to the line
     ptLine.setStops(busStops)
     if ptLine.isCorrect()[0]==True:
@@ -373,10 +370,8 @@ def importTransit(fileName):
         stopsList = stops[i]
         print(f"Adding Line {lineId} {lineName}")
         # add all of the stops in the line to the network
-        for j in range(len(pathList)):
-            # fist stop will be on dummy link so don't add bus stop
-            if j==0:
-                continue
+        # fist stop will be on dummy link so don't add bus stop
+        for j in range(1, len(pathList)):
             # add a stop if there is a non zero dwell time or if is end of line
             if stopsList[j] != 0.0 or j==(len(pathList)-1):
                 addBusStop(pathList[j-1],pathList[j],lineId,False)
@@ -418,9 +413,9 @@ def createCentroidConfiguration(name, listOfCentroidIds):
     print("create and add the centroids")
     for centroidId in listOfCentroidIds:
         centroid = createCentroid(centroidId)
-        if centroidConfig.contains(centroid):
-            continue
-        centroidConfig.addCentroid(centroid)
+        # Add the centroid to the centroid configuration if not already included
+        if centroidConfig.contains(centroid) is False:
+            centroidConfig.addCentroid(centroid)
     # save the centroid configuration
     print("save to folder")
     folderName = "GKModel::centroidsConf"
