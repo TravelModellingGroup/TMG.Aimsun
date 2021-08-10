@@ -598,6 +598,7 @@ def main(argv):
     print(f"Overall Runtime: {overallEndTime-overallStartTime}s")
     # Reset the Aimsun undo buffer
     model.getCommander().addCommand( None )
+    return 0
 
 # This node positions is in the Aimsun docs as needed for macro models
 # Not sure what it does for now
@@ -608,4 +609,4 @@ def main(argv):
 #         s.updatePosition()
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+    main(sys.argv)

@@ -17,19 +17,33 @@ from datetime import time
 
 # Temporary bridge to get inputs from CSV file instead of xtmf
 argv = sys.argv
-if len(argv) < 4:
+if len(argv) < 6:
     print("Incorrect Number of Arguments")
-    print("Arguments: -script script.py aimsunNetowrk.ang odMatrix.csv outputNetworkFile.ang")
+    print("Arguments: -script script.py aimsunNetowrk.ang odMatrix.csv matrixDetails.csv matrixID outputNetworkFile.ang")
+
 xtmf_parameters = {
     'matrix_location': argv[2],
     'third_normalized': True,
     'includes_header': True,
-    'matrix_id': 'TestOD',
-    'centroid_configuration': 'baseCentroidConfig',
-    'vehicle_type': 'Car',
+    'matrix_id': argv[4],
+    'centroid_configuration': None,
+    'vehicle_type': None,
     'initial_time': '08:00:00:000',
     'duration_time': '01:00:00:000'
 }
+
+# Use csv file for now for listing the commands
+with open(argv[3]) as csvfile:
+    reader = csv.reader(csvfile)
+    # skip the header line
+    next(reader)
+    for line in reader:
+        if line[1] == argv[4] and len(line)>=6:
+            xtmf_parameters['matrix_id'] = line[1]
+            xtmf_parameters['centroid_configuration'] = line[2]
+            xtmf_parameters['vehicle_type'] = line[3]
+            xtmf_parameters['initial_time'] = line[4]
+            xtmf_parameters['duration'] = line[5]
 
 fileLocation = str(xtmf_parameters['matrix_location'])
 thirdNormalized = bool(xtmf_parameters['third_normalized'])
@@ -70,6 +84,7 @@ if catalog.findObjectByExternalId(matrixId) != None:
 # Create new matrix
 matrix = GKSystem.getSystem().newObject("GKODMatrix", model)
 matrix.setExternalId(matrixId)
+matrix.setName(matrixId)
 matrix.setStoreId( 2 )
 matrix.setStoreType( 0 )
 matrix.setCentroidConfiguration(centroidConfiguration)
@@ -118,5 +133,5 @@ if folder is None:
 folder.append(matrix)
 # Save the network file
 print("Save Network")
-console.save(argv[3])
+console.save(argv[5])
 
