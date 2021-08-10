@@ -19,7 +19,9 @@ if len(argv) < 3:
     print("Arguments: -script script.py aimsunNetowrk.ang outputNetworkFile.ang")
     raise Exception("Invalid input arguments")
 xtmf_parameters = {
-    'matrix': 'TestOD'
+    'matrix': 'testOD',
+    'start': 6,
+    'duration': 3
 }
 console = ANGConsole()
 model = None
@@ -39,8 +41,8 @@ scheduleDemandItem = GKScheduleDemandItem()
 sectionType = model.getType("GKODMatrix")
 odMatrix = model.getCatalog().findObjectByExternalId(xtmf_parameters["matrix"], sectionType)
 # TODO make these paramters for the scenario length
-scheduleDemandItem.setFrom(8*3600)
-scheduleDemandItem.setDuration(1*3600)
+scheduleDemandItem.setFrom(xtmf_parameters["start"]*3600)
+scheduleDemandItem.setDuration(xtmf_parameters["duration"]*3600)
 scheduleDemandItem.setTrafficDemandItem(odMatrix)
 trafficDemand.addToSchedule(scheduleDemandItem)
 
