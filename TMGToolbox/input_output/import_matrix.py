@@ -43,7 +43,7 @@ with open(argv[3]) as csvfile:
             xtmf_parameters['centroid_configuration'] = line[2]
             xtmf_parameters['vehicle_type'] = line[3]
             xtmf_parameters['initial_time'] = line[4]
-            xtmf_parameters['duration'] = line[5]
+            xtmf_parameters['duration_time'] = line[5]
 
 fileLocation = str(xtmf_parameters['matrix_location'])
 thirdNormalized = bool(xtmf_parameters['third_normalized'])
@@ -82,20 +82,31 @@ if catalog.findObjectByExternalId(matrixId) != None:
 
 
 # Create new matrix
-matrix = GKSystem.getSystem().newObject("GKODMatrix", model)
+# set the type of OD matrix if is transit or no
+matrix = None
+if vehicleEID == 'transit':
+    matrix = GKSystem.getSystem().newObject("GKPedestrianODMatrix", model)
+    matrix.Unit = 1 # matrix tracks individuals instead of vehicles
+    matrix.UseRoutesMatrixType = 3
+    print(matrix.Unit)
+    print("adding transit OD matrix")
+else:
+    matrix = GKSystem.getSystem().newObject("GKODMatrix", model)
 matrix.setExternalId(matrixId)
 matrix.setName(matrixId)
-matrix.setStoreId( 2 )
-matrix.setStoreType( 0 )
+matrix.setStoreId( 2 ) # use external ID when storing
+matrix.setStoreType( 0 ) # store in the aimsun file
 matrix.setCentroidConfiguration(centroidConfiguration)
 matrix.setValueToAllCells(0.0)
+matrix.setEnableStore(True)
 
-sectionType = model.getType("GKVehicle")
-if catalog.findByName(vehicleEID, sectionType) is None:
-    raise Exception(f"The specified vehicle type '{vehicleEID}' does not exist")
-else:
-    vehicleType = catalog.findByName(vehicleEID, sectionType)
-    matrix.setVehicle(vehicleType)
+if vehicleEID != 'transit':
+    sectionType = model.getType("GKVehicle")
+    if catalog.findByName(vehicleEID, sectionType) is None:
+        raise Exception(f"The specified vehicle type '{vehicleEID}' does not exist")
+    else:
+        vehicleType = catalog.findByName(vehicleEID, sectionType)
+        matrix.setVehicle(vehicleType)
 
 initialTime = initialTime.split(":")
 startTime = time(int(initialTime[0]),int(initialTime[1]),int(initialTime[2]),int(initialTime[3]))

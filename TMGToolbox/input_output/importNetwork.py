@@ -426,6 +426,44 @@ def createCentroidConfiguration(name, listOfCentroidIds):
     return centroidConfig
 
 def createTransitCentroidConnections(centroidConfiguration):
+    # create pedestrian area
+    pedArea = GKSystem.getSystem().newObject("GKPedestrianArea", model)
+    pedArea.setName("transit_ped_area")
+    pedArea.setExternalId("transit_ped_area")
+    pedArea.addPoint(GKPoint(509314,9160853))
+    pedArea.addPoint(GKPoint(511486,9160853))
+    pedArea.addPoint(GKPoint(511486,9159256))
+    pedArea.addPoint(GKPoint(509311,9159256))
+
+    testCentroid = GKSystem.getSystem().newObject("GKPedestrianEntranceCentroid", model)
+    testCentroid.setExternalId(f"ped_entrance_test")
+    testCentroid.setName(f"ped_entrance_test")
+    testCentroid.setFromPosition(GKPoint(511000,9160000))
+    print(f"Height: {testCentroid.getHeight()}")
+    print(f"Width: {testCentroid.getWidth()}")
+    # testCentroid.setManualPosition(GKPoint(510000,9160000))
+    # testCentroid.setWidth(3)
+    # testCentroid.setHeight(3)
+    # testCentroid.setAngle(0)
+    testCentroid.setPedestrianArea(pedArea)
+    # print(testCentroid.isOrigin())
+    model.getGeoModel().add(model.getGeoModel().findLayer("Network"), testCentroid)
+
+    testCentroid2 = GKSystem.getSystem().newObject("GKPedestrianExitCentroid", model)
+    testCentroid2.setExternalId(f"ped_exit_test")
+    testCentroid2.setName(f"ped_exit_test")
+    testCentroid2.setManualPosition(GKPoint(510010,9160010))
+    testCentroid2.setWidth(3)
+    testCentroid2.setHeight(3)
+    testCentroid2.setAngle(0)
+    testCentroid2.setPedestrianArea(pedArea)
+    print(testCentroid2.isDestination())
+    model.getGeoModel().add(model.getGeoModel().findLayer("Network"), testCentroid)
+    
+    # Create a new pedestrian centroid configuration
+    pedCentroidConfig = GKSystem.getSystem().newObject("GKPedestrianCentroidConfiguration", model)
+    pedCentroidConfig.setName(f"ped_{centroidConfiguration.getName()}")
+    pedCentroidConfig.setExternalId(f"ped_{centroidConfiguration.getExternalId()}")
     centroids = centroidConfiguration.getCentroids()
     geomodel = model.getGeoModel()
     sectionType = model.getType("GKBusStop")
@@ -436,14 +474,57 @@ def createTransitCentroidConnections(centroidConfiguration):
         if nearbyStops is None:
             nearbyStops = geomodel.findClosestObject(centroid.getPosition(), sectionType)
         # If no stops found move to the next centroid
-        if nearbyStops != None:
+        if nearbyStops is not None:
+            # check if there is an existing pedestrian centroid
+            pedCentroidType = model.getType("GKPedestrianEntranceCentroid")
+            entranceCentroid = model.getCatalog().findObjectByExternalId(f"ped_entrance_{centroid.getExternalId()}", pedCentroidType)
+            # if no existing pedestrian centroid create one
+            if entranceCentroid is None:
+                entranceCentroid = GKSystem.getSystem().newObject("GKPedestrianEntranceCentroid", model)
+                entranceCentroid.setExternalId(f"ped_entrance_{centroid.getExternalId()}")
+                entranceCentroid.setName(f"ped_entrance_{centroid.getExternalId()}")
+                entranceCentroid.setFromPosition(centroid.getPosition())
+                entranceCentroid.setWidth(1)
+                entranceCentroid.setHeight(3)
+                entranceCentroid.setPedestrianArea(pedArea)
+                exitCentroid = GKSystem.getSystem().newObject("GKPedestrianExitCentroid", model)
+                exitCentroid.setExternalId(f"ped_exit_{centroid.getExternalId()}")
+                exitCentroid.setName(f"ped_exit_{centroid.getExternalId()}")
+                exitCentroid.setFromPosition(centroid.getPosition())
+                exitCentroid.setWidth(1)
+                exitCentroid.setHeight(3)
+                exitCentroid.setPedestrianArea(pedArea)
+                pedArea.addTopObject(exitCentroid)
+                pedArea.addTopObject(entranceCentroid)
             for stop in nearbyStops:
-                stopConnection = GKSystem.getSystem().newObject("GKCenConnection", model)
-                stopConnection.setOwner(centroid)
-                stopConnection.setConnectionObject(stop)
-                stopConnection.setConnectionType(3) # to and from connection
-                centroid.addConnection(stopConnection)
-    return centroidConfiguration
+                entranceConnection = GKSystem.getSystem().newObject("GKCenConnection", model)
+                entranceConnection.setOwner(entranceCentroid)
+                entranceConnection.setConnectionObject(stop)
+                entranceConnection.setConnectionType(1) # from connection
+                entranceCentroid.addConnection(entranceConnection)
+                exitConnection = GKSystem.getSystem().newObject("GKCenConnection", model)
+                exitConnection.setOwner(exitCentroid)
+                exitConnection.setConnectionObject(stop)
+                exitConnection.setConnectionType(2) # to connection
+                exitCentroid.addConnection(exitConnection)
+                # print(f"Entrance is origin: {entranceCentroid.isOrigin()}")
+                # print(f"Exit is destination: {exitCentroid.isDestination()}")
+            # add the new pedestrian centroid to the pedestrian centroid config
+            pedCentroidConfig.addCentroid(entranceCentroid)
+            pedCentroidConfig.addCentroid(exitCentroid)
+            # add the new centroids to the pedestrian area
+            # pedArea.addCentroid(entranceCentroid)
+            # pedArea.addCentroid(exitCentroid)
+    # pedCentroidConfig.activate()
+    for c in pedCentroidConfig.getCentroids():
+        print(c.getName())
+    print("save to folder")
+    folderName = "GKModel::centroidsConf"
+    folder = model.getCreateRootFolder().findFolder( folderName )
+    if folder is None:
+        folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
+    folder.append(pedCentroidConfig)
+    return pedCentroidConfig
 
 # Reads the modes file and defines all possible modes on the netowrk
 def defineModes(filename):
