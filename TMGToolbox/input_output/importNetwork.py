@@ -430,6 +430,7 @@ def createTransitCentroidConnections(centroidConfiguration):
     geomodel = model.getGeoModel()
     pedestrianLayer = geomodel.findLayer("pedestrianLayer")
     if pedestrianLayer is None:
+        print("making the new layer")
         pedestrianLayer = GKSystem.getSystem().newObject("GKLayer", model)
         pedestrianLayer.setInternalName("pedestrianLayer")
         pedestrianLayer.setName("pedestrianLayer")
@@ -502,7 +503,7 @@ def createTransitCentroidConnections(centroidConfiguration):
             # add the new pedestrian centroid to the pedestrian centroid config
             pedCentroidConfig.addCentroid(entranceCentroid)
             pedCentroidConfig.addCentroid(exitCentroid)       
-    # Test if the centroids are being created
+    # TODO remove test code Test if the centroids are being created
     # for c in pedCentroidConfig.getCentroids():
     #     for s in iter(c.getConnections()):
     #         print(s.getConnectionObject().getExternalId())
@@ -510,11 +511,17 @@ def createTransitCentroidConnections(centroidConfiguration):
     #     print(c.getType().getName())
     # Save the centroid configuration to folder
     print("save to folder")
-    folderName = "GKModel::centroidsConf"
+    # TODO find correct folder name
+    folderName = "GKModel::top::pedestrians"
     folder = model.getCreateRootFolder().findFolder( folderName )
     if folder is None:
         folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
     folder.append(pedCentroidConfig)
+
+    # TODO remove test code
+    for l in iter(geomodel.getLayers()):
+        print(l.getName())
+    
     return pedCentroidConfig
 
 # Reads the modes file and defines all possible modes on the netowrk
