@@ -456,6 +456,19 @@ def createPedestrianCentroidConfig():
     folder.append(pedestrianCentroidConfig)
     return pedestrianCentroidConfig
 
+def createSquarePedArea(centre, size, geomodel, layer, name):
+    x = centre.x
+    y = centre.y
+    pedArea = GKSystem.getSystem().newObject("GKPedestrianArea", model)
+    pedArea.setName(f"pedArea_{name}")
+    pedArea.setExternalId(f"pedArea_{name}")
+    pedArea.addPoint(GKPoint(x-size,y+size))
+    pedArea.addPoint(GKPoint(x+size,y+size))
+    pedArea.addPoint(GKPoint(x+size,y-size))
+    pedArea.addPoint(GKPoint(x-size,y-size))
+    geomodel.add(layer, pedArea)
+    return pedArea
+
 def createTransitCentroidConnections(centroidConfiguration):
     # create pedestrian layer
     geomodel = model.getGeoModel()
@@ -463,47 +476,21 @@ def createTransitCentroidConnections(centroidConfiguration):
     if pedestrianLayer is None:
         print("making the new layer")
         pedestrianLayer = createPedestrianLayer()
-    # create pedestrian area and add to geomodel
-    # TODO make the pedestrian area parameterized
-    testCentX = 510000.0
-    testCentY = 9160000.0
-    pedArea = GKSystem.getSystem().newObject("GKPedestrianArea", model)
-    pedArea.setName("transit_ped_area")
-    pedArea.setExternalId("transit_ped_area")
-    pedArea.addPoint(GKPoint(testCentX-50.0,testCentY+50.0))
-    pedArea.addPoint(GKPoint(testCentX+50.0,testCentY+50.0))
-    pedArea.addPoint(GKPoint(testCentX+50.0,testCentY-50.0))
-    pedArea.addPoint(GKPoint(testCentX-50.0,testCentY-50.0))
-    geomodel.add(pedestrianLayer, pedArea)
     # Create a new pedestrian centroid configuration
     pedCentroidConfig = createPedestrianCentroidConfig()
     centroids = centroidConfiguration.getCentroids()
-    pedCentroids = list()
-    # TODO remove test code
-    testCentroid = GKSystem.getSystem().newObject("GKPedestrianEntranceCentroid", model)
-    testCentroid.setName("Test Centroid")
-    testCentroid.setExternalId("test_centroid")
-    testCentroid.setFromPosition(GKPoint(testCentX, testCentY))
-    testCentroid.setWidth(3.0)
-    testCentroid.setHeight(3.0)
-    testCentroid.recalculateAreaPoints()
-    pedCentroids.append(testCentroid)
-    testCentroid2 = GKSystem.getSystem().newObject("GKPedestrianExitCentroid", model)
-    testCentroid2.setName("Test Centroid2")
-    testCentroid2.setExternalId("test_centroid2")
-    testCentroid2.setFromPosition(GKPoint(testCentX, testCentY))
-    testCentroid2.setWidth(3.0)
-    testCentroid2.setHeight(3.0)
-    testCentroid2.recalculateAreaPoints()
-    pedCentroids.append(testCentroid2)
     # Create centroids and connect all nearby bus stops
     sectionType = model.getType("GKBusStop")
     for centroid in centroids:
+        pedCentroids = list()
+        # Make a pedestrian area around the centroid
+        pedArea = createSquarePedArea(centroid.getPosition(), 3000.0, geomodel, pedestrianLayer, centroid.getExternalId())
         # Get all stops within 3km distance
         nearbyStops = geomodel.findClosestObjects(centroid.getPosition(),3000.0,sectionType)
         # If no stops within 3km get the closest stop
         if nearbyStops is None:
             nearbyStops = geomodel.findClosestObject(centroid.getPosition(), sectionType)
+            # TODO add code to expand the pedestrian area
         # If no stops found move to the next centroid
         if nearbyStops is not None:
             # check if there is an existing pedestrian centroid
@@ -517,6 +504,7 @@ def createTransitCentroidConnections(centroidConfiguration):
                 entranceCentroid.setFromPosition(centroid.getPosition())
                 entranceCentroid.setWidth(3.0)
                 entranceCentroid.setHeight(3.0)
+                entranceCentroid.recalculateAreaPoints()
                 pedCentroids.append(entranceCentroid)
                 exitCentroid = GKSystem.getSystem().newObject("GKPedestrianExitCentroid", model)
                 exitCentroid.setExternalId(f"ped_exit_{centroid.getExternalId()}")
@@ -524,6 +512,7 @@ def createTransitCentroidConnections(centroidConfiguration):
                 exitCentroid.setFromPosition(centroid.getPosition())
                 exitCentroid.setWidth(3.0)
                 exitCentroid.setHeight(3.0)
+                exitCentroid.recalculateAreaPoints()
                 pedCentroids.append(exitCentroid) 
             # Connect the nearby transit stops to the centroids
             for stop in nearbyStops:
@@ -537,13 +526,13 @@ def createTransitCentroidConnections(centroidConfiguration):
                 exitConnection.setConnectionObject(stop)
                 exitConnection.setConnectionType(2) # to connection
                 exitCentroid.addConnection(exitConnection)
-    # Add the newly created pedestrian centroids to the centroid configuration and layer
-    for pedCentroid in pedCentroids:
-        pedCentroid.setPedestrianArea(pedArea)
-        pedCentroid.setCentroidConfiguration(pedCentroidConfig)
-        pedArea.addCentroid(pedCentroid)
-        geomodel.add(pedestrianLayer, pedCentroid)
-        print(f"Created centroid: {pedCentroid.getName()}")
+        # Add the newly created pedestrian centroids to the centroid configuration and layer
+        for pedCentroid in pedCentroids:
+            pedCentroid.setPedestrianArea(pedArea)
+            pedCentroid.setCentroidConfiguration(pedCentroidConfig)
+            pedArea.addCentroid(pedCentroid)
+            geomodel.add(pedestrianLayer, pedCentroid)
+            print(f"Created centroid: {pedCentroid.getName()}")
     
     return pedCentroidConfig
 
