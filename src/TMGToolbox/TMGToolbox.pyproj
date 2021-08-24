@@ -19,16 +19,24 @@
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="TMG.Aimsun\AimsunBridge.py" />
-    <Compile Include="TMGToolbox\assignment\dynamicAssignment.py" />
-    <Compile Include="TMGToolbox\assignment\macroAssignment.py" />
-    <Compile Include="TMGToolbox\common\utilities.py" />
+    <Folder Include="assignment\" />
+    <Folder Include="common\" />
+    <Folder Include="input_output\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="TMG.Aimsun" />
-    <Folder Include="TMGToolbox\" />
-    <Folder Include="TMGToolbox\assignment" />
-    <Folder Include="TMGToolbox\common" />
+    <Compile Include="..\..\aimsum_bridge.py">
+      <Link>aimsum_bridge.py</Link>
+    </Compile>
+    <Compile Include="assignment\dynamicAssignment.py" />
+    <Compile Include="assignment\macroAssignment.py" />
+    <Compile Include="assignment\__init__.py" />
+    <Compile Include="common\utilities.py" />
+    <Compile Include="input_output\exportNetworkPackage.py" />
+    <Compile Include="input_output\importNetwork.py" />
+    <Compile Include="input_output\importTransitSchedule.py" />
+    <Compile Include="input_output\importMatrixFromCSVThirdNormalized.py" />
+    <Compile Include="input_output\importNetworkPackage.py" />
+    <Compile Include="input_output\__init__.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>
