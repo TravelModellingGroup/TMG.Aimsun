@@ -486,7 +486,16 @@ def createTransitCentroidConnections(centroidConfiguration):
     testCentroid.setFromPosition(GKPoint(testCentX, testCentY))
     testCentroid.setWidth(3.0)
     testCentroid.setHeight(3.0)
+    testCentroid.recalculateAreaPoints()
     pedCentroids.append(testCentroid)
+    testCentroid2 = GKSystem.getSystem().newObject("GKPedestrianExitCentroid", model)
+    testCentroid2.setName("Test Centroid2")
+    testCentroid2.setExternalId("test_centroid2")
+    testCentroid2.setFromPosition(GKPoint(testCentX, testCentY))
+    testCentroid2.setWidth(3.0)
+    testCentroid2.setHeight(3.0)
+    testCentroid2.recalculateAreaPoints()
+    pedCentroids.append(testCentroid2)
     # Create centroids and connect all nearby bus stops
     sectionType = model.getType("GKBusStop")
     for centroid in centroids:
@@ -532,6 +541,7 @@ def createTransitCentroidConnections(centroidConfiguration):
     for pedCentroid in pedCentroids:
         pedCentroid.setPedestrianArea(pedArea)
         pedCentroid.setCentroidConfiguration(pedCentroidConfig)
+        pedArea.addCentroid(pedCentroid)
         geomodel.add(pedestrianLayer, pedCentroid)
         print(f"Created centroid: {pedCentroid.getName()}")
     
