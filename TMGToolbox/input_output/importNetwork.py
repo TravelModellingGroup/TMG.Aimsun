@@ -474,7 +474,6 @@ def createTransitCentroidConnections(centroidConfiguration):
     geomodel = model.getGeoModel()
     pedestrianLayer = geomodel.findLayer("Pedestrians Layer")
     if pedestrianLayer is None:
-        print("making the new layer")
         pedestrianLayer = createPedestrianLayer()
     # Create a new pedestrian centroid configuration
     pedCentroidConfig = createPedestrianCentroidConfig()
