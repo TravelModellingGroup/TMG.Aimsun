@@ -334,3 +334,10 @@ venv/
 
 # .idea folder
 .idea/
+
+# Visual Studio Tasks
+tasks.json
+
+# Input and output file directories
+aimsunFiles/
+inputFiles/
