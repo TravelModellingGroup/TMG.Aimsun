@@ -531,7 +531,6 @@ def createTransitCentroidConnections(centroidConfiguration):
             pedCentroid.setCentroidConfiguration(pedCentroidConfig)
             pedArea.addCentroid(pedCentroid)
             geomodel.add(pedestrianLayer, pedCentroid)
-            print(f"Created centroid: {pedCentroid.getName()}")
     
     return pedCentroidConfig
 
