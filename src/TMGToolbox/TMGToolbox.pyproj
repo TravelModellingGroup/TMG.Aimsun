@@ -21,22 +21,22 @@
   <ItemGroup>
     <Folder Include="assignment\" />
     <Folder Include="common\" />
-    <Folder Include="input_output\" />
+    <Folder Include="inputOutput\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\aimsum_bridge.py">
-      <Link>aimsum_bridge.py</Link>
+    <Compile Include="..\..\aimsunBridge.py">
+      <Link>aimsunBridge.py</Link>
     </Compile>
     <Compile Include="assignment\dynamicAssignment.py" />
     <Compile Include="assignment\macroAssignment.py" />
     <Compile Include="assignment\__init__.py" />
     <Compile Include="common\utilities.py" />
-    <Compile Include="input_output\exportNetworkPackage.py" />
-    <Compile Include="input_output\importNetwork.py" />
-    <Compile Include="input_output\importTransitSchedule.py" />
-    <Compile Include="input_output\importMatrixFromCSVThirdNormalized.py" />
-    <Compile Include="input_output\importNetworkPackage.py" />
-    <Compile Include="input_output\__init__.py" />
+    <Compile Include="inputOutput\exportNetworkPackage.py" />
+    <Compile Include="inputOutput\importNetwork.py" />
+    <Compile Include="inputOutput\importTransitSchedule.py" />
+    <Compile Include="inputOutput\importMatrixFromCSVThirdNormalized.py" />
+    <Compile Include="inputOutput\importNetworkPackage.py" />
+    <Compile Include="inputOutput\__init__.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>

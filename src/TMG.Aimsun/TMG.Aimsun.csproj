@@ -45,8 +45,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\aimsum_bridge.py">
-      <Link>aimsum_bridge.py</Link>
+    <Content Include="..\..\aimsunBridge.py">
+      <Link>aimsunBridge.py</Link>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
