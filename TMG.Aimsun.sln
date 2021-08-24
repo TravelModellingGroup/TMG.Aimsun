@@ -1,9 +1,22 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2046
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31521.260
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "TMG.Aimsun", "TMG.Aimsun.pyproj", "{65137642-FC78-4537-B8DD-704968F6AB6D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B393F3E0-2DF8-4BC8-AADF-C4AF69AA6C06}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{71716AA3-6CD6-42E7-AAB0-58AA1D342A61}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TMG.Aimsun", "src\TMG.Aimsun\TMG.Aimsun.csproj", "{C7EE0F7C-CF7E-4F4A-9E50-598AA07F05FD}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "TMGToolbox", "src\TMGToolbox\TMGToolbox.pyproj", "{65137642-FC78-4537-B8DD-704968F6AB6D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TMG.Aimsun.Tests", "test\TMG.Aimsun.Tests\TMG.Aimsun.Tests.csproj", "{6597C2DA-7BB9-49BF-A08C-4A263231FB12}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6BAF1F2A-496A-4E7D-BE6A-C1E3E1A0D98D}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,11 +24,24 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C7EE0F7C-CF7E-4F4A-9E50-598AA07F05FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7EE0F7C-CF7E-4F4A-9E50-598AA07F05FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7EE0F7C-CF7E-4F4A-9E50-598AA07F05FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7EE0F7C-CF7E-4F4A-9E50-598AA07F05FD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{65137642-FC78-4537-B8DD-704968F6AB6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{65137642-FC78-4537-B8DD-704968F6AB6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6597C2DA-7BB9-49BF-A08C-4A263231FB12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6597C2DA-7BB9-49BF-A08C-4A263231FB12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6597C2DA-7BB9-49BF-A08C-4A263231FB12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6597C2DA-7BB9-49BF-A08C-4A263231FB12}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C7EE0F7C-CF7E-4F4A-9E50-598AA07F05FD} = {B393F3E0-2DF8-4BC8-AADF-C4AF69AA6C06}
+		{65137642-FC78-4537-B8DD-704968F6AB6D} = {B393F3E0-2DF8-4BC8-AADF-C4AF69AA6C06}
+		{6597C2DA-7BB9-49BF-A08C-4A263231FB12} = {71716AA3-6CD6-42E7-AAB0-58AA1D342A61}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6BE4ED78-DCCB-4DEF-AB6C-0BDC4734A439}
