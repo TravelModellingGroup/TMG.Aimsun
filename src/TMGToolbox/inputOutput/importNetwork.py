@@ -469,6 +469,24 @@ def createSquarePedArea(centre, size, geomodel, layer, name):
     geomodel.add(layer, pedArea)
     return pedArea
 
+# Create a Pedestrian area that will cover all nodes in the network
+def createGlobalPedArea(geomodel, layer, name):
+    sectionType = model.getType("GKNode")
+    nodes = GKPoints()
+    for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
+        for s in iter(types.values()):
+            nodes.append(s.getPosition())
+
+    pedArea = GKSystem.getSystem().newObject("GKPedestrianArea", model)
+    pedArea.setName(f"pedArea_{name}")
+    pedArea.setExternalId(f"pedArea_{name}")
+    box = GKBBox()
+    box.set(nodes)
+    box.expandWidth(20.0)
+    box.expandHeight(20.0)
+    geomodel.add(layer, pedArea)
+    return pedArea
+
 def createTransitCentroidConnections(centroidConfiguration):
     # create pedestrian layer
     geomodel = model.getGeoModel()
@@ -478,12 +496,12 @@ def createTransitCentroidConnections(centroidConfiguration):
     # Create a new pedestrian centroid configuration
     pedCentroidConfig = createPedestrianCentroidConfig()
     centroids = centroidConfiguration.getCentroids()
+    # Create a global pedestrian area
+    pedArea = createGlobalPedArea(geomodel, pedestrianLayer, "full")
     # Create centroids and connect all nearby bus stops
     sectionType = model.getType("GKBusStop")
     for centroid in centroids:
         pedCentroids = list()
-        # Make a pedestrian area around the centroid
-        pedArea = createSquarePedArea(centroid.getPosition(), 3000.0, geomodel, pedestrianLayer, centroid.getExternalId())
         # Get all stops within 3km distance
         nearbyStops = geomodel.findClosestObjects(centroid.getPosition(),3000.0,sectionType)
         # If no stops within 3km get the closest stop
