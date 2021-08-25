@@ -469,6 +469,30 @@ def createSquarePedArea(centre, size, geomodel, layer, name):
     geomodel.add(layer, pedArea)
     return pedArea
 
+# Create a Pedestrian area that will cover all nodes in the network
+def createGlobalPedArea(geomodel, layer, name):
+    # Get all the nodes in model
+    sectionType = model.getType("GKNode")
+    nodes = GKPoints()
+    for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
+        for s in iter(types.values()):
+            nodes.append(s.getPosition())
+    # create the pedestrian area
+    pedArea = GKSystem.getSystem().newObject("GKPedestrianArea", model)
+    pedArea.setName(f"pedArea_{name}")
+    pedArea.setExternalId(f"pedArea_{name}")
+    # get a bounding box that contains all the nodes
+    box = GKBBox()
+    box.set(nodes)
+    # add a buffer around the edge
+    box.expandWidth(20.0)
+    box.expandHeight(20.0)
+    # set the pedestrian area
+    for p in box.as2DPolygon():
+        pedArea.addPoint(p)
+    geomodel.add(layer, pedArea)
+    return pedArea
+
 def createTransitCentroidConnections(centroidConfiguration):
     # create pedestrian layer
     geomodel = model.getGeoModel()
@@ -478,12 +502,12 @@ def createTransitCentroidConnections(centroidConfiguration):
     # Create a new pedestrian centroid configuration
     pedCentroidConfig = createPedestrianCentroidConfig()
     centroids = centroidConfiguration.getCentroids()
+    # Create a global pedestrian area
+    pedArea = createGlobalPedArea(geomodel, pedestrianLayer, "full")
     # Create centroids and connect all nearby bus stops
     sectionType = model.getType("GKBusStop")
     for centroid in centroids:
         pedCentroids = list()
-        # Make a pedestrian area around the centroid
-        pedArea = createSquarePedArea(centroid.getPosition(), 3000.0, geomodel, pedestrianLayer, centroid.getExternalId())
         # Get all stops within 3km distance
         nearbyStops = geomodel.findClosestObjects(centroid.getPosition(),3000.0,sectionType)
         # If no stops within 3km get the closest stop
@@ -571,6 +595,18 @@ def defineModes(filename):
     for veh in vehicleTypes:
         folder.append(veh)
     return modes, vehicleTypes
+
+def definePedestrianType():
+    sectionType = model.getType("GKPedestrianType")
+    # save vehicle in netowrk file
+    folderName = "GKModel::pedestrianTypes"
+    newVeh = GKSystem.getSystem().newObject("GKPedestrianType", model)
+    newVeh.setName("Pedestrian")
+    folder = model.getCreateRootFolder().findFolder( folderName )
+    if folder is None:
+        folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
+    folder.append(newVeh)
+    return newVeh
 
 def importTransitVehicles(filename):
     vehicles = []
@@ -674,6 +710,7 @@ def main(argv):
     transitStartTime = time.perf_counter()
     importTransit(f"{argv[2]}/transit.221")
     createTransitCentroidConnections(centroidConfig)
+    pedestrianType = definePedestrianType()
     transitEndTime = time.perf_counter()
     print(f"Time to import transit: {transitEndTime-transitStartTime}s")
     # Draw all graphical elements to the visible network layer
