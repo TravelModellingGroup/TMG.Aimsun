@@ -596,6 +596,18 @@ def defineModes(filename):
         folder.append(veh)
     return modes, vehicleTypes
 
+def definePedestrianType():
+    sectionType = model.getType("GKPedestrianType")
+    # save vehicle in netowrk file
+    folderName = "GKModel::pedestrianTypes"
+    newVeh = GKSystem.getSystem().newObject("GKPedestrianType", model)
+    newVeh.setName("Pedestrian")
+    folder = model.getCreateRootFolder().findFolder( folderName )
+    if folder is None:
+        folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
+    folder.append(newVeh)
+    return newVeh
+
 def importTransitVehicles(filename):
     vehicles = []
     # read the file
@@ -698,6 +710,7 @@ def main(argv):
     transitStartTime = time.perf_counter()
     importTransit(f"{argv[2]}/transit.221")
     createTransitCentroidConnections(centroidConfig)
+    definePedestrianType()
     transitEndTime = time.perf_counter()
     print(f"Time to import transit: {transitEndTime-transitStartTime}s")
     # Draw all graphical elements to the visible network layer
