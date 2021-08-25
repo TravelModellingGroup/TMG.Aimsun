@@ -710,7 +710,7 @@ def main(argv):
     transitStartTime = time.perf_counter()
     importTransit(f"{argv[2]}/transit.221")
     createTransitCentroidConnections(centroidConfig)
-    definePedestrianType()
+    pedestrianType = definePedestrianType()
     transitEndTime = time.perf_counter()
     print(f"Time to import transit: {transitEndTime-transitStartTime}s")
     # Draw all graphical elements to the visible network layer
