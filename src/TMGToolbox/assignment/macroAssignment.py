@@ -45,6 +45,15 @@ scheduleDemandItem.setFrom(xtmf_parameters["start"]*3600)
 scheduleDemandItem.setDuration(xtmf_parameters["duration"]*3600)
 scheduleDemandItem.setTrafficDemandItem(odMatrix)
 trafficDemand.addToSchedule(scheduleDemandItem)
+# add in the transit demand
+scheduleDemandItem = GKScheduleDemandItem()
+sectionType = model.getType("GKODMatrix")
+odMatrix = model.getCatalog().findObjectByExternalId("transitOD", sectionType)
+# TODO make these paramters for the scenario length
+scheduleDemandItem.setFrom(xtmf_parameters["start"]*3600)
+scheduleDemandItem.setDuration(xtmf_parameters["duration"]*3600)
+scheduleDemandItem.setTrafficDemandItem(odMatrix)
+trafficDemand.addToSchedule(scheduleDemandItem)
 
 # Create the scenario
 cmd = model.createNewCmd( model.getType( "MacroScenario" ))

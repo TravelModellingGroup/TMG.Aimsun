@@ -451,6 +451,7 @@ def createPedestrianCentroidConfig():
     folder = createPedestrianCentroidConfigFolder()
     pedestrianCentroidConfig = GKSystem.getSystem().newObject( 'GKPedestrianCentroidConfiguration', model )
     pedestrianCentroidConfig.setName("Pedestrian Centroid Configuration")
+    pedestrianCentroidConfig.setExternalId("ped_baseCentroidConfig")
     pedestrianCentroidConfig.setStatus(GKObject.eModified)
     pedestrianCentroidConfig.activate()
     folder.append(pedestrianCentroidConfig)
