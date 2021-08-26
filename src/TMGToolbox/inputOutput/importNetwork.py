@@ -638,6 +638,42 @@ def importTransitVehicles(filename):
         folder.append(veh)
     return vehicles
 
+# Test script for running the import network from the aimsun bridge
+# Takes the console and model objects opened in the aimsun bridge
+# networkDirectory is the path the the unzipped network file
+# outputNetworkFile is the path to file name of the output file
+def importFromBrigde(console, model, networkDirectory, outputNetworkFile):
+    # Import the new network
+    modes = defineModes(networkDirectory + "/modes.201")
+    importTransitVehicles(networkDirectory + "/vehicles.202")
+    # Cache the vehicle types
+    allVehicles=[]
+    sectionType = model.getType("GKVehicle")
+    for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
+        for vehicle in iter(types.values()):
+            allVehicles.append(vehicle)
+    links, nodes, centroids = readFile(networkDirectory + "/base.211")
+    for node in nodes:
+        addNode(node)
+    for link in links:
+        addLink(link, allVehicles)
+    # Build the turns (connections betweek links)
+    buildTurnings()
+    # Add the centroids
+    centroidConfig = createCentroidConfiguration("baseCentroidConfig", centroids)
+    # Import the transit network
+    importTransit(networkDirectory+"/transit.221")
+    createTransitCentroidConnections(centroidConfig)
+    pedestrianType = definePedestrianType()
+    # Draw all graphical elements to the visible network layer
+    layer = model.getGeoModel().findLayer("Network")
+    drawLinksAndNodes(layer)
+    # Save the network to file
+    console.save(outputNetworkFile)
+    # Reset the Aimsun undo buffer
+    model.getCommander().addCommand( None )
+    return console, model
+
 # Main script to complete the full netowrk import
 def main(argv):
     overallStartTime = time.perf_counter()
