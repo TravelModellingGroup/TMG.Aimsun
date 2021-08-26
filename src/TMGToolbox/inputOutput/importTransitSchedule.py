@@ -73,6 +73,14 @@ def addServiceToLine(lineId, departures, arrivals, vehicle=None):
         departure.setVehicle(departureVeh)
         schedule.addDepartureTime(departure)
     # TODO add in the dwell times
+    stops = transitLine.getStops()
+    for stop in stops:
+        if stop is not None:
+            stopTime = GKPublicLineTimeTableScheduleStopTime()
+            stopTime.mean = 7.5002
+            stopTime.deviation = 1.0
+            stopTime.pedestriansToGenerate = 1.496
+            schedule.setStopTime(stop, 1, stopTime)
     timeTable.addSchedule(schedule)
     transitLine.addTimeTable(timeTable)
     return transitLine
