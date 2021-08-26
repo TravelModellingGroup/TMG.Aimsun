@@ -77,9 +77,8 @@ def addServiceToLine(lineId, departures, arrivals, vehicle=None):
     for stop in stops:
         if stop is not None:
             stopTime = GKPublicLineTimeTableScheduleStopTime()
-            stopTime.mean = 7.5002
-            stopTime.deviation = 1.0
-            stopTime.pedestriansToGenerate = 1.496
+            # stop time determined based on pedestrians during simulation
+            stopTime.pedestriansToGenerate = 0 # Aimsun will use HCM to determine time for on/off
             schedule.setStopTime(stop, 1, stopTime)
     timeTable.addSchedule(schedule)
     transitLine.addTimeTable(timeTable)
