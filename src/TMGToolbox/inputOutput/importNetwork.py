@@ -627,7 +627,8 @@ def importTransitVehicles(filename):
             newVeh.setCapacityType(0)
             newVeh.setCapacity(float(lineItems[6]))
             newVeh.setSeatingCapacity(float(lineItems[5]))
-            # TODO find where to add auto equivalent value
+            # TODO check PCUs are being used correctly in static assignment
+            newVeh.pcus = int(float(lineItems[11]))
             vehicles.append(newVeh)
     # Save the transit vehicles within the aimsun network file
     folderName = "GKModel::vehicles"
