@@ -72,7 +72,7 @@ def addServiceToLine(lineId, departures, arrivals, vehicle=None):
         departure.setDepartureTime(departureTime)
         departure.setVehicle(departureVeh)
         schedule.addDepartureTime(departure)
-    # TODO add in the dwell times
+    # add in dwell times
     stops = transitLine.getStops()
     for stop in stops:
         if stop is not None:
