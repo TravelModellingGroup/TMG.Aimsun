@@ -76,7 +76,6 @@ def addLink(link, allVehicles):
     for l in range(numberOfLanes):
         lane = GKSectionLane()
         newLink.addLane(lane)
-    #TODO add set the allowed modes on the link
     # set the allowed mode by link not road type
     newLink.setUseRoadTypeNonAllowedVehicles(False)
     # create list of banned vehicles
@@ -147,7 +146,7 @@ def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles):
 # Function to connect links (sections) in Aimsun
 def buildTurnings():
     # Get all of the links and nodes
-    print("Adding lane turnings")
+    print("Build lane turns")
     # Assume that all links that are connected by nodes have all lanes 
     # turning to each other
     nodeType = model.getType("GKNode")
@@ -171,37 +170,31 @@ def buildTurnings():
                     newTurn = GKSystem.getSystem().newObject("GKTurning", model)
                     newTurn.setConnection(entering, exiting)
                     node.addTurning(newTurn, True)
-    print("Build Turnings Complete")
 
 # Function to add all visual objects to the gui network layer
 def drawLinksAndNodes(layer):
+    print("Draw objects to the Geo Model")
     modelToAddTo = model.getGeoModel()
-    print("Adding Nodes")
     sectionType = model.getType("GKNode")
     for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
         for s in iter(types.values()):
             modelToAddTo.add(layer, s)
-    print("Adding Links")
     sectionType = model.getType("GKSection")
     for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
         for s in iter(types.values()):
             modelToAddTo.add(layer, s)
-    print("Adding Turnings")
     sectionType = model.getType("GKTurning")
     for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
         for s in iter(types.values()):
             modelToAddTo.add(layer, s)
-    print("Adding Transit Stops")
     sectionType = model.getType("GKBusStop")
     for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
         for s in iter(types.values()):
             modelToAddTo.add(layer, s)
-    print("Adding Centroids")
     sectionType = model.getType("GKCentroid")
     for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
         for s in iter(types.values()):
             modelToAddTo.add(layer, s)
-    print("Object drawn to Geo Model")
 
 # Function to read the transit.221 file and return the relevant information for the import to Aimsun
 def readTransitFile(filename):
@@ -307,10 +300,8 @@ def addTransitLine(lineId, lineName, pathLinks, busStops, transitVehicle, allVeh
         ptLine.add(link, None)
     # add the stop list to the line
     ptLine.setStops(allBusStops)
-    if ptLine.isCorrect()[0] is True:
-        print (f"Transit Line {lineId} {lineName} was imported")
-    else:
-        print (f"Issue importing Transit Line {lineId} {lineName}")
+    if ptLine.isCorrect()[0] is False:
+        print (f"Issue importing transit line {lineId} {lineName}")
 
 # Takes a path list as argument
 # Returns the nodes and links that make up the path
@@ -340,8 +331,8 @@ def getPath(pathList):
 # Function to create the transit lines from reading the file to adding to the network
 def importTransit(fileName):
     # read the transit file
-    print("Importing Transit Network")
-    print("Reading transit file")
+    print("Import transit network")
+    print("Read transit file")
     nodes, stops, lines = readTransitFile(fileName)
     # Cache the vehicle types
     allVehicles=[]
@@ -354,6 +345,7 @@ def importTransit(fileName):
     lineId = None
     pathList = None
     stopsList = None
+    print(f"Number of transit lines to import: {len(lines)}")
     for i in range(len(lines)):
         lineName = lines[i][5]
         lineId = lines[i][0]
@@ -362,7 +354,7 @@ def importTransit(fileName):
         pathList = nodes[i]
         stopsList = stops[i]
         busStops = []
-        print(f"Adding Line {lineId} {lineName}")
+        # print(f"Adding Line {lineId} {lineName}")
         # Get the path links and nodes
         nodePath, linkPath = getPath(pathList)
         # add all of the stops in the line to the network
@@ -377,7 +369,7 @@ def importTransit(fileName):
                 busStops.append(None)
         # add the transit line
         addTransitLine(lineId,lineName,linkPath,busStops,lineVehicle,allVehicles)
-    print("Transit Import Complete")
+    print("Transit import complete")
 
 def createCentroid(nodeId):
     # First check if the centroid already exists
@@ -393,7 +385,6 @@ def createCentroid(nodeId):
     centroid.setName(f"centroid_{nodeId}")
     sectionType = model.getType("GKNode")
     node = model.getCatalog().findObjectByExternalId(nodeId, sectionType)
-    print(f"node {node.getName()}")
     nodeConnection = GKSystem.getSystem().newObject("GKCenConnection", model)
     nodeConnection.setOwner(centroid)
     nodeConnection.setConnectionObject(node)
@@ -404,20 +395,19 @@ def createCentroid(nodeId):
 
 # Create centroid configuration
 def createCentroidConfiguration(name, listOfCentroidIds):
-    print("create centroid config object")
+    print("Create centroid config object")
     cmd = model.createNewCmd(model.getType("GKCentroidConfiguration"))
     model.getCommander().addCommand( cmd )
     centroidConfig = cmd.createdObject()
     centroidConfig.setName(name)
     centroidConfig.setExternalId(name)
-    print("create and add the centroids")
+    print("Create and add the centroids")
     for centroidId in listOfCentroidIds:
         centroid = createCentroid(centroidId)
         # Add the centroid to the centroid configuration if not already included
         if centroidConfig.contains(centroid) is False:
             centroidConfig.addCentroid(centroid)
     # save the centroid configuration
-    print("save to folder")
     folderName = "GKModel::centroidsConf"
     folder = model.getCreateRootFolder().findFolder( folderName )
     if folder is None:
@@ -495,6 +485,7 @@ def createGlobalPedArea(geomodel, layer, name):
     return pedArea
 
 def createTransitCentroidConnections(centroidConfiguration):
+    print("Create pedestrian centroid configuration")
     # create pedestrian layer
     geomodel = model.getGeoModel()
     pedestrianLayer = geomodel.findLayer("Pedestrians Layer")
@@ -506,6 +497,7 @@ def createTransitCentroidConnections(centroidConfiguration):
     # Create a global pedestrian area
     pedArea = createGlobalPedArea(geomodel, pedestrianLayer, "full")
     # Create centroids and connect all nearby bus stops
+    print("Create pedestiran centroids and connections")
     sectionType = model.getType("GKBusStop")
     for centroid in centroids:
         pedCentroids = list()
@@ -514,7 +506,6 @@ def createTransitCentroidConnections(centroidConfiguration):
         # If no stops within 3km get the closest stop
         if nearbyStops is None:
             nearbyStops = geomodel.findClosestObject(centroid.getPosition(), sectionType)
-            # TODO add code to expand the pedestrian area
         # If no stops found move to the next centroid
         if nearbyStops is not None:
             # check if there is an existing pedestrian centroid
@@ -689,13 +680,13 @@ def main(argv):
     if console.open(argv[1]): 
         global model
         model = console.getModel()
-        print("open blank network")
+        print("Open blank network")
     else:
         console.getLog().addError("Cannot load the network")
-        print("cannot load network")
+        print("Cannot load network")
         return -1
     # Import the new network
-    print("Import Network")
+    print("Import network")
     print("Define modes")
     modes = defineModes(f"{argv[2]}/modes.201")
     importTransitVehicles(f"{argv[2]}/vehicles.202")
@@ -705,11 +696,11 @@ def main(argv):
     for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
         for vehicle in iter(types.values()):
             allVehicles.append(vehicle)
-    print("Read Data File")
+    print("Read base network data file")
     links, nodes, centroids = readFile(f"{argv[2]}/base.211")
     nodeStartTime = time.perf_counter()
-    print("Adding Nodes")
-    print(f"Number of Nodes to Import: {len(nodes)}")
+    print("Add nodes")
+    print(f"Number of nodes to import: {len(nodes)}")
     counter = 0
     infoStepSize = int(len(nodes)/4)
     for node in nodes:
@@ -719,12 +710,12 @@ def main(argv):
         if (counter % infoStepSize) == 0:
             print(f"{counter} nodes added")
     nodeEndTime = time.perf_counter()
-    print(f"Node Import Time: {nodeEndTime-nodeStartTime}s")
+    print(f"Time to import nodes: {nodeEndTime-nodeStartTime}s")
     linkStartTime = time.perf_counter()
-    print("Adding Links")
-    print(f"Number of Links to Import: {len(links)}")
+    print("Add links")
+    print(f"Number of links to import: {len(links)}")
     counter = 0
-    infoStepSize = int(len(links)/10)
+    infoStepSize = int(len(links)/4)
     for link in links:
         counter += 1
         addLink(link, allVehicles)
@@ -732,12 +723,12 @@ def main(argv):
         if (counter % infoStepSize) == 0:
             print(f"{counter} links added")
     linkEndTime = time.perf_counter()
-    print(f"Link Import Time: {linkEndTime-linkStartTime}s")
+    print(f"Time to import links: {linkEndTime-linkStartTime}s")
     turnStartTime = time.perf_counter()
     # Build the turns (connections betweek links)
     buildTurnings()
     turnEndTime = time.perf_counter()
-    print(f"Time to Build Turns: {turnEndTime-turnStartTime}s")
+    print(f"Time to build turns: {turnEndTime-turnStartTime}s")
     # Add the centroids
     centroidStartTime = time.perf_counter()
     print("Add centroids")
@@ -754,12 +745,12 @@ def main(argv):
     # Draw all graphical elements to the visible network layer
     layer = model.getGeoModel().findLayer("Network")
     drawLinksAndNodes(layer)
-    print("Finished Import")
+    print("Finished import")
     # Save the network to file
-    print("Save Network")
+    print("Save network")
     console.save(argv[3])
     overallEndTime = time.perf_counter()
-    print(f"Overall Runtime: {overallEndTime-overallStartTime}s")
+    print(f"Overall runtime: {overallEndTime-overallStartTime}s")
     # Reset the Aimsun undo buffer
     model.getCommander().addCommand( None )
     return 0
