@@ -20,8 +20,9 @@ if len(argv) < 3:
     raise Exception("Invalid input arguments")
 xtmf_parameters = {
     'matrix': 'testOD',
-    'start': 6,
-    'duration': 3
+    # placeholder default values
+    'start': 6.0 * 60.0,
+    'duration': 3.0 * 60.0
 }
 console = ANGConsole()
 model = None
@@ -41,8 +42,8 @@ scheduleDemandItem = GKScheduleDemandItem()
 sectionType = model.getType("GKODMatrix")
 odMatrix = model.getCatalog().findObjectByExternalId(xtmf_parameters["matrix"], sectionType)
 # TODO make these paramters for the scenario length
-scheduleDemandItem.setFrom(xtmf_parameters["start"]*3600)
-scheduleDemandItem.setDuration(xtmf_parameters["duration"]*3600)
+scheduleDemandItem.setFrom(xtmf_parameters["start"]*60.0)
+scheduleDemandItem.setDuration(xtmf_parameters["duration"]*60.0)
 scheduleDemandItem.setTrafficDemandItem(odMatrix)
 trafficDemand.addToSchedule(scheduleDemandItem)
 # add in the transit demand
