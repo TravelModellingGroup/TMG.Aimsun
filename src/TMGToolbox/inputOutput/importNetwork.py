@@ -256,14 +256,27 @@ def readTransitFile(filename):
 # TODO make method take a link instead of nodes
 def addBusStop(fromNodeId, toNodeId, lineId, start):
     line = lineId
+    # Check if the stop already exists
+    busStopType = model.getType("GKBusStop")
+    if start is True:
+        externalId = f"stop_{fromNodeId}_line_{line}"
+    else:
+        externalId = f"stop_{toNodeId}_line_{line}"
+    existingBusStop = model.getCatalog().findObjectByExternalId(externalId, busStopType)
+    # If the stop exists return it
+    if existingBusStop is not None:
+        return existingBusStop
+    # Otherwise create a new object
     busStop=GKSystem.getSystem().newObject("GKBusStop",model)
     model.getCatalog().add(busStop)
-    if start is True:
-        busStop.setName(f"stop_{fromNodeId}_line_{line}")
-        busStop.setExternalId(f"stop_{fromNodeId}_line_{line}")
-    else:
-        busStop.setName(f"stop_{toNodeId}_line_{line}")
-        busStop.setExternalId(f"stop_{toNodeId}_line_{line}")
+    busStop.setName(externalId)
+    busStop.setExternalId(externalId)
+    # if start is True:
+    #     busStop.setName(f"stop_{fromNodeId}_line_{line}")
+    #     busStop.setExternalId(f"stop_{fromNodeId}_line_{line}")
+    # else:
+    #     busStop.setName(f"stop_{toNodeId}_line_{line}")
+    #     busStop.setExternalId(f"stop_{toNodeId}_line_{line}")
     busStop.setStopType(0) # set the stop type to normal
     # Set the start and end nodes for the link
     sectionType = model.getType("GKNode")
