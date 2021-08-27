@@ -50,7 +50,9 @@ def addLink(link, allVehicles):
     # Create the link
     newLink = GKSystem.getSystem().newObject("GKSection", model)
     # Set the name to reflect start and end nodes
-    newLink.setName(f"link{link[1]}_{link[2]}")
+    name = f"link{link[1]}_{link[2]}"
+    newLink.setName(name)
+    newLink.setExternalId(name)
     # Set the start and end nodes for the link
     sectionType = model.getType("GKNode")
     fromNode = model.getCatalog().findObjectByExternalId(link[1], sectionType)
@@ -134,8 +136,8 @@ def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles):
     # add a transit stop
     busStop = GKSystem.getSystem().newObject("GKBusStop", model)
     model.getCatalog().add(busStop)
-    busStop.setName(f"stop_{node.getExternalId()}_line_{transitLine.getExternalId()}")
-    busStop.setExternalId(f"stop_{node.getExternalId()}_line_{transitLine.getExternalId()}")
+    busStop.setName(f"stop_{node.getExternalId()}_{newLink.getExternalId()}")
+    busStop.setExternalId(f"stop_{node.getExternalId()}_{newLink.getExternalId()}")
     busStop.setStopType(0) # set the stop type to normal
     nextLink.addTopObject(busStop)
     busStop.setLanes(0,0) # dummy link only has one lane
@@ -254,14 +256,13 @@ def readTransitFile(filename):
 # Function to create the bus stop objects in the Aimsun network
 # TODO make method take the nodes instead of the node Ids
 # TODO make method take a link instead of nodes
-def addBusStop(fromNodeId, toNodeId, lineId, start):
-    line = lineId
+def addBusStop(fromNodeId, toNodeId, linkId, start):
     # Check if the stop already exists
     busStopType = model.getType("GKBusStop")
     if start is True:
-        externalId = f"stop_{fromNodeId}_line_{line}"
+        externalId = f"stop_{fromNodeId}_{linkId}"
     else:
-        externalId = f"stop_{toNodeId}_line_{line}"
+        externalId = f"stop_{toNodeId}_{linkId}"
     existingBusStop = model.getCatalog().findObjectByExternalId(externalId, busStopType)
     # If the stop exists return it
     if existingBusStop is not None:
@@ -271,12 +272,6 @@ def addBusStop(fromNodeId, toNodeId, lineId, start):
     model.getCatalog().add(busStop)
     busStop.setName(externalId)
     busStop.setExternalId(externalId)
-    # if start is True:
-    #     busStop.setName(f"stop_{fromNodeId}_line_{line}")
-    #     busStop.setExternalId(f"stop_{fromNodeId}_line_{line}")
-    # else:
-    #     busStop.setName(f"stop_{toNodeId}_line_{line}")
-    #     busStop.setExternalId(f"stop_{toNodeId}_line_{line}")
     busStop.setStopType(0) # set the stop type to normal
     # Set the start and end nodes for the link
     sectionType = model.getType("GKNode")
@@ -377,7 +372,8 @@ def importTransit(fileName):
         for j in range(1, len(pathList)):
             # add a stop if there is a non zero dwell time or if is end of line
             if stopsList[j] != 0.0 or j==(len(pathList)-1):
-                newBusStop = addBusStop(pathList[j-1],pathList[j],lineId,False)
+                linkId = f"link{pathList[j-1]}_{pathList[j]}"
+                newBusStop = addBusStop(pathList[j-1],pathList[j],linkId,False)
                 busStops.append(newBusStop)
             else:
                 busStops.append(None)
