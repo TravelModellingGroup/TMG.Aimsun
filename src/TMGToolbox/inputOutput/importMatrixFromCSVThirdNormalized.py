@@ -86,10 +86,7 @@ if catalog.findObjectByExternalId(matrixId) != None:
 matrix = None
 if vehicleEID == 'transit':
     matrix = GKSystem.getSystem().newObject("GKPedestrianODMatrix", model)
-    matrix.Unit = 1 # matrix tracks individuals instead of vehicles
-    matrix.UseRoutesMatrixType = 3
-    print(matrix.Unit)
-    print("adding transit OD matrix")
+    print("Adding transit OD matrix")
 else:
     matrix = GKSystem.getSystem().newObject("GKODMatrix", model)
 matrix.setExternalId(matrixId)
@@ -107,6 +104,13 @@ if vehicleEID != 'transit':
     else:
         vehicleType = catalog.findByName(vehicleEID, sectionType)
         matrix.setVehicle(vehicleType)
+elif vehicleEID == 'transit':
+    sectionType = model.getType("GKPedestrianType")
+    if catalog.findByName("Pedestrian", sectionType) is None:
+        raise Exception(f"The specified vehicle type Pedestrian does not exist")
+    else:
+        vehicleType = catalog.findByName("Pedestrian", sectionType)
+        matrix.setVehicle(vehicleType)
 
 initialTime = initialTime.split(":")
 startTime = time(int(initialTime[0]),int(initialTime[1]),int(initialTime[2]),int(initialTime[3]))
@@ -119,15 +123,25 @@ matrix.setDuration(GKTimeDuration(int(durationTime[0]), int(durationTime[1]), in
 with open(fileLocation) as csvfile:
     reader = csv.reader(csvfile)
     sectionType = model.getType("GKCentroid")
+    entranceCentroidType = model.getType("GKPedestrianEntranceCentroid")
+    exitCentroidType = model.getType("GKPedestrianExitCentroid")
+
     if header is True:
         next(reader)
     for line in reader:
         if thirdNormalized is True:
-            originEID = f"centroid_{line[0]}"
-            destinationEID = f"centroid_{line[1]}"
-            value = float(line[2])
-            origin = catalog.findObjectByExternalId(originEID, sectionType)
-            destination = catalog.findObjectByExternalId(destinationEID, sectionType)
+            if vehicleEID == 'transit':
+                originEID = f"ped_entrance_centroid_{line[0]}"
+                destinationEID = f"ped_exit_centroid_{line[1]}"
+                value = float(line[2])
+                origin = catalog.findObjectByExternalId(originEID, entranceCentroidType)
+                destination = catalog.findObjectByExternalId(destinationEID, exitCentroidType)
+            else:
+                originEID = f"centroid_{line[0]}"
+                destinationEID = f"centroid_{line[1]}"
+                value = float(line[2])
+                origin = catalog.findObjectByExternalId(originEID, sectionType)
+                destination = catalog.findObjectByExternalId(destinationEID, sectionType)
             if origin is None:
                 raise Exception(f"The specified centroid '{originEID}' does not exist")
             if destination is None:
