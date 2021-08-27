@@ -502,10 +502,11 @@ def createTransitCentroidConnections(centroidConfiguration):
     for centroid in centroids:
         pedCentroids = list()
         # Get all stops within 3km distance
-        nearbyStops = geomodel.findClosestObjects(centroid.getPosition(),3000.0,sectionType)
+        # nearbyStops = geomodel.findClosestObjects(centroid.getPosition(),3000.0,sectionType)
+        nearbyStops = None
         # If no stops within 3km get the closest stop
         if nearbyStops is None:
-            nearbyStops = geomodel.findClosestObject(centroid.getPosition(), sectionType)
+            nearbyStops = [geomodel.findClosestObject(centroid.getPosition(), sectionType)]
         # If no stops found move to the next centroid
         if nearbyStops is not None:
             # check if there is an existing pedestrian centroid
