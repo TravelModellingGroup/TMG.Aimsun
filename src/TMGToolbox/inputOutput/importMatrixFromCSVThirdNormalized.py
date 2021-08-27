@@ -86,10 +86,7 @@ if catalog.findObjectByExternalId(matrixId) != None:
 matrix = None
 if vehicleEID == 'transit':
     matrix = GKSystem.getSystem().newObject("GKPedestrianODMatrix", model)
-    # matrix.Unit = 1 # matrix tracks individuals instead of vehicles
-    # matrix.UseRoutesMatrixType = 3
-    # print(matrix.Unit)
-    print("adding transit OD matrix")
+    print("Adding transit OD matrix")
 else:
     matrix = GKSystem.getSystem().newObject("GKODMatrix", model)
 matrix.setExternalId(matrixId)
