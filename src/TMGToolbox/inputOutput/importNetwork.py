@@ -254,15 +254,13 @@ def readTransitFile(filename):
     return nodes, stops, transitLines
 
 # Function to create the bus stop objects in the Aimsun network
-# TODO make method take the nodes instead of the node Ids
-# TODO make method take a link instead of nodes
-def addBusStop(fromNodeId, toNodeId, linkId, start):
+def addBusStop(fromNodeId, toNodeId, link, start):
     # Check if the stop already exists
     busStopType = model.getType("GKBusStop")
     if start is True:
-        externalId = f"stop_{fromNodeId}_{linkId}"
+        externalId = f"stop_{fromNodeId}_{link.getExternalId()}"
     else:
-        externalId = f"stop_{toNodeId}_{linkId}"
+        externalId = f"stop_{toNodeId}_{link.getExternalId()}"
     existingBusStop = model.getCatalog().findObjectByExternalId(externalId, busStopType)
     # If the stop exists return it
     if existingBusStop is not None:
@@ -273,19 +271,7 @@ def addBusStop(fromNodeId, toNodeId, linkId, start):
     busStop.setName(externalId)
     busStop.setExternalId(externalId)
     busStop.setStopType(0) # set the stop type to normal
-    # Set the start and end nodes for the link
-    sectionType = model.getType("GKNode")
-    fromNode = model.getCatalog().findObjectByExternalId(fromNodeId, sectionType)
-    toNode = model.getCatalog().findObjectByExternalId(toNodeId, sectionType)
-    connectedLinks = fromNode.getConnections()
-    stopLink = None
-    for linkConnection in iter(connectedLinks):
-        link = linkConnection.getConnectionObject()
-        origin = link.getOrigin()
-        destination = link.getDestination()
-        if (origin is fromNode and destination is toNode):
-            stopLink = link
-            break
+    stopLink = link
     stopLink.addTopObject(busStop)
     lanes = stopLink.getNbFullLanes()
     if lanes <1:
@@ -301,7 +287,7 @@ def addBusStop(fromNodeId, toNodeId, linkId, start):
     return busStop
 
 # Function to build the transit lines Aimsun
-def addTransitLine(lineId, lineName, pathList, busStops, transitVehicle, allVehicles):
+def addTransitLine(lineId, lineName, pathLinks, busStops, transitVehicle, allVehicles):
     cmd = model.createNewCmd( model.getType( "GKPublicLine" ) )
     cmd.setModel( model )
     model.getCommander().addCommand( cmd )
@@ -310,36 +296,46 @@ def addTransitLine(lineId, lineName, pathList, busStops, transitVehicle, allVehi
     ptLine.setName(lineName)
     links = []
     # Add the dummy link at the start of the line
-    sectionType = model.getType("GKNode")
-    startNode = model.getCatalog().findObjectByExternalId(pathList[0], sectionType)
-    sectionType = model.getType("GKSection")
-    firstLink = model.getCatalog().findByName(f"link{pathList[0]}_{pathList[1]}", sectionType)
-    dummyLink, dummyLinkStop = addDummyLink(transitVehicle, startNode, firstLink, ptLine, allVehicles)
+    firstLink = pathLinks[0]
+    dummyLink, dummyLinkStop = addDummyLink(transitVehicle, firstLink.getOrigin(), firstLink, ptLine, allVehicles)
     ptLine.add(dummyLink, None)
     # add the dummyLink to the busStops list
-    busStops.insert(0,dummyLinkStop)
+    allBusStops = busStops
+    allBusStops.insert(0,dummyLinkStop)
     # Build the public transit line out of the path defined in the node list names pathList
-    for i in range(1, len(pathList)):
-        sectionType = model.getType("GKNode")
-        fromNode = model.getCatalog().findObjectByExternalId(pathList[i-1], sectionType)
-        toNode = model.getCatalog().findObjectByExternalId(pathList[i], sectionType)
-        connectedLinks = fromNode.getConnections()
-        pathLink = None
-        for linkConnection in iter(connectedLinks):
-            link = linkConnection.getConnectionObject()
-            origin = link.getOrigin()
-            destination = link.getDestination()
-            if (origin is fromNode and destination is toNode):
-                pathLink = link
-                break
-        if pathLink != None:
-            ptLine.add(pathLink, None)
+    for link in pathLinks:
+        ptLine.add(link, None)
     # add the stop list to the line
-    ptLine.setStops(busStops)
+    ptLine.setStops(allBusStops)
     if ptLine.isCorrect()[0] is True:
         print (f"Transit Line {lineId} {lineName} was imported")
     else:
         print (f"Issue importing Transit Line {lineId} {lineName}")
+
+# Takes a path list as argument
+# Returns the nodes and links that make up the path
+def getPath(pathList):
+    nodes = []
+    links = []
+    nodeType = model.getType("GKNode")
+    for nodeNumber in pathList:
+        node = model.getCatalog().findObjectByExternalId(nodeNumber, nodeType)
+        nodes.append(node)
+    for i in range(1, len(nodes)):
+        fromNode = nodes[i-1]
+        toNode = nodes[i]
+        link = None
+        connectedLinks = fromNode.getConnections()
+        for linkConnection in iter(connectedLinks):
+            testLink = linkConnection.getConnectionObject()
+            origin = testLink.getOrigin()
+            if origin == fromNode:
+                destination = testLink.getDestination()
+                if destination == toNode:
+                    link = testLink
+                    break
+        links.append(link)
+    return nodes, links
 
 # Function to create the transit lines from reading the file to adding to the network
 def importTransit(fileName):
@@ -358,7 +354,6 @@ def importTransit(fileName):
     lineId = None
     pathList = None
     stopsList = None
-    busStops = []
     for i in range(len(lines)):
         lineName = lines[i][5]
         lineId = lines[i][0]
@@ -366,19 +361,22 @@ def importTransit(fileName):
         lineVehicle = model.getCatalog().findObjectByExternalId(f"transitVeh_{lines[i][2]}", sectionType)
         pathList = nodes[i]
         stopsList = stops[i]
+        busStops = []
         print(f"Adding Line {lineId} {lineName}")
+        # Get the path links and nodes
+        nodePath, linkPath = getPath(pathList)
         # add all of the stops in the line to the network
         # fist stop will be on dummy link so don't add bus stop
-        for j in range(1, len(pathList)):
+        for j in range(1, len(nodePath)):
             # add a stop if there is a non zero dwell time or if is end of line
-            if stopsList[j] != 0.0 or j==(len(pathList)-1):
-                linkId = f"link{pathList[j-1]}_{pathList[j]}"
-                newBusStop = addBusStop(pathList[j-1],pathList[j],linkId,False)
+            if stopsList[j] != 0.0 or j==(len(nodePath)-1):
+                link = linkPath[j-1]
+                newBusStop = addBusStop(nodePath[j-1].getExternalId(),nodePath[j].getExternalId(),link,False)
                 busStops.append(newBusStop)
             else:
                 busStops.append(None)
         # add the transit line
-        addTransitLine(lineId,lineName,pathList,busStops,lineVehicle,allVehicles)
+        addTransitLine(lineId,lineName,linkPath,busStops,lineVehicle,allVehicles)
     print("Transit Import Complete")
 
 def createCentroid(nodeId):
