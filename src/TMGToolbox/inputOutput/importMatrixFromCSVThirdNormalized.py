@@ -130,23 +130,24 @@ with open(fileLocation) as csvfile:
         next(reader)
     for line in reader:
         if thirdNormalized is True:
-            if vehicleEID == 'transit':
-                originEID = f"ped_entrance_centroid_{line[0]}"
-                destinationEID = f"ped_exit_centroid_{line[1]}"
-                value = float(line[2])
-                origin = catalog.findObjectByExternalId(originEID, entranceCentroidType)
-                destination = catalog.findObjectByExternalId(destinationEID, exitCentroidType)
-            else:
-                originEID = f"centroid_{line[0]}"
-                destinationEID = f"centroid_{line[1]}"
-                value = float(line[2])
-                origin = catalog.findObjectByExternalId(originEID, sectionType)
-                destination = catalog.findObjectByExternalId(destinationEID, sectionType)
-            if origin is None:
-                raise Exception(f"The specified centroid '{originEID}' does not exist")
-            if destination is None:
-                raise Exception(f"The specified centroid '{destinationEID}' does not exist")
-            matrix.setTrips(origin, destination, value)
+            value = float(line[2])
+            # Only create object if OD value is non zero
+            if value != 0.0:
+                if vehicleEID == 'transit':
+                    originEID = f"ped_entrance_centroid_{line[0]}"
+                    destinationEID = f"ped_exit_centroid_{line[1]}"
+                    origin = catalog.findObjectByExternalId(originEID, entranceCentroidType)
+                    destination = catalog.findObjectByExternalId(destinationEID, exitCentroidType)
+                else:
+                    originEID = f"centroid_{line[0]}"
+                    destinationEID = f"centroid_{line[1]}"
+                    origin = catalog.findObjectByExternalId(originEID, sectionType)
+                    destination = catalog.findObjectByExternalId(destinationEID, sectionType)
+                if origin is None:
+                    raise Exception(f"The specified centroid '{originEID}' does not exist")
+                if destination is None:
+                    raise Exception(f"The specified centroid '{destinationEID}' does not exist")
+                matrix.setTrips(origin, destination, value)
         else:
             raise Exception("Functionality has not been implemented yet")
 
