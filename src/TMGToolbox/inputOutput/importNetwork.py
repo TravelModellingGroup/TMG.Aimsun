@@ -484,6 +484,47 @@ def createGlobalPedArea(geomodel, layer, name):
     geomodel.add(layer, pedArea)
     return pedArea
 
+# Method takes a centroid as argument and returns a list of nearby bus stops
+# Nearby bus stops are stops on any link connected to the connected nodes
+def findNearbyStops(centroid):
+    nearbyStops = []
+    nodeType = model.getType("GKNode")
+    sectionType = model.getType("GKSection")
+    stopType = model.getType("GKBusStop")
+    # Get the nodes connected to the centroid (should only be 1)
+    nodeConnections = centroid.getConnections()
+    for nodeConnection in iter(nodeConnections):
+        node = nodeConnection.getConnectionObject()
+        if node.getType() == nodeType:
+            # Get the links from/to the nodes
+            linkConnections = node.getConnections()
+            for linkConnection in iter(linkConnections):
+                link = linkConnection.getConnectionObject()
+                if link.getType() == sectionType:
+                    # Get the node at the other end of the link
+                    origin = link.getOrigin()
+                    destination = link.getDestination()
+                    if node == origin:
+                        outLinkConnections = destination.getConnections()
+                    elif node == destination:
+                        outLinkConnections = origin.getConnections()
+                    else:
+                        outLinkConnections = []
+                    # Get all the links radiating out
+                    for outLinkConnection in outLinkConnections:
+                        outLink = outLinkConnection.getConnectionObject()
+                        if outLink.getType() == sectionType:
+                            # If the links have a bus stop add it to output
+                            potentialStops = outLink.getTopObjects()
+                            if potentialStops is not None:
+                                for stop in potentialStops:
+                                    if stop.getType() == stopType:
+                                        nearbyStops.append(stop)
+    # If no stops foudn make output none
+    if len(nearbyStops) == 0:
+        nearbyStops = None
+    return nearbyStops
+
 def createTransitCentroidConnections(centroidConfiguration):
     print("Create pedestrian centroid configuration")
     # create pedestrian layer
@@ -501,10 +542,9 @@ def createTransitCentroidConnections(centroidConfiguration):
     sectionType = model.getType("GKBusStop")
     for centroid in centroids:
         pedCentroids = list()
-        # Get all stops within 3km distance
-        # nearbyStops = geomodel.findClosestObjects(centroid.getPosition(),3000.0,sectionType)
-        nearbyStops = None
-        # If no stops within 3km get the closest stop
+        # Get all nearby stops
+        nearbyStops = findNearbyStops(centroid)
+        # If no stops found get the closest stop
         if nearbyStops is None:
             nearbyStops = [geomodel.findClosestObject(centroid.getPosition(), sectionType)]
         # If no stops found move to the next centroid
