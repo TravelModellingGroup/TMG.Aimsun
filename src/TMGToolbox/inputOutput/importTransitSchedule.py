@@ -51,13 +51,30 @@ def findTransitVehicle(transitLine):
 def addServiceToLine(lineId, departures, arrivals, vehicle=None):
     sectionType = model.getType("GKPublicLine")
     transitLine = model.getCatalog().findObjectByExternalId(lineId, sectionType)
+    if transitLine is None:
+        print(f"Could not find line {lineId}")
+        return None
     timeTable = GKSystem.getSystem().newObject("GKPublicLineTimeTable", model)
     schedule = timeTable.createNewSchedule()
     startTime = departures[0].split(":")
-    startTimeTime = datetime.time(int(startTime[0]),int(startTime[1]),int(startTime[2]))
+    hour = int(startTime[0])
+    minute = int(startTime[1])
+    second = int(startTime[2])
+    if hour>23:
+        hour = 23
+        minute = 59
+        second = 59
+    startTimeTime = datetime.time(hour,minute,second)
     schedule.setTime(startTimeTime)
     endTime = arrivals[-1].split(":")
-    endTimeTime = datetime.time(int(endTime[0]),int(endTime[1]),int(endTime[2]))
+    hour = int(endTime[0])
+    minute = int(endTime[1])
+    second = int(endTime[2])
+    if hour>23:
+        hour = 23
+        minute = 59
+        second = 59
+    endTimeTime = datetime.time(hour,minute,second)
     timeDelta = (datetime.datetime.combine(datetime.date.today(),endTimeTime)-datetime.datetime.combine(datetime.date.today(),startTimeTime)).total_seconds()
     duration = GKTimeDuration(0,0,0)
     duration = duration.addSecs(timeDelta)
@@ -67,7 +84,14 @@ def addServiceToLine(lineId, departures, arrivals, vehicle=None):
         departureVeh = findTransitVehicle(transitLine)
     for d in departures:
         timeElements = d.split(":")
-        departureTime = datetime.time(int(timeElements[0]),int(timeElements[1]),int(timeElements[2]))
+        hour = int(timeElements[0])
+        minute = int(timeElements[1])
+        second = int(timeElements[2])
+        if hour>23:
+            hour = 23
+            minute = 59
+            second = 59
+        departureTime = datetime.time(hour,minute,second)
         departure = GKPublicLineTimeTableScheduleDeparture()
         departure.setDepartureTime(departureTime)
         departure.setVehicle(departureVeh)
