@@ -72,7 +72,8 @@ def addLink(link, allVehicles):
     destinationConnection.setConnectionObject(newLink)
     toNode.addConnection(destinationConnection)
     # add the lanes
-    numberOfLanes = int(float(link[6]))
+    # make sure there is at least one lane
+    numberOfLanes = max(int(float(link[6])),1)
     for l in range(numberOfLanes):
         lane = GKSectionLane()
         newLink.addLane(lane)
