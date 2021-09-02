@@ -138,9 +138,10 @@ def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles):
     busStop.setName(f"stop_{node.getExternalId()}_{newLink.getExternalId()}")
     busStop.setExternalId(f"stop_{node.getExternalId()}_{newLink.getExternalId()}")
     busStop.setStopType(0) # set the stop type to normal
-    nextLink.addTopObject(busStop)
+    newLink.addTopObject(busStop)
     busStop.setLanes(0,0) # dummy link only has one lane
     busStop.setPosition(linkLength/2) # stop at midpoint of link
+    busStop.setLength(linkLength/2)
     return newLink, busStop
 
 # Function to connect links (sections) in Aimsun
