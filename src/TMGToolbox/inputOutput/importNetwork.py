@@ -681,6 +681,26 @@ def importTransitVehicles(filename):
         folder.append(veh)
     return vehicles
 
+def addWalkingTimes(busStop, geomodel, transferDistance, busStopType):
+    location = busStop.absolutePosition()
+    walkingTime = busStop.getWalkingTime() # map to store the walking times
+    times = walkingTime.getWalkingTimes(busStop, model)
+    # Search for all points within the specified transfer distance
+    nearbyStops = geomodel.findClosestObjects(location, transferDistance, busStopType)
+    walkingSpeed = 1.4 # walking speed in m/s
+    walkingSpeedInv = 1.0/walkingSpeed
+    for stop in nearbyStops:
+        times[stop]=(walkingSpeedInv*location.distance2D(stop.absolutePosition()))
+    walkingTime.setWalkingTimes(times)
+    busStop.setWalkingTime(walkingTime)
+
+def buildWalkingTransfers():
+    geomodel = model.getGeoModel()
+    busStopType = model.getType("GKBusStop")
+    busStops = model.getCatalog().getObjectsByType(busStopType)
+    for stop in iter(busStops.values()):
+        addWalkingTimes(stop, geomodel, 1000.0, busStopType)
+
 # Test script for running the import network from the aimsun bridge
 # Takes the console and model objects opened in the aimsun bridge
 # networkDirectory is the path the the unzipped network file
@@ -790,6 +810,8 @@ def main(argv):
     importTransit(f"{argv[2]}/transit.221")
     createTransitCentroidConnections(centroidConfig)
     pedestrianType = definePedestrianType()
+    print("Build walking transfers")
+    buildWalkingTransfers()
     transitEndTime = time.perf_counter()
     print(f"Time to import transit: {transitEndTime-transitStartTime}s")
     # Draw all graphical elements to the visible network layer
