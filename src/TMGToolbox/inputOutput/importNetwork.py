@@ -249,13 +249,14 @@ def readTransitFile(filename):
     return nodes, stops, transitLines
 
 # Function to create the bus stop objects in the Aimsun network
-def addBusStop(fromNodeId, toNodeId, link, start):
+# repeatNumber is the number of times that same busStop is in a line
+def addBusStop(fromNodeId, toNodeId, link, start, repeatNumber):
     # Check if the stop already exists
     busStopType = model.getType("GKBusStop")
     if start is True:
-        externalId = f"stop_{fromNodeId}_{link.getExternalId()}"
+        externalId = f"stop_{fromNodeId}_{link.getExternalId()}_{repeatNumber}"
     else:
-        externalId = f"stop_{toNodeId}_{link.getExternalId()}"
+        externalId = f"stop_{toNodeId}_{link.getExternalId()}_{repeatNumber}"
     existingBusStop = model.getCatalog().findObjectByExternalId(externalId, busStopType)
     # If the stop exists return it
     if existingBusStop is not None:
@@ -365,7 +366,13 @@ def importTransit(fileName):
             # add a stop if there is a non zero dwell time or if is end of line
             if stopsList[j] != 0.0 or j==(len(nodePath)-1):
                 link = linkPath[j-1]
-                newBusStop = addBusStop(nodePath[j-1].getExternalId(),nodePath[j].getExternalId(),link,False)
+                repeatNumber = 0
+                newBusStop = addBusStop(nodePath[j-1].getExternalId(),nodePath[j].getExternalId(),link,False, repeatNumber)
+                # Check to see if the bus stop is already used in the line
+                # if yes make a new stop in the same place
+                while newBusStop in busStops:
+                    repeatNumber = repeatNumber + 1
+                    newBusStop = addBusStop(nodePath[j-1].getExternalId(),nodePath[j].getExternalId(),link,False, repeatNumber)
                 busStops.append(newBusStop)
             else:
                 busStops.append(None)
