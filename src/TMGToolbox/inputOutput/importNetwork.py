@@ -681,7 +681,7 @@ def importTransitVehicles(filename):
         folder.append(veh)
     return vehicles
 
-def addWalkingTimes(busStop, geomodel, transferDistance, busStopType):
+def addWalkingTimes(busStop, geomodel, transferDistance, maxTransfers, busStopType):
     location = busStop.absolutePosition()
     walkingTime = busStop.getWalkingTime() # map to store the walking times
     times = walkingTime.getWalkingTimes(busStop, model)
@@ -689,8 +689,15 @@ def addWalkingTimes(busStop, geomodel, transferDistance, busStopType):
     nearbyStops = geomodel.findClosestObjects(location, transferDistance, busStopType)
     walkingSpeed = 1.4 # walking speed in m/s
     walkingSpeedInv = 1.0/walkingSpeed
+    # limit to a maximum number of stops
+    transferDistances = []
     for stop in nearbyStops:
-        times[stop]=(walkingSpeedInv*location.distance2D(stop.absolutePosition()))
+        transferDistances.append((stop,walkingSpeedInv*location.distance2D(stop.absolutePosition())))
+    transferDistances.sort(key=lambda tup: tup[1])
+    if len(transferDistances) < maxTransfers:
+        maxTransfers = len(transferDistances)
+    for i in range(maxTransfers):
+        times[transferDistances[i][0]] = transferDistances[i][1]
     walkingTime.setWalkingTimes(times)
     busStop.setWalkingTime(walkingTime)
 
@@ -699,7 +706,7 @@ def buildWalkingTransfers():
     busStopType = model.getType("GKBusStop")
     busStops = model.getCatalog().getObjectsByType(busStopType)
     for stop in iter(busStops.values()):
-        addWalkingTimes(stop, geomodel, 1000.0, busStopType)
+        addWalkingTimes(stop, geomodel, 200.0, 10, busStopType)
 
 # Test script for running the import network from the aimsun bridge
 # Takes the console and model objects opened in the aimsun bridge
