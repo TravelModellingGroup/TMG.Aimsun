@@ -72,7 +72,8 @@ def addLink(link, allVehicles):
     destinationConnection.setConnectionObject(newLink)
     toNode.addConnection(destinationConnection)
     # add the lanes
-    numberOfLanes = int(float(link[6]))
+    # make sure there is at least one lane
+    numberOfLanes = max(int(float(link[6])),1)
     for l in range(numberOfLanes):
         lane = GKSectionLane()
         newLink.addLane(lane)
@@ -138,9 +139,10 @@ def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles):
     busStop.setName(f"stop_{node.getExternalId()}_{newLink.getExternalId()}")
     busStop.setExternalId(f"stop_{node.getExternalId()}_{newLink.getExternalId()}")
     busStop.setStopType(0) # set the stop type to normal
-    nextLink.addTopObject(busStop)
+    newLink.addTopObject(busStop)
     busStop.setLanes(0,0) # dummy link only has one lane
     busStop.setPosition(linkLength/2) # stop at midpoint of link
+    busStop.setLength(linkLength/2)
     return newLink, busStop
 
 # Function to connect links (sections) in Aimsun
@@ -247,13 +249,14 @@ def readTransitFile(filename):
     return nodes, stops, transitLines
 
 # Function to create the bus stop objects in the Aimsun network
-def addBusStop(fromNodeId, toNodeId, link, start):
+# repeatNumber is the number of times that same busStop is in a line
+def addBusStop(fromNodeId, toNodeId, link, start, repeatNumber):
     # Check if the stop already exists
     busStopType = model.getType("GKBusStop")
     if start is True:
-        externalId = f"stop_{fromNodeId}_{link.getExternalId()}"
+        externalId = f"stop_{fromNodeId}_{link.getExternalId()}_{repeatNumber}"
     else:
-        externalId = f"stop_{toNodeId}_{link.getExternalId()}"
+        externalId = f"stop_{toNodeId}_{link.getExternalId()}_{repeatNumber}"
     existingBusStop = model.getCatalog().findObjectByExternalId(externalId, busStopType)
     # If the stop exists return it
     if existingBusStop is not None:
@@ -363,7 +366,13 @@ def importTransit(fileName):
             # add a stop if there is a non zero dwell time or if is end of line
             if stopsList[j] != 0.0 or j==(len(nodePath)-1):
                 link = linkPath[j-1]
-                newBusStop = addBusStop(nodePath[j-1].getExternalId(),nodePath[j].getExternalId(),link,False)
+                repeatNumber = 0
+                newBusStop = addBusStop(nodePath[j-1].getExternalId(),nodePath[j].getExternalId(),link,False, repeatNumber)
+                # Check to see if the bus stop is already used in the line
+                # if yes make a new stop in the same place
+                while newBusStop in busStops:
+                    repeatNumber = repeatNumber + 1
+                    newBusStop = addBusStop(nodePath[j-1].getExternalId(),nodePath[j].getExternalId(),link,False, repeatNumber)
                 busStops.append(newBusStop)
             else:
                 busStops.append(None)
@@ -672,6 +681,33 @@ def importTransitVehicles(filename):
         folder.append(veh)
     return vehicles
 
+def addWalkingTimes(busStop, geomodel, transferDistance, maxTransfers, busStopType):
+    location = busStop.absolutePosition()
+    walkingTime = busStop.getWalkingTime() # map to store the walking times
+    times = walkingTime.getWalkingTimes(busStop, model)
+    # Search for all points within the specified transfer distance
+    nearbyStops = geomodel.findClosestObjects(location, transferDistance, busStopType)
+    walkingSpeed = 1.4 # walking speed in m/s
+    walkingSpeedInv = 1.0/walkingSpeed
+    # limit to a maximum number of stops
+    transferDistances = []
+    for stop in nearbyStops:
+        transferDistances.append((stop,walkingSpeedInv*location.distance2D(stop.absolutePosition())))
+    transferDistances.sort(key=lambda tup: tup[1])
+    if len(transferDistances) < maxTransfers:
+        maxTransfers = len(transferDistances)
+    for i in range(maxTransfers):
+        times[transferDistances[i][0]] = transferDistances[i][1]
+    walkingTime.setWalkingTimes(times)
+    busStop.setWalkingTime(walkingTime)
+
+def buildWalkingTransfers():
+    geomodel = model.getGeoModel()
+    busStopType = model.getType("GKBusStop")
+    busStops = model.getCatalog().getObjectsByType(busStopType)
+    for stop in iter(busStops.values()):
+        addWalkingTimes(stop, geomodel, 200.0, 10, busStopType)
+
 # Test script for running the import network from the aimsun bridge
 # Takes the console and model objects opened in the aimsun bridge
 # networkDirectory is the path the the unzipped network file
@@ -781,6 +817,8 @@ def main(argv):
     importTransit(f"{argv[2]}/transit.221")
     createTransitCentroidConnections(centroidConfig)
     pedestrianType = definePedestrianType()
+    print("Build walking transfers")
+    buildWalkingTransfers()
     transitEndTime = time.perf_counter()
     print(f"Time to import transit: {transitEndTime-transitStartTime}s")
     # Draw all graphical elements to the visible network layer

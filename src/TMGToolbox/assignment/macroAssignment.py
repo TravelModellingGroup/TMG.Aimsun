@@ -55,12 +55,21 @@ scheduleDemandItem.setFrom(int(xtmf_parameters["start"]*60.0))
 scheduleDemandItem.setDuration(int(xtmf_parameters["duration"]*60.0))
 scheduleDemandItem.setTrafficDemandItem(odMatrix)
 trafficDemand.addToSchedule(scheduleDemandItem)
+# create a PT plan
+ptPlan = GKSystem.getSystem().newObject("GKPublicLinePlan", model)
+ptPlan.setName("Public Transit Plan")
+ptPlan.setExternalId("publicTransitPlan")
+timeTableType = model.getType("GKPublicLineTimeTable")
+timeTables = model.getCatalog().getObjectsByType(timeTableType)
+for timeTable in iter(timeTables.values()):
+    ptPlan.addTimeTable(timeTable)
 
 # Create the scenario
 cmd = model.createNewCmd( model.getType( "MacroScenario" ))
 model.getCommander().addCommand( cmd )
 scenario = cmd.createdObject()
 scenario.setDemand(trafficDemand)
+scenario.setPublicLinePlan(ptPlan)
 print(f"Create scenario {scenario.getId()}")
 
 cmd1 = model.createNewCmd( model.getType( "GKPathAssignment" ))
@@ -84,35 +93,72 @@ model.getCatalog().add( experiment )
 experiment.setScenario( scenario )
 experiment.setOutputPathAssignment( PathAssignment )
 
+# Create the PT scenario
+cmd = model.createNewCmd( model.getType( "MacroPTScenario" ))
+model.getCommander().addCommand( cmd )
+ptScenario = cmd.createdObject()
+ptScenario.setDemand(trafficDemand)
+ptScenario.setPublicLinePlan(ptPlan)
+ptOutputData = ptScenario.getOutputData()
+ptOutputData.setGenerateSkims(True)
+ptScenario.setOutputData(ptOutputData)
+print(f"Create transit scenario {ptScenario.getId()}")
+
+cmd = model.createNewCmd( model.getType( "MacroPTExperiment" ))
+cmd.setScenario( ptScenario )
+cmd.setEngine( "PTFrequencyBased" )
+cmd.setAlgorithm( "AllOrNothing" )
+model.getCommander().addCommand( cmd )
+ptExperiment = cmd.createdObject()
+# # Execute the scenarios
+print("Run road assignment")
 system.executeAction( "execute", experiment, [], "static assignment")
 experiment.getStatsManager().createTrafficState()
+print("Run transit assignment")
+system.executeAction( "execute", ptExperiment, [], "transit assignment")
 
-# TODO rewrite this code for desired output format
-# skims = experiment.getOutputData().getSkimMatrices(model)
-# for skim in skims:
-#     def convert_to_int(time):
-#         time = time.split(':')
-#         return str(time[0])+str(time[1])+str(time[2])
-#     int_start_time = convert_to_int(skim.getFrom().toString())
-#     int_duration_time = convert_to_int(skim.getDuration().toString())
-#     name = "D:\Users\Bilal\Documents\GTA_AIMSUN\\" + str(skim.getId()) + "_" + str(skim.getVehicle().getId())+ "_"+ str(skim.getVehicle().getName())+ "_" + int_start_time + "_" + int_duration_time + ".csv"
-#     print name
-#     _util.exportMatrixCSV(name, skim)
-
+# Generate PT Skim Matrices
+skimMatrices = ptExperiment.getOutputData().getSkimMatrices(model)
+contConfType = model.getType('GKPedestrianCentroidConfiguration')
+ptCentroidConf = model.getCatalog().findObjectByExternalId("ped_baseCentroidConfig", contConfType)
 # Save to the network file
+folderName = "GKCentroidConfiguration::matrices"
+folder = model.getCreateRootFolder().findFolder( folderName )
+if folder is None:
+    folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
+for matrix in skimMatrices:
+    m = model.getCatalog().find(matrix)
+    # print(m.ensureMatrixData())
+    print(m.getName())
+    print(m.getTotalTrips())
+    m.setExternalId(f"skimMatrix{matrix}")
+    m.setStoreId(1)
+    m.setStoreType(0)
+    m.setCentroidConfiguration(ptCentroidConf)
+    m.setEnableStore(True)
+    folder.append(m)
+    m.storeExternalMatrix()
 folderName = "GKModel::top::scenarios"
 folder = model.getCreateRootFolder().findFolder( folderName )
 if folder is None:
     folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
 folder.append(scenario)
+folder.append(ptScenario)
 folder.append(experiment)
+folder.append(ptExperiment)
 folderName = "GKModel::trafficDemand"
 folder = model.getCreateRootFolder().findFolder( folderName )
 if folder is None:
     folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
 folder.append(trafficDemand)
+folderName = "GKModel::publicPlans"
+folder = model.getCreateRootFolder().findFolder( folderName )
+if folder is None:
+    folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
+folder.append(ptPlan)
 # Save the network file
 print("Save network")
 console.save(argv[2])
-
+print("Finish Save")
 model.getCommander().addCommand( None )
+print("Done")
