@@ -145,9 +145,11 @@ def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles):
 
 # Function to add curvature to a link
 def addLinkCurvature(link, pointsToAdd):
-    # insert points in reverse order after the origin
-    for point in reversed(pointsToAdd):
-        link.addPointAt(1,point)
+    # insert points after the origin
+    position = 1
+    for point in pointsToAdd:
+        link.addPointAt(position,point)
+        position = position + 1
     # Have aimsun recalculate the geometry with the new points
     # 0 is for straight line segments
     link.setFromPoints(link.getPoints(), 0)
