@@ -547,17 +547,21 @@ def createSquarePedArea(centre, size, geomodel, layer, name):
 
 # Create a Pedestrian area that will cover all nodes in the network
 def createGlobalPedArea(geomodel, layer, name):
-    # Get all the nodes in model
-    sectionType = model.getType("GKNode")
+    # Get all the nodes and centroids in model
+    nodeType = model.getType("GKNode")
     nodes = GKPoints()
-    for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
+    for types in model.getCatalog().getUsedSubTypesFromType( nodeType ):
+        for s in iter(types.values()):
+            nodes.append(s.getPosition())
+    centroidType = model.getType("GKCentroid")
+    for types in model.getCatalog().getUsedSubTypesFromType( centroidType ):
         for s in iter(types.values()):
             nodes.append(s.getPosition())
     # create the pedestrian area
     pedArea = GKSystem.getSystem().newObject("GKPedestrianArea", model)
     pedArea.setName(f"pedArea_{name}")
     pedArea.setExternalId(f"pedArea_{name}")
-    # get a bounding box that contains all the nodes
+    # get a bounding box that contains all the nodes and centroids
     box = GKBBox()
     box.set(nodes)
     # add a buffer around the edge
