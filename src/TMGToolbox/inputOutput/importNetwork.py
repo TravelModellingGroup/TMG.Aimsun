@@ -496,7 +496,9 @@ def buildCentroidConnections(listOfCentroidConnections):
     centroidType = model.getType("GKCentroid")
     catalog = model.getCatalog()
     for connectInfo in listOfCentroidConnections:
-        newCentroidConnection(connectInfo[1], connectInfo[2], nodeType, centroidType, catalog)
+        fromNode = connectInfo[1]
+        toNode = connectInfo[2]
+        newCentroidConnection(fromNode, toNode, nodeType, centroidType, catalog)
 
 # Create a pedestrian layer and return the object
 def createPedestrianLayer():
@@ -886,6 +888,7 @@ def main(argv):
     centroidStartTime = time.perf_counter()
     print("Add centroids")
     centroidConfig = createCentroidConfiguration("baseCentroidConfig", centroids)
+    buildCentroidConnections(centroidConnections)
     centroidEndTime = time.perf_counter()
     print(f"Time to add centroids: {centroidEndTime-centroidStartTime}")
     # Import the transit network
