@@ -143,6 +143,42 @@ def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles):
     busStop.setPosition(linkLength/2) # stop at midpoint of link
     return newLink, busStop
 
+# Function to add curvature to links
+def addLinkCurvature(link, pointsToAdd):
+    for point in reversed(pointsToAdd):
+        link.addPointAt(1,point)
+    # TODO check on curve type
+    link.setFromPoints(link.getPoints(), 0)
+    return link
+
+def readShapesFile(filename, catalog):
+    curves = []
+    lines = []
+    link = None
+    curvaturePoints = []
+    sectionType = model.getType("GKSection")
+    with open(filename, 'r') as f:
+        lines = f.readlines()
+    for line in lines:
+        if len(line)!=0:
+            if line[0] == 'r':
+                if link is not None and curvaturePoints != []:
+                    curves.append((link, curvaturePoints))
+                splitLine = line.split()
+                fromNode = splitLine[1]
+                toNode = splitLine[2]
+                link = catalog.findObjectByExternalId(f"link{fromNode}_{toNode}")
+                curvaturePoints = []
+            if line[0] == "a":
+                splitLine = line.split()
+                curvaturePoints.append(GKPoint(float(splitLine[4]),float(splitLine[5])))
+    return curves
+
+def addLinkCurvatures(filename, catalog):
+    curves = readShapesFile(filename, catalog)
+    for curve in curves:
+        addLinkCurvature(curve[0], curve[1])
+
 # Function to connect links (sections) in Aimsun
 def buildTurnings():
     # Get all of the links and nodes
@@ -763,6 +799,8 @@ def main(argv):
         # output the progress of the import
         if (counter % infoStepSize) == 0:
             print(f"{counter} links added")
+    print("Add curvature to links")
+    addLinkCurvatures(f"{argv[2]}/shapes.251", model.getCatalog())
     linkEndTime = time.perf_counter()
     print(f"Time to import links: {linkEndTime-linkStartTime}s")
     turnStartTime = time.perf_counter()
