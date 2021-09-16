@@ -145,6 +145,48 @@ def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles):
     busStop.setLength(linkLength/2)
     return newLink, busStop
 
+# Function to add curvature to a link
+def addLinkCurvature(link, pointsToAdd):
+    # insert points after the origin
+    position = 1
+    for point in pointsToAdd:
+        link.addPointAt(position,point)
+        position = position + 1
+    # Have aimsun recalculate the geometry with the new points
+    # 0 is for straight line segments
+    link.setFromPoints(link.getPoints(), 0)
+    return link
+
+# Function to read the shapes.251 file and return the applicable links and curvature information
+def readShapesFile(filename, catalog):
+    curves = []
+    lines = []
+    link = None
+    curvaturePoints = []
+    sectionType = model.getType("GKSection")
+    with open(filename, 'r') as f:
+        lines = f.readlines()
+    for line in lines:
+        if len(line)!=0:
+            if line[0] == 'r':
+                if link is not None and curvaturePoints != []:
+                    curves.append((link, curvaturePoints))
+                splitLine = line.split()
+                fromNode = splitLine[1]
+                toNode = splitLine[2]
+                link = catalog.findObjectByExternalId(f"link{fromNode}_{toNode}")
+                curvaturePoints = []
+            if line[0] == "a":
+                splitLine = line.split()
+                curvaturePoints.append(GKPoint(float(splitLine[4]),float(splitLine[5])))
+    return curves
+
+# Function to add the curvature to all applicable links in the network
+def addLinkCurvatures(filename, catalog):
+    curves = readShapesFile(filename, catalog)
+    for curve in curves:
+        addLinkCurvature(curve[0], curve[1])
+
 # Function to connect links (sections) in Aimsun
 def buildTurnings():
     # Get all of the links and nodes
@@ -799,6 +841,8 @@ def main(argv):
         # output the progress of the import
         if (counter % infoStepSize) == 0:
             print(f"{counter} links added")
+    print("Add curvature to links")
+    addLinkCurvatures(f"{argv[2]}/shapes.251", model.getCatalog())
     linkEndTime = time.perf_counter()
     print(f"Time to import links: {linkEndTime-linkStartTime}s")
     turnStartTime = time.perf_counter()
