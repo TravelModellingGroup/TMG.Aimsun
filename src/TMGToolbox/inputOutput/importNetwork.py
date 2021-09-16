@@ -15,7 +15,7 @@ def readFile(filename):
     nodes = []
     links = []
     centroids = []
-    centroidConnections = []
+    centroidSet = set()
     currentlyReading = 'nodes'
     with open(filename, 'r') as f:
         lines = f.readlines()
@@ -30,14 +30,13 @@ def readFile(filename):
                         nodes.append(line.split())
                     # a* indicates that the node is a centroid
                     if line[1] == "*":
-                        centroids.append(line.split())
+                        splitLine = line.split()
+                        centroids.append(splitLine)
+                        centroidSet.add(splitLine[1])
                 elif currentlyReading == 'links':
                     splitLine = line.split()
-                    if splitLine[10] == "9999" or splitLine[10] == "999":
-                        centroidConnections.append(splitLine)
-                    else:
-                        links.append(splitLine)
-    return links, nodes, centroids, centroidConnections
+                    links.append(splitLine)
+    return links, nodes, centroids, centroidSet
 
 # Function to create a node object in Aimsun
 def addNode(node):
@@ -859,7 +858,7 @@ def main(argv):
         for vehicle in iter(types.values()):
             allVehicles.append(vehicle)
     print("Read base network data file")
-    links, nodes, centroids, centroidConnections = readFile(f"{argv[2]}/base.211")
+    links, nodes, centroids, centroidSet = readFile(f"{argv[2]}/base.211")
     nodeStartTime = time.perf_counter()
     print("Add nodes")
     print(f"Number of nodes to import: {len(nodes)}")
@@ -876,11 +875,17 @@ def main(argv):
     linkStartTime = time.perf_counter()
     print("Add links")
     print(f"Number of links to import: {len(links)}")
+    centroidConnections = []
     counter = 0
     infoStepSize = int(len(links)/4)
     for link in links:
         counter += 1
-        addLink(link, allVehicles)
+        # If the from or to nodes are centroids flag as a centroid connector
+        if link[1] in centroidSet or link[2] in centroidSet:
+            centroidConnections.append(link)
+        # If from and to are both nodes, add the link
+        else:
+            addLink(link, allVehicles)
         # output the progress of the import
         if (counter % infoStepSize) == 0:
             print(f"{counter} links added")
