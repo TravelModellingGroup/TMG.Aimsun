@@ -15,6 +15,7 @@ def readFile(filename):
     nodes = []
     links = []
     centroids = []
+    centroidConnections = []
     currentlyReading = 'nodes'
     with open(filename, 'r') as f:
         lines = f.readlines()
@@ -25,13 +26,18 @@ def readFile(filename):
                 currentlyReading = line.split()[1]
             if line[0] == 'a':
                 if currentlyReading == 'nodes':
-                    nodes.append(line.split())
+                    if line[1] != "*":
+                        nodes.append(line.split())
                     # a* indicates that the node is a centroid
                     if line[1] == "*":
-                        centroids.append(line.split()[1])
+                        centroids.append(line.split())
                 elif currentlyReading == 'links':
-                    links.append(line.split())
-    return links, nodes, centroids
+                    splitLine = line.split()
+                    if splitLine[10] == "9999" or splitLine[10] == "999":
+                        centroidConnections.append(splitLine)
+                    else:
+                        links.append(splitLine)
+    return links, nodes, centroids, centroidConnections
 
 # Function to create a node object in Aimsun
 def addNode(node):
@@ -354,6 +360,7 @@ def getPath(pathList):
     nodes = []
     links = []
     nodeType = model.getType("GKNode")
+    linkType = model.getType("GKSection")
     for nodeNumber in pathList:
         node = model.getCatalog().findObjectByExternalId(nodeNumber, nodeType)
         nodes.append(node)
@@ -364,12 +371,14 @@ def getPath(pathList):
         connectedLinks = fromNode.getConnections()
         for linkConnection in iter(connectedLinks):
             testLink = linkConnection.getConnectionObject()
-            origin = testLink.getOrigin()
-            if origin == fromNode:
-                destination = testLink.getDestination()
-                if destination == toNode:
-                    link = testLink
-                    break
+            # Check that the connected object is a link
+            if testLink.getType() == linkType:
+                origin = testLink.getOrigin()
+                if origin == fromNode:
+                    destination = testLink.getDestination()
+                    if destination == toNode:
+                        link = testLink
+                        break
         links.append(link)
     return nodes, links
 
@@ -422,10 +431,13 @@ def importTransit(fileName):
         addTransitLine(lineId,lineName,linkPath,busStops,lineVehicle,allVehicles)
     print("Transit import complete")
 
-def createCentroid(nodeId):
+def createCentroid(centroidInfo):
+    nodeId = centroidInfo[1]
+    xCoord = float(centroidInfo[2])
+    yCoord = float(centroidInfo[3])
     # First check if the centroid already exists
     # If yes return centroid
-    # If no create new centroid and connect to the node
+    # If no create new centroid
     sectionType = model.getType("GKCentroid")
     existingCentroid = model.getCatalog().findObjectByExternalId(f"centroid_{nodeId}", sectionType)
     if existingCentroid != None:
@@ -434,18 +446,11 @@ def createCentroid(nodeId):
     centroid = GKSystem.getSystem().newObject("GKCentroid", model)
     centroid.setExternalId(f"centroid_{nodeId}")
     centroid.setName(f"centroid_{nodeId}")
-    sectionType = model.getType("GKNode")
-    node = model.getCatalog().findObjectByExternalId(nodeId, sectionType)
-    nodeConnection = GKSystem.getSystem().newObject("GKCenConnection", model)
-    nodeConnection.setOwner(centroid)
-    nodeConnection.setConnectionObject(node)
-    nodeConnection.setConnectionType(3) # to and from connection
-    centroid.addConnection(nodeConnection)
-    centroid.setPositionByConnections()
+    centroid.setFromPosition(GKPoint(xCoord, yCoord))
     return centroid
 
 # Create centroid configuration
-def createCentroidConfiguration(name, listOfCentroidIds):
+def createCentroidConfiguration(name, listOfCentroidInfo):
     print("Create centroid config object")
     cmd = model.createNewCmd(model.getType("GKCentroidConfiguration"))
     model.getCommander().addCommand( cmd )
@@ -453,8 +458,8 @@ def createCentroidConfiguration(name, listOfCentroidIds):
     centroidConfig.setName(name)
     centroidConfig.setExternalId(name)
     print("Create and add the centroids")
-    for centroidId in listOfCentroidIds:
-        centroid = createCentroid(centroidId)
+    for centroidInfo in listOfCentroidInfo:
+        centroid = createCentroid(centroidInfo)
         # Add the centroid to the centroid configuration if not already included
         if centroidConfig.contains(centroid) is False:
             centroidConfig.addCentroid(centroid)
@@ -465,6 +470,33 @@ def createCentroidConfiguration(name, listOfCentroidIds):
         folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
     folder.append(centroidConfig)
     return centroidConfig
+
+def newCentroidConnection(fromNode, toNode, nodeType, centroidType, catalog):
+    # First check assuming from node to centroid
+    nodeToCentroid = True
+    node = catalog.findObjectByExternalId(fromNode, nodeType)
+    centroid = catalog.findObjectByExternalId(f"centroid_{toNode}", centroidType)
+    # if the node was not found the connection is centroid to node
+    if node is None:
+        nodeToCentroid = False
+        node = catalog.findObjectByExternalId(toNode, nodeType)
+        centroid = catalog.findObjectByExternalId(f"centroid_{fromNode}", centroidType)
+    cmd = model.createNewCmd(model.getType("GKCenConnection"))
+    if nodeToCentroid is True:
+        cmd.setData(node, centroid)
+    else:
+        cmd.setData(centroid, node)
+    model.getCommander().addCommand(cmd)
+    centroidConnection = cmd.createdObject()
+    return centroidConnection
+
+# Method to create the centroid connections
+def buildCentroidConnections(listOfCentroidConnections):
+    nodeType = model.getType("GKNode")
+    centroidType = model.getType("GKCentroid")
+    catalog = model.getCatalog()
+    for connectInfo in listOfCentroidConnections:
+        newCentroidConnection(connectInfo[1], connectInfo[2], nodeType, centroidType, catalog)
 
 # Create a pedestrian layer and return the object
 def createPedestrianLayer():
@@ -816,7 +848,7 @@ def main(argv):
         for vehicle in iter(types.values()):
             allVehicles.append(vehicle)
     print("Read base network data file")
-    links, nodes, centroids = readFile(f"{argv[2]}/base.211")
+    links, nodes, centroids, centroidConnections = readFile(f"{argv[2]}/base.211")
     nodeStartTime = time.perf_counter()
     print("Add nodes")
     print(f"Number of nodes to import: {len(nodes)}")
