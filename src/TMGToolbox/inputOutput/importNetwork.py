@@ -143,14 +143,17 @@ def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles):
     busStop.setPosition(linkLength/2) # stop at midpoint of link
     return newLink, busStop
 
-# Function to add curvature to links
+# Function to add curvature to a link
 def addLinkCurvature(link, pointsToAdd):
+    # insert points in reverse order after the origin
     for point in reversed(pointsToAdd):
         link.addPointAt(1,point)
-    # TODO check on curve type
+    # Have aimsun recalculate the geometry with the new points
+    # 0 is for straight line segments
     link.setFromPoints(link.getPoints(), 0)
     return link
 
+# Function to read the shapes.251 file and return the applicable links and curvature information
 def readShapesFile(filename, catalog):
     curves = []
     lines = []
@@ -174,6 +177,7 @@ def readShapesFile(filename, catalog):
                 curvaturePoints.append(GKPoint(float(splitLine[4]),float(splitLine[5])))
     return curves
 
+# Function to add the curvature to all applicable links in the network
 def addLinkCurvatures(filename, catalog):
     curves = readShapesFile(filename, catalog)
     for curve in curves:
