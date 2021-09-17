@@ -573,7 +573,7 @@ def createGlobalPedArea(geomodel, layer, name):
     return pedArea
 
 # Method takes a centroid as argument and returns a list of nearby bus stops
-# Nearby bus stops are stops on any link within 2 "branches" of the centroid
+# Nearby bus stops are stops on any link to or from a node on a centroid connector
 def findNearbyStops(centroid):
     nearbyStops = []
     nodeType = model.getType("GKNode")
@@ -594,25 +594,6 @@ def findNearbyStops(centroid):
                     if potentialStops is not None:
                         for stop in potentialStops:
                             nearbyStops.append(stop)
-                    # Get the node at the other end of the link
-                    origin = link.getOrigin()
-                    destination = link.getDestination()
-                    if node == origin:
-                        outLinkConnections = destination.getConnections()
-                    elif node == destination:
-                        outLinkConnections = origin.getConnections()
-                    else:
-                        outLinkConnections = []
-                    # Get all the links radiating out
-                    for outLinkConnection in outLinkConnections:
-                        outLink = outLinkConnection.getConnectionObject()
-                        if outLink.getType() == sectionType:
-                            # If the links have a bus stop add it to output
-                            potentialStops = outLink.getTopObjects()
-                            if potentialStops is not None:
-                                for stop in potentialStops:
-                                    if stop.getType() == stopType:
-                                        nearbyStops.append(stop)
     # If no stops foudn make output none
     if len(nearbyStops) == 0:
         nearbyStops = None
