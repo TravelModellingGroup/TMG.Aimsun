@@ -192,10 +192,86 @@ def addLinkCurvatures(filename, catalog):
     for curve in curves:
         addLinkCurvature(curve[0], curve[1])
 
+# Function to read the turns.231
+def readTurnsFile(filename):
+    turns = []
+    with open(filename, "r") as f:
+        lines = f.readlines()
+    for line in lines:
+        if len(line)!=0:
+            if line[0] == "a":
+                splitLine = line.split()
+                turns.append(splitLine)
+    return turns
+
+# Function to create a turn
+def createTurn(node, fromLink, toLink):
+    newTurn = GKSystem.getSystem().newObject("GKTurning", model)
+    newTurn.setNode(node)
+    newTurn.setConnection(fromLink, toLink)
+    # True for curve turning, false for sorting the turnings
+    node.addTurning(newTurn, True, False)
+
+# Function to create the turns from file
+def createTurnsFromFile(filename):
+    print("Build turns")
+    # Try reading the turns from file
+    try:
+        turns = readTurnsFile(filename)
+        nodeType = model.getType("GKNode")
+        linkType = model.getType("GKSection")
+        catalog = model.getCatalog()
+        # cache a node for faster speed if multiple turns at same node
+        node = None
+        cachedNode = catalog.findObjectByExternalId(turns[0][1], nodeType)
+        if cachedNode is not None:
+            cachedNodeId = cachedNode.getExternalId()
+        for turn in turns:
+            if len(turn) >= 5 and turn[4] == "-1":
+                # check if the node is the cached node
+                nodeId = turn[1]
+                if cachedNodeId == nodeId:
+                    node = cachedNode
+                # If the node is not the cached node, search the catalog
+                # Update the cached node to be the new node
+                else:
+                    # when the node changes sort the turnings in the previously cached node
+                    cachedNode.orderTurningsById()
+                    node = catalog.findObjectByExternalId(nodeId, nodeType)
+                    cachedNode = node
+                    cachedNodeId = nodeId
+                # Find the links represented by the turn
+                # Check that the "at" node was found
+                if node is not None:
+                    fromLink = None
+                    toLink = None
+                    fromLinkId = f"link{turn[2]}_{turn[1]}"
+                    toLinkId = f"link{turn[1]}_{turn[3]}"
+                    connectedLinks = node.getConnections()
+                    for linkConnection in iter(connectedLinks):
+                        link = linkConnection.getConnectionObject()
+                        if link is not None and link.getType() == linkType:
+                            testLinkId = link.getExternalId()
+                            if testLinkId == fromLinkId:
+                                fromLink = link
+                            if testLinkId == toLinkId:
+                                toLink = link
+                    if fromLink is not None and toLink is not None:
+                        createTurn(node, fromLink, toLink)
+                    else:
+                        print(f"Could not create turn {turn[1]} {turn[2]} {turn[3]}")
+        # sort the turnings by Id for the last node from the loop
+        # other nodes run this operation when the cached node changes
+        node.orderTurningsById()
+    except FileNotFoundError:
+        # If the turns.231 file is not found build in all possible turns
+        print("Turns file not found. Build all possible turns")
+        buildTurnings()
+
+
 # Function to connect links (sections) in Aimsun
 def buildTurnings():
     # Get all of the links and nodes
-    print("Build lane turns")
     # Assume that all links that are connected by nodes have all lanes 
     # turning to each other
     nodeType = model.getType("GKNode")
@@ -876,7 +952,7 @@ def main(argv):
     print(f"Time to import links: {linkEndTime-linkStartTime}s")
     turnStartTime = time.perf_counter()
     # Build the turns (connections betweek links)
-    buildTurnings()
+    createTurnsFromFile(f"{argv[2]}/turns.231")
     turnEndTime = time.perf_counter()
     print(f"Time to build turns: {turnEndTime-turnStartTime}s")
     # Add the centroids
