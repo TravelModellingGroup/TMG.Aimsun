@@ -49,6 +49,7 @@ def addNode(node):
     # Set the position of the node in space
     newNode.setPosition(GKPoint(float(node[2]), float(node[3])))
     # For now ignoring the Data1, Data 2, Data 3, and Label columns
+    return newNode
 
 # Function to create a link (section) object in Aimsun
 def addLink(link, allVehicles):
@@ -207,14 +208,18 @@ def readTurnsFile(filename):
 # Function to create a turn
 def createTurn(node, fromLink, toLink):
     newTurn = GKSystem.getSystem().newObject("GKTurning", model)
+    newTurn.setExternalId(f"turn_{fromLink.getExternalId()}_{toLink.getExternalId()}")
     newTurn.setNode(node)
     newTurn.setConnection(fromLink, toLink)
     # True for curve turning, false for sorting the turnings
     node.addTurning(newTurn, True, False)
 
 # Function to create the turns from file
-def createTurnsFromFile(filename):
+def createTurnsFromFile(filename, listOfAllNodes):
     print("Build turns")
+    # Copy the list of nodes
+    nodes = listOfAllNodes.copy()
+    nodesWithDefinedTurns = set()
     # Try reading the turns from file
     try:
         turns = readTurnsFile(filename)
@@ -258,43 +263,45 @@ def createTurnsFromFile(filename):
                                 toLink = link
                     if fromLink is not None and toLink is not None:
                         createTurn(node, fromLink, toLink)
+                        # Add node to the list of nodes with defined turns
+                        nodesWithDefinedTurns.add(node)
                     else:
                         print(f"Could not create turn {turn[1]} {turn[2]} {turn[3]}")
         # sort the turnings by Id for the last node from the loop
         # other nodes run this operation when the cached node changes
         node.orderTurningsById()
+        # Remove nodes with defined turns from the full list
+        # build turnings for the remaining nodes assuming all allowed
+        for node in nodesWithDefinedTurns:
+            nodes.remove(node)
+        buildTurnings(nodes)
     except FileNotFoundError:
         # If the turns.231 file is not found build in all possible turns
         print("Turns file not found. Build all possible turns")
-        buildTurnings()
+        buildTurnings(nodes)
 
 
 # Function to connect links (sections) in Aimsun
-def buildTurnings():
+def buildTurnings(listOfNodes):
     # Get all of the links and nodes
     # Assume that all links that are connected by nodes have all lanes 
     # turning to each other
-    nodeType = model.getType("GKNode")
-    geomodel = model.getGeoModel()
-    for types in model.getCatalog().getUsedSubTypesFromType( nodeType ):
-        for node in iter(types.values()):
-            linksIn = []
-            linksOut = []
-            linkType = model.getType("GKSection")
-            connectedLinks = node.getConnections()
-            for linkConnection in iter(connectedLinks):
-                link = linkConnection.getConnectionObject()
-                origin = link.getOrigin()
-                destination = link.getDestination()
-                if origin is node:
-                    linksOut.append(link)
-                if destination is node:
-                    linksIn.append(link)
-            for entering in linksIn:
-                for exiting in linksOut:
-                    newTurn = GKSystem.getSystem().newObject("GKTurning", model)
-                    newTurn.setConnection(entering, exiting)
-                    node.addTurning(newTurn, True)
+    for node in listOfNodes:
+        linksIn = []
+        linksOut = []
+        linkType = model.getType("GKSection")
+        connectedLinks = node.getConnections()
+        for linkConnection in iter(connectedLinks):
+            link = linkConnection.getConnectionObject()
+            origin = link.getOrigin()
+            destination = link.getDestination()
+            if origin is node:
+                linksOut.append(link)
+            if destination is node:
+                linksIn.append(link)
+        for entering in linksIn:
+            for exiting in linksOut:
+                createTurn(node, entering, exiting)
 
 # Function to add all visual objects to the gui network layer
 def drawLinksAndNodes(layer):
@@ -919,11 +926,13 @@ def main(argv):
     nodeStartTime = time.perf_counter()
     print("Add nodes")
     print(f"Number of nodes to import: {len(nodes)}")
+    allNodes = []
     counter = 0
     infoStepSize = int(len(nodes)/4)
     for node in nodes:
         counter += 1
-        addNode(node)
+        newNode = addNode(node)
+        allNodes.append(newNode)
         # output the progress of the import
         if (counter % infoStepSize) == 0:
             print(f"{counter} nodes added")
@@ -952,7 +961,7 @@ def main(argv):
     print(f"Time to import links: {linkEndTime-linkStartTime}s")
     turnStartTime = time.perf_counter()
     # Build the turns (connections betweek links)
-    createTurnsFromFile(f"{argv[2]}/turns.231")
+    createTurnsFromFile(f"{argv[2]}/turns.231", allNodes)
     turnEndTime = time.perf_counter()
     print(f"Time to build turns: {turnEndTime-turnStartTime}s")
     # Add the centroids
