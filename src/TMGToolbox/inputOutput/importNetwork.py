@@ -52,7 +52,7 @@ def addNode(node):
     return newNode
 
 # Function to create a link (section) object in Aimsun
-def addLink(link, allVehicles):
+def addLink(link, allVehicles, roadTypes):
     # Create the link
     newLink = GKSystem.getSystem().newObject("GKSection", model)
     # Set the name to reflect start and end nodes
@@ -83,6 +83,10 @@ def addLink(link, allVehicles):
     for l in range(numberOfLanes):
         lane = GKSectionLane()
         newLink.addLane(lane)
+    # Set the road type
+    roadTypeName = f"fd{link[7]}"
+    roadType = roadTypes[roadTypeName]
+    newLink.setRoadType(roadType, True)
     # set the allowed mode by link not road type
     newLink.setUseRoadTypeNonAllowedVehicles(False)
     # create list of banned vehicles
@@ -105,7 +109,7 @@ def addLink(link, allVehicles):
     capacityPerLane = float(link[10])
     newLink.setCapacity(float(numberOfLanes) * capacityPerLane)
 
-def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles):
+def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles, roadTypes):
     # Create the link
     newLink = GKSystem.getSystem().newObject("GKSection", model)
     newLink.setName(f"dummylink_{transitLine.getExternalId()}")
@@ -125,6 +129,9 @@ def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles):
     # make one lane for dummy link
     lane = GKSectionLane()
     newLink.addLane(lane)
+    # Set the road type
+    roadType = roadTypes["dummyLinkRoadType"]
+    newLink.setRoadType(roadType, True)
     # Set the allowed mode to only include transit vehicle
     newLink.setUseRoadTypeNonAllowedVehicles(False)
     # create list of banned vehicles
@@ -413,7 +420,7 @@ def addBusStop(fromNodeId, toNodeId, link, start, repeatNumber):
     return busStop
 
 # Function to build the transit lines Aimsun
-def addTransitLine(lineId, lineName, pathLinks, busStops, transitVehicle, allVehicles):
+def addTransitLine(lineId, lineName, pathLinks, busStops, transitVehicle, allVehicles, roadTypes):
     cmd = model.createNewCmd( model.getType( "GKPublicLine" ) )
     cmd.setModel( model )
     model.getCommander().addCommand( cmd )
@@ -423,7 +430,7 @@ def addTransitLine(lineId, lineName, pathLinks, busStops, transitVehicle, allVeh
     links = []
     # Add the dummy link at the start of the line
     firstLink = pathLinks[0]
-    dummyLink, dummyLinkStop = addDummyLink(transitVehicle, firstLink.getOrigin(), firstLink, ptLine, allVehicles)
+    dummyLink, dummyLinkStop = addDummyLink(transitVehicle, firstLink.getOrigin(), firstLink, ptLine, allVehicles, roadTypes)
     ptLine.add(dummyLink, None)
     # add the dummyLink to the busStops list
     allBusStops = busStops
@@ -465,7 +472,7 @@ def getPath(pathList):
     return nodes, links
 
 # Function to create the transit lines from reading the file to adding to the network
-def importTransit(fileName):
+def importTransit(fileName, roadTypes):
     # read the transit file
     print("Import transit network")
     print("Read transit file")
@@ -510,7 +517,7 @@ def importTransit(fileName):
             else:
                 busStops.append(None)
         # add the transit line
-        addTransitLine(lineId,lineName,linkPath,busStops,lineVehicle,allVehicles)
+        addTransitLine(lineId,lineName,linkPath,busStops,lineVehicle,allVehicles, roadTypes)
     print("Transit import complete")
 
 def createCentroid(centroidInfo):
@@ -856,6 +863,38 @@ def buildWalkingTransfers():
     for stop in iter(busStops.values()):
         addWalkingTimes(stop, geomodel, 200.0, 10, busStopType)
 
+# Method to read the functions.411 file
+def readFunctionsFile(filename):
+    vdfNames = []
+    with open(filename, "r") as f:
+        lines = f.readlines()
+    for line in lines:
+        if len(line)!=0:
+            if line[0] == "a":
+                splitLine = line.split()
+                vdfNames.append(splitLine[1])
+    return vdfNames
+
+def addRoadTypes(listOfNames):
+    roadTypes = dict()
+    # Add a type for dummy links
+    cmd = model.createNewCmd( model.getType( "GKRoadType" ))
+    model.getCommander().addCommand( cmd )
+    newRoadType = cmd.createdObject()
+    newRoadType.setName("dummyLinkRoadType")
+    newRoadType.setExternalId("dummyLinkRoadType")
+    newRoadType.setDrawMode(3) # hide the dummy links
+    roadTypes["dummyLinkRoadType"] = newRoadType
+    for name in listOfNames:
+        cmd = model.createNewCmd( model.getType( "GKRoadType" ))
+        model.getCommander().addCommand( cmd )
+        newRoadType = cmd.createdObject()
+        newRoadType.setName(name)
+        newRoadType.setExternalId(name)
+        newRoadType.setDrawMode(0) # default to road draw mode
+        roadTypes[name] = newRoadType
+    return roadTypes
+
 # Test script for running the import network from the aimsun bridge
 # Takes the console and model objects opened in the aimsun bridge
 # networkDirectory is the path the the unzipped network file
@@ -921,6 +960,8 @@ def main(argv):
     for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
         for vehicle in iter(types.values()):
             allVehicles.append(vehicle)
+    roadTypeNames = readFunctionsFile(f"{argv[2]}/functions.411")
+    roadTypes = addRoadTypes(roadTypeNames)
     print("Read base network data file")
     links, nodes, centroids, centroidSet = readFile(f"{argv[2]}/base.211")
     nodeStartTime = time.perf_counter()
@@ -951,7 +992,7 @@ def main(argv):
             centroidConnections.append(link)
         # If from and to are both nodes, add the link
         else:
-            addLink(link, allVehicles)
+            addLink(link, allVehicles, roadTypes)
         # output the progress of the import
         if (counter % infoStepSize) == 0:
             print(f"{counter} links added")
@@ -973,7 +1014,7 @@ def main(argv):
     print(f"Time to add centroids: {centroidEndTime-centroidStartTime}")
     # Import the transit network
     transitStartTime = time.perf_counter()
-    importTransit(f"{argv[2]}/transit.221")
+    importTransit(f"{argv[2]}/transit.221", roadTypes)
     createTransitCentroidConnections(centroidConfig)
     pedestrianType = definePedestrianType()
     print("Build walking transfers")
