@@ -219,6 +219,7 @@ def createTurnsFromFile(filename, listOfAllNodes):
     print("Build turns")
     # Copy the list of nodes
     nodes = listOfAllNodes.copy()
+    # Make a set for tracking nodes with defined turns
     nodesWithDefinedTurns = set()
     # Try reading the turns from file
     try:
@@ -279,7 +280,6 @@ def createTurnsFromFile(filename, listOfAllNodes):
         # If the turns.231 file is not found build in all possible turns
         print("Turns file not found. Build all possible turns")
         buildTurnings(nodes)
-
 
 # Function to connect links (sections) in Aimsun
 def buildTurnings(listOfNodes):
