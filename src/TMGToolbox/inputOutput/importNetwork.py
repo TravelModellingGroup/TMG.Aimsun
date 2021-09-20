@@ -59,6 +59,10 @@ def addLink(link, allVehicles, roadTypes):
     name = f"link{link[1]}_{link[2]}"
     newLink.setName(name)
     newLink.setExternalId(name)
+    # Set the road type
+    roadTypeName = f"fd{link[7]}"
+    roadType = roadTypes[roadTypeName]
+    newLink.setRoadType(roadType, True)
     # Set the start and end nodes for the link
     sectionType = model.getType("GKNode")
     fromNode = model.getCatalog().findObjectByExternalId(link[1], sectionType)
@@ -83,10 +87,6 @@ def addLink(link, allVehicles, roadTypes):
     for l in range(numberOfLanes):
         lane = GKSectionLane()
         newLink.addLane(lane)
-    # Set the road type
-    roadTypeName = f"fd{link[7]}"
-    roadType = roadTypes[roadTypeName]
-    newLink.setRoadType(roadType, True)
     # set the allowed mode by link not road type
     newLink.setUseRoadTypeNonAllowedVehicles(False)
     # create list of banned vehicles
@@ -114,6 +114,9 @@ def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles, roadT
     newLink = GKSystem.getSystem().newObject("GKSection", model)
     newLink.setName(f"dummylink_{transitLine.getExternalId()}")
     newLink.setExternalId(f"dummylink_{transitLine.getExternalId()}")
+    # Set the road type
+    roadType = roadTypes["dummyLinkRoadType"]
+    newLink.setRoadType(roadType, True)
     # Set the start end end points of the link
     nodePoint = node.getPosition()
     linkLength = 20.00
@@ -129,9 +132,6 @@ def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles, roadT
     # make one lane for dummy link
     lane = GKSectionLane()
     newLink.addLane(lane)
-    # Set the road type
-    roadType = roadTypes["dummyLinkRoadType"]
-    newLink.setRoadType(roadType, True)
     # Set the allowed mode to only include transit vehicle
     newLink.setUseRoadTypeNonAllowedVehicles(False)
     # create list of banned vehicles
