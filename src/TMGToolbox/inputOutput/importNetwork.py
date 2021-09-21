@@ -100,8 +100,9 @@ def addLink(link, allVehicles, roadTypes):
     if len(bannedVehicles)>0:
         newLink.setNonAllowedVehicles(bannedVehicles)
 
-    #TODO add the type, not sure how to represent this
-    #TODO add the volume delay function
+    # Add Data 1 which is the user defined cost for use in certain VDFs
+    ul1 = float(link[8])
+    newLink.setUserDefinedCost(ul1)
     # Add Data 2 which is free flow speed
     freeFlowSpeed = float(link[9])
     newLink.setSpeed(freeFlowSpeed)
@@ -888,7 +889,7 @@ def addRoadTypes(listOfNames):
         newRoadType = cmd.createdObject()
         newRoadType.setName("dummyLinkRoadType")
         newRoadType.setExternalId("dummyLinkRoadType")
-        newRoadType.setDrawMode(3) # hide the dummy links
+    newRoadType.setDrawMode(3) # hide the dummy links
     # add the road type to the dict
     roadTypes["dummyLinkRoadType"] = newRoadType
     # Add a type for when VDF is 0 links
