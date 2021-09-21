@@ -891,6 +891,18 @@ def addRoadTypes(listOfNames):
         newRoadType.setDrawMode(3) # hide the dummy links
     # add the road type to the dict
     roadTypes["dummyLinkRoadType"] = newRoadType
+    # Add a type for when VDF is 0 links
+    # TODO make permanent behaviour for fd0 links
+    newRoadType = catalog.findObjectByExternalId("fd0", roadTypeType)
+    if newRoadType is None:
+        cmd = model.createNewCmd( model.getType( "GKRoadType" ))
+        model.getCommander().addCommand( cmd )
+        newRoadType = cmd.createdObject()
+        newRoadType.setName("fd0")
+        newRoadType.setExternalId("fd0")
+        newRoadType.setDrawMode(0) # default to road draw
+    # add the road type to the dict
+    roadTypes["fd0"] = newRoadType
     # Repeat the process for all road types in listOfNames
     for name in listOfNames:
         # Check if the type already exists
