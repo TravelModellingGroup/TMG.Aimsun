@@ -878,20 +878,32 @@ def readFunctionsFile(filename):
 def addRoadTypes(listOfNames):
     roadTypes = dict()
     # Add a type for dummy links
-    cmd = model.createNewCmd( model.getType( "GKRoadType" ))
-    model.getCommander().addCommand( cmd )
-    newRoadType = cmd.createdObject()
-    newRoadType.setName("dummyLinkRoadType")
-    newRoadType.setExternalId("dummyLinkRoadType")
-    newRoadType.setDrawMode(3) # hide the dummy links
-    roadTypes["dummyLinkRoadType"] = newRoadType
-    for name in listOfNames:
+    # Check if the type already exists
+    roadTypeType = model.getType("GKRoadType")
+    catalog = model.getCatalog()
+    newRoadType = catalog.findObjectByExternalId("dummyLinkRoadType", roadTypeType)
+    if newRoadType is None:
         cmd = model.createNewCmd( model.getType( "GKRoadType" ))
         model.getCommander().addCommand( cmd )
         newRoadType = cmd.createdObject()
-        newRoadType.setName(name)
-        newRoadType.setExternalId(name)
-        newRoadType.setDrawMode(0) # default to road draw mode
+        newRoadType.setName("dummyLinkRoadType")
+        newRoadType.setExternalId("dummyLinkRoadType")
+        newRoadType.setDrawMode(3) # hide the dummy links
+    # add the road type to the dict
+    roadTypes["dummyLinkRoadType"] = newRoadType
+    # Repeat the process for all road types in listOfNames
+    for name in listOfNames:
+        # Check if the type already exists
+        newRoadType = catalog.findObjectByExternalId(name, roadTypeType)
+        # otherwise make a new type
+        if newRoadType is None:
+            cmd = model.createNewCmd( model.getType( "GKRoadType" ))
+            model.getCommander().addCommand( cmd )
+            newRoadType = cmd.createdObject()
+            newRoadType.setName(name)
+            newRoadType.setExternalId(name)
+            newRoadType.setDrawMode(0) # default to road draw mode
+        # add the road type to the dict
         roadTypes[name] = newRoadType
     return roadTypes
 
@@ -960,6 +972,7 @@ def main(argv):
     for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
         for vehicle in iter(types.values()):
             allVehicles.append(vehicle)
+    print("Define road types")
     roadTypeNames = readFunctionsFile(f"{argv[2]}/functions.411")
     roadTypes = addRoadTypes(roadTypeNames)
     print("Read base network data file")
