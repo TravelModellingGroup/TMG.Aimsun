@@ -441,7 +441,21 @@ def addTransitLine(lineId, lineName, pathLinks, busStops, transitVehicle, allVeh
         ptLine.add(link, None)
     # add the stop list to the line
     ptLine.setStops(allBusStops)
-    if ptLine.isCorrect()[0] is False:
+    # Check that the route defined by the line is valid
+    check = ptLine.isCorrect()
+    # Set a max number of attempts to fix the line
+    fixTries = 5
+    while check[0] is False and fixTries > 0:
+        print(f"Fix a discontinuity in transit line {lineId} {lineName}")
+        # create a new turn to fix the discrepancy
+        fromLink = model.getCatalog().find(check[3])
+        toLink = model.getCatalog().find(check[1])
+        node = fromLink.getDestination()
+        createTurn(node, fromLink, toLink)
+        # update the check and the maximum tries counter
+        check = ptLine.isCorrect()
+        fixTries -= 1
+    if check[0] is False:
         print (f"Issue importing transit line {lineId} {lineName}")
 
 # Takes a path list as argument
