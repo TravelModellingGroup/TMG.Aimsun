@@ -143,7 +143,7 @@ def turnCheck(fromSection, toSection):
     for turn in turnsOut:
         destination = turn.getDestination()
         if destination == toSection:
-            check = True
+            return
     if check is False:
         createTurn(fromSection.getDestination(), fromSection, toSection)
 
@@ -188,10 +188,6 @@ def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles, roadT
 
     # Set the desination link to the node
     newLink.setDestination(node)
-    # destinationConnection = GKSystem.getSystem().newObject("GKObjectConnection", model)
-    # destinationConnection.setOwner(node)
-    # destinationConnection.setConnectionObject(newLink)
-    # node.addConnection(destinationConnection)
 
     # Set the allowed mode to only include transit vehicle
     newLink.setUseRoadTypeNonAllowedVehicles(False)
