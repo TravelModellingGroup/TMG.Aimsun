@@ -118,7 +118,7 @@ print("Run transit assignment")
 system.executeAction( "execute", ptExperiment, [], "transit assignment")
 
 # Generate PT Skim Matrices
-skimMatrices = ptExperiment.getOutputData().getSkimMatrices(model)
+skimMatrices = ptExperiment.getOutputData().getSkimMatrices()
 contConfType = model.getType('GKPedestrianCentroidConfiguration')
 ptCentroidConf = model.getCatalog().findObjectByExternalId("ped_baseCentroidConfig", contConfType)
 # Save to the network file
