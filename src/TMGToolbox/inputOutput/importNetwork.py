@@ -54,6 +54,12 @@ def addNode(node):
     # For now ignoring the Data1, Data 2, Data 3, and Label columns
     return newNode
 
+def initializeNodeConnections(listOfNodes):
+    nodeConnections = dict()
+    for node in listOfNodes:
+        nodeConnections[node] = set()
+    return nodeConnections
+
 def getPointsFromNodes(fromNode, toNode):
     points = GKPoints()
     points.append(fromNode.getPosition())
@@ -61,7 +67,7 @@ def getPointsFromNodes(fromNode, toNode):
     return points
 
 # Function to create a link (section) object in Aimsun
-def addLink(link, allVehicles, roadTypes, layer):
+def addLink(link, allVehicles, roadTypes, layer, nodeConnections):
     # Create the link
     numberOfLanes = max(int(float(link[6])),1)
     # Set the road type
@@ -88,14 +94,16 @@ def addLink(link, allVehicles, roadTypes, layer):
     newLink.setOrigin(fromNode)
     newLink.setDestination(toNode)
     # Connect the origin and destination nodes to the link
-    originConnection = GKSystem.getSystem().newObject("GKObjectConnection", model)
-    originConnection.setOwner(fromNode)
-    originConnection.setConnectionObject(newLink)
-    fromNode.addConnection(originConnection)
-    destinationConnection = GKSystem.getSystem().newObject("GKObjectConnection", model)
-    destinationConnection.setOwner(toNode)
-    destinationConnection.setConnectionObject(newLink)
-    toNode.addConnection(destinationConnection)
+    nodeConnections[fromNode].add(newLink)
+    nodeConnections[toNode].add(newLink)
+    # originConnection = GKSystem.getSystem().newObject("GKObjectConnection", model)
+    # originConnection.setOwner(fromNode)
+    # originConnection.setConnectionObject(newLink)
+    # fromNode.addConnection(originConnection)
+    # destinationConnection = GKSystem.getSystem().newObject("GKObjectConnection", model)
+    # destinationConnection.setOwner(toNode)
+    # destinationConnection.setConnectionObject(newLink)
+    # toNode.addConnection(destinationConnection)
     # set the allowed mode by link not road type
     newLink.setUseRoadTypeNonAllowedVehicles(False)
     # create list of banned vehicles
@@ -236,7 +244,7 @@ def createTurn(node, fromLink, toLink):
     node.addTurning(newTurn, True, False)
 
 # Function to create the turns from file
-def createTurnsFromFile(filename, listOfAllNodes):
+def createTurnsFromFile(filename, listOfAllNodes, nodeConnections):
     print("Build turns")
     # Copy the list of nodes
     nodes = listOfAllNodes.copy()
@@ -274,9 +282,8 @@ def createTurnsFromFile(filename, listOfAllNodes):
                     toLink = None
                     fromLinkId = f"link{turn[2]}_{turn[1]}"
                     toLinkId = f"link{turn[1]}_{turn[3]}"
-                    connectedLinks = node.getConnections()
-                    for linkConnection in iter(connectedLinks):
-                        link = linkConnection.getConnectionObject()
+                    connectedLinks = nodeConnections[node]
+                    for link in connectedLinks:
                         if link is not None and link.getType() == linkType:
                             testLinkId = link.getExternalId()
                             if testLinkId == fromLinkId:
@@ -296,14 +303,14 @@ def createTurnsFromFile(filename, listOfAllNodes):
         # build turnings for the remaining nodes assuming all allowed
         for node in nodesWithDefinedTurns:
             nodes.remove(node)
-        buildTurnings(nodes)
+        buildTurnings(nodes, nodeConnections)
     except FileNotFoundError:
         # If the turns.231 file is not found build in all possible turns
         print("Turns file not found. Build all possible turns")
-        buildTurnings(nodes)
+        buildTurnings(nodes, nodeConnections)
 
 # Function to connect links (sections) in Aimsun
-def buildTurnings(listOfNodes):
+def buildTurnings(listOfNodes, nodeConnections):
     # Get all of the links and nodes
     # Assume that all links that are connected by nodes have all lanes 
     # turning to each other
@@ -311,9 +318,8 @@ def buildTurnings(listOfNodes):
         linksIn = []
         linksOut = []
         linkType = model.getType("GKSection")
-        connectedLinks = node.getConnections()
-        for linkConnection in iter(connectedLinks):
-            link = linkConnection.getConnectionObject()
+        connectedLinks = nodeConnections[node]
+        for link in connectedLinks:
             origin = link.getOrigin()
             destination = link.getDestination()
             if origin is node:
@@ -473,7 +479,7 @@ def addTransitLine(lineId, lineName, pathLinks, busStops, transitVehicle, allVeh
 
 # Takes a path list as argument
 # Returns the nodes and links that make up the path
-def getPath(pathList):
+def getPath(pathList, nodeConnections):
     nodes = []
     links = []
     nodeType = model.getType("GKNode")
@@ -485,9 +491,8 @@ def getPath(pathList):
         fromNode = nodes[i-1]
         toNode = nodes[i]
         link = None
-        connectedLinks = fromNode.getConnections()
-        for linkConnection in iter(connectedLinks):
-            testLink = linkConnection.getConnectionObject()
+        connectedLinks = nodeConnections[fromNode]
+        for testLink in connectedLinks:
             # Check that the connected object is a link
             if testLink.getType() == linkType:
                 origin = testLink.getOrigin()
@@ -500,7 +505,7 @@ def getPath(pathList):
     return nodes, links
 
 # Function to create the transit lines from reading the file to adding to the network
-def importTransit(fileName, roadTypes, layer):
+def importTransit(fileName, roadTypes, layer, nodeConnections):
     # read the transit file
     print("Import transit network")
     print("Read transit file")
@@ -527,7 +532,7 @@ def importTransit(fileName, roadTypes, layer):
         busStops = []
         # print(f"Adding Line {lineId} {lineName}")
         # Get the path links and nodes
-        nodePath, linkPath = getPath(pathList)
+        nodePath, linkPath = getPath(pathList, nodeConnections)
         # add all of the stops in the line to the network
         # fist stop will be on dummy link so don't add bus stop
         for j in range(1, len(nodePath)):
@@ -692,19 +697,18 @@ def createGlobalPedArea(geomodel, layer, name):
     geomodel.add(layer, pedArea)
     return pedArea
 
-def findNearbySections(centroid):
+def findNearbySections(centroid, nodeConnections):
     nearbySections = []
     nodeType = model.getType("GKNode")
     sectionType = model.getType("GKSection")
     # Get the nodes connected to the centroid
-    nodeConnections = centroid.getConnections()
-    for nodeConnection in iter(nodeConnections):
-        node = nodeConnection.getConnectionObject()
+    centroidConnections = centroid.getConnections()
+    for centroidConnection in iter(centroidConnections):
+        node = centroidConnection.getConnectionObject()
         if node.getType() == nodeType:
             # Get the links from/to the nodes
-            linkConnections = node.getConnections()
-            for linkConnection in iter(linkConnections):
-                link = linkConnection.getConnectionObject()
+            linkConnections = nodeConnections[node]
+            for link in linkConnections:
                 if link.getType() == sectionType:
                     nearbySections.append(link)
     if len(nearbySections) == 0:
@@ -713,9 +717,9 @@ def findNearbySections(centroid):
 
 # Method takes a centroid as argument and returns a list of nearby bus stops
 # Nearby bus stops are stops on any link to or from a node on a centroid connector
-def findNearbyStops(centroid):
+def findNearbyStops(centroid, nodeConnections):
     nearbyStops = []
-    nearbySections = findNearbySections(centroid)
+    nearbySections = findNearbySections(centroid, nodeConnections)
     if nearbySections is not None:
         for section in nearbySections:
             potentialStops = section.getTopObjects()
@@ -727,7 +731,7 @@ def findNearbyStops(centroid):
         nearbyStops = None
     return nearbyStops
 
-def createTransitCentroidConnections(centroidConfiguration):
+def createTransitCentroidConnections(centroidConfiguration, nodeConnections):
     print("Create pedestrian centroid configuration")
     # create pedestrian layer
     geomodel = model.getGeoModel()
@@ -745,7 +749,7 @@ def createTransitCentroidConnections(centroidConfiguration):
     for centroid in centroids:
         pedCentroids = list()
         # Get all nearby stops
-        nearbyStops = findNearbyStops(centroid)
+        nearbyStops = findNearbyStops(centroid, nodeConnections)
         # If no stops found get the closest stop
         if nearbyStops is None:
             nearbyStops = [geomodel.findClosestObject(centroid.getPosition(), sectionType)]
@@ -1054,6 +1058,7 @@ def main(argv):
         # output the progress of the import
         if (counter % infoStepSize) == 0:
             print(f"{counter} nodes added")
+    nodeConnections = initializeNodeConnections(allNodes)
     nodeEndTime = time.perf_counter()
     print(f"Time to import nodes: {nodeEndTime-nodeStartTime}s")
     linkStartTime = time.perf_counter()
@@ -1069,7 +1074,7 @@ def main(argv):
             centroidConnections.append(link)
         # If from and to are both nodes, add the link
         else:
-            addLink(link, allVehicles, roadTypes, layer)
+            addLink(link, allVehicles, roadTypes, layer, nodeConnections)
         # output the progress of the import
         if (counter % infoStepSize) == 0:
             print(f"{counter} links added")
@@ -1079,7 +1084,7 @@ def main(argv):
     print(f"Time to import links: {linkEndTime-linkStartTime}s")
     turnStartTime = time.perf_counter()
     # Build the turns (connections betweek links)
-    createTurnsFromFile(f"{argv[2]}/turns.231", allNodes)
+    createTurnsFromFile(f"{argv[2]}/turns.231", allNodes, nodeConnections)
     turnEndTime = time.perf_counter()
     print(f"Time to build turns: {turnEndTime-turnStartTime}s")
     # Add the centroids
@@ -1091,8 +1096,8 @@ def main(argv):
     print(f"Time to add centroids: {centroidEndTime-centroidStartTime}")
     # Import the transit network
     transitStartTime = time.perf_counter()
-    importTransit(f"{argv[2]}/transit.221", roadTypes, layer)
-    createTransitCentroidConnections(centroidConfig)
+    importTransit(f"{argv[2]}/transit.221", roadTypes, layer, nodeConnections)
+    createTransitCentroidConnections(centroidConfig, nodeConnections)
     pedestrianType = definePedestrianType()
     print("Build walking transfers")
     buildWalkingTransfers()
@@ -1103,8 +1108,6 @@ def main(argv):
     drawLinksAndNodes(layer)
     # remove the object connections used for performance improvements
     # these are not needed for the final network
-    # TODO enable this when bug fixed in objectDeleteCmd is fixed
-    # deleteAllObjectConnections()
     print("Finished import")
     # Save the network to file
     print("Save network")
