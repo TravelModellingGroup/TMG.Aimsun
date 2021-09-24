@@ -60,7 +60,6 @@ def getPointsFromNodes(fromNode, toNode):
 # Function to create a link (section) object in Aimsun
 def addLink(link, allVehicles, roadTypes, layer):
     # Create the link
-    # newLink = GKSystem.getSystem().newObject("GKSection", model)
     numberOfLanes = max(int(float(link[6])),1)
     # Set the road type
     roadTypeName = f"fd{link[7]}"
@@ -127,10 +126,10 @@ def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles, roadT
     points.append(GKPoint(nodePoint.x-linkLength, nodePoint.y))
     points.append(nodePoint)
     roadType = roadTypes["dummyLinkRoadType"]
-    cmd = model.createNewCmd( model.getType( "GKSection" ))
+    cmd = model.createNewCmd(model.getType("GKSection"))
     cmd.setPoints(numberOfLanes, laneWidth, points, layer)
     cmd.setRoadType(roadType)
-    model.getCommander().addCommand( cmd )
+    model.getCommander().addCommand(cmd)
     newLink = cmd.createdObject()
 
     newLink.setName(f"dummylink_{transitLine.getExternalId()}")
@@ -944,6 +943,18 @@ def addRoadTypes(listOfNames):
         roadTypes[name] = newRoadType
     return roadTypes
 
+def deleteAllObjectConnections():
+    connectionType = model.getType("GKObjectConnection")
+    catalog = model.getCatalog()
+    allConnections = catalog.getObjectsByType(connectionType)
+    if allConnections is not None:
+        for connection in iter(allConnections.values()):
+            object1 = connection.getOwner()
+            object2 = connection.getConnectionObject()
+            cmd = GKObjectConnectionDelCmd()
+            cmd.init(object1, object2)
+            model.getCommander().addCommand(cmd)
+
 # Test script for running the import network from the aimsun bridge
 # Takes the console and model objects opened in the aimsun bridge
 # networkDirectory is the path the the unzipped network file
@@ -1075,6 +1086,10 @@ def main(argv):
     # Draw all graphical elements to the visible network layer
     
     drawLinksAndNodes(layer)
+    # remove the object connections used for performance improvements
+    # these are not needed for the final network
+    # TODO enable this when bug fixed in objectDeleteCmd is fixed
+    # deleteAllObjectConnections()
     print("Finished import")
     # Save the network to file
     print("Save network")
