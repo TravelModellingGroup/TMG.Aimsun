@@ -143,8 +143,8 @@ def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles, roadT
     model.getCommander().addCommand(cmd)
     newLink = cmd.createdObject()
 
-    newLink.setName(f"dummylink_{transitLine.getExternalId()}")
-    newLink.setExternalId(f"dummylink_{transitLine.getExternalId()}")
+    newLink.setName(f"dummylink_at_{node.getExternalId()}")
+    newLink.setExternalId(f"dummylink_at_{node.getExternalId()}")
 
     # Set the desination link to the node
     newLink.setDestination(node)
