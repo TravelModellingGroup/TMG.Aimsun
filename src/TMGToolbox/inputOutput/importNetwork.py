@@ -766,6 +766,7 @@ def createTransitCentroidConnections(centroidConfiguration):
                 pedCentroids.append(exitCentroid) 
             # Connect the nearby transit stops to the centroids
             for stop in nearbyStops:
+                # TODO change to newCmd for centroid connection causes crash
                 entranceConnection = GKSystem.getSystem().newObject("GKCenConnection", model)
                 entranceConnection.setOwner(entranceCentroid)
                 entranceConnection.setConnectionObject(stop)
