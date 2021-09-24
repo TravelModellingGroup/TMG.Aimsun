@@ -6,6 +6,7 @@ from PyANGKernel import *
 from PyANGConsole import *
 import shlex
 import csv
+from importNetwork import readTransitFile
 
 def readServiceTables(fileLocation, header=True):
     serviceTables = []
@@ -34,21 +35,23 @@ def readServiceTables(fileLocation, header=True):
         serviceTables.append((transitLine, departures, arrivals))
     return serviceTables
 
-# Function uses the dummy link at the start of the transit line to find the transit vehicle
-def findTransitVehicle(transitLine):
-    transitVehicle = None
+def buildTransitVehDict(transitFile):
+    transitVehDict = dict()
     vehType = model.getType("GKVehicle")
-    sectionType = model.getType("GKSection")
-    dummyLinkId = f"dummylink_{transitLine.getExternalId()}"
-    dummyLink = model.getCatalog().findObjectByExternalId(dummyLinkId, sectionType)
-    for types in model.getCatalog().getUsedSubTypesFromType( vehType ):
-        for veh in iter(types.values()):
-            if dummyLink.canUseVehicle(veh) is True:
-                transitVehicle = veh
-                return transitVehicle
+    node, stops, lines = readTransitFile(transitFile)
+    for i in range(len(lines)):
+        lineId = lines[i][0]
+        lineVehicle = model.getCatalog().findObjectByExternalId(f"transitVeh_{lines[i][2]}", vehType)
+        transitVehDict[lineId] = lineVehicle
+    return transitVehDict
+
+# Function uses the dummy link at the start of the transit line to find the transit vehicle
+def findTransitVehicle(transitLine, transitVehDict):
+    lineId = transitLine.getExternalId()
+    transitVehicle = transitVehDict[lineId]
     return transitVehicle
 
-def addServiceToLine(lineId, departures, arrivals, vehicle=None):
+def addServiceToLine(lineId, departures, arrivals, transitVehDict, vehicle=None):
     sectionType = model.getType("GKPublicLine")
     transitLine = model.getCatalog().findObjectByExternalId(lineId, sectionType)
     if transitLine is None:
@@ -81,7 +84,7 @@ def addServiceToLine(lineId, departures, arrivals, vehicle=None):
     schedule.setDuration(duration)
     departureVeh = vehicle
     if departureVeh is None:
-        departureVeh = findTransitVehicle(transitLine)
+        departureVeh = findTransitVehicle(transitLine, transitVehDict)
     for d in departures:
         timeElements = d.split(":")
         hour = int(timeElements[0])
@@ -110,9 +113,9 @@ def addServiceToLine(lineId, departures, arrivals, vehicle=None):
 
 def main(argv):
     print("Import transit schedules")
-    if len(argv)<4:
+    if len(argv)<5:
         print("Incorrect Number of Arguments")
-        print("Arguments: -script script.py aimsunProjectFile.ang serviceTable.csv outputNetworkFile.ang")
+        print("Arguments: -script script.py aimsunProjectFile.ang serviceTable.csv transitFile.221 outputNetworkFile.ang")
         return 1
     # Start a console
     console = ANGConsole()
@@ -125,12 +128,14 @@ def main(argv):
         console.getLog().addError("Cannot load the network")
         print("cannot load network")
         return -1
+    transitFile = argv[3]
+    transitVehDict = buildTransitVehDict(transitFile)
     serviceTables = readServiceTables(argv[2])
     for serviceTable in serviceTables:
-        addServiceToLine(serviceTable[0], serviceTable[1], serviceTable[2])
+        addServiceToLine(serviceTable[0], serviceTable[1], serviceTable[2], transitVehDict)
     # Save the network file
     print("Save Network")
-    console.save(argv[3])
+    console.save(argv[4])
     return 0
 
 if __name__ == "__main__":
