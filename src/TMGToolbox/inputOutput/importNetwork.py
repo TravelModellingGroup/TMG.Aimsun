@@ -41,13 +41,16 @@ def readFile(filename):
 # Function to create a node object in Aimsun
 def addNode(node):
     # Create new node
-    newNode = GKSystem.getSystem().newObject("GKNode", model)
+    cmd = model.createNewCmd(model.getType("GKNode"))
+    # Set the position of the node in space
+    cmd.setPosition(GKPoint(float(node[2]), float(node[3])))
+    model.getCommander().addCommand(cmd)
+    newNode = cmd.createdObject()
     # Set the name to the node number
     newNode.setName(f"node{node[1]}")
     newNode.setExternalId(node[1])
+    # For performance catalog by external id for searching
     model.getCatalog().catalogObjectExternalId(newNode)
-    # Set the position of the node in space
-    newNode.setPosition(GKPoint(float(node[2]), float(node[3])))
     # For now ignoring the Data1, Data 2, Data 3, and Label columns
     return newNode
 
