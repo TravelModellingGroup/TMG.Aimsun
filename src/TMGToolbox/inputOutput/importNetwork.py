@@ -127,7 +127,47 @@ def addLink(link, allVehicles, roadTypes, layer, nodeConnections):
     capacityPerLane = float(link[10])
     newLink.setCapacity(float(numberOfLanes) * capacityPerLane)
 
+def addAllowedVehicle(section, vehicle, allVehicles):
+    if section.canUseVehicle(vehicle) is False:
+        bannedVehicles = []
+        for veh in section.getNonAllowedVehicles():
+            if veh != vehicle:
+                bannedVehicles.append(veh)
+        if len(bannedVehicles)>0:
+            section.setUseRoadTypeNonAllowedVehicles(False)
+            section.setNonAllowedVehicles(bannedVehicles)
+
+def turnCheck(fromSection, toSection):
+    check = False
+    turnsOut = fromSection.getDestTurnings()
+    for turn in turnsOut:
+        destination = turn.getDestination()
+        if destination == toSection:
+            check = True
+    if check is False:
+        createTurn(fromSection.getDestination(), fromSection, toSection)
+
 def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles, roadTypes, layer):
+    # Check if the dummy link already exists
+    catalog = model.getCatalog()
+    sectionType = model.getType("GKSection")
+    busStopType = model.getType("GKBusStop")
+    existingDummyLink = catalog.findObjectByExternalId(f"dummylink_at_{node.getExternalId()}", sectionType)
+    if existingDummyLink is not None:
+        # Find the bus stop on the dummy link
+        busStop = None
+        dummyLink = existingDummyLink
+        potentialStops = dummyLink.getTopObjects()
+        if potentialStops is not None:
+            for stop in potentialStops:
+                if stop.getType() == busStopType:
+                    busStop = stop
+        # Check the allowed vehicles
+        addAllowedVehicle(dummyLink, transitVehicle, allVehicles)
+        # Check can turn onto nextLink
+        turnCheck(dummyLink, nextLink)
+        if busStop is not None:
+            return dummyLink, busStop
     # Create the link
     numberOfLanes = 1
     laneWidth = 2.0
@@ -148,10 +188,10 @@ def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles, roadT
 
     # Set the desination link to the node
     newLink.setDestination(node)
-    destinationConnection = GKSystem.getSystem().newObject("GKObjectConnection", model)
-    destinationConnection.setOwner(node)
-    destinationConnection.setConnectionObject(newLink)
-    node.addConnection(destinationConnection)
+    # destinationConnection = GKSystem.getSystem().newObject("GKObjectConnection", model)
+    # destinationConnection.setOwner(node)
+    # destinationConnection.setConnectionObject(newLink)
+    # node.addConnection(destinationConnection)
 
     # Set the allowed mode to only include transit vehicle
     newLink.setUseRoadTypeNonAllowedVehicles(False)
