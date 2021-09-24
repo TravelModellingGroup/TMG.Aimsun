@@ -138,14 +138,12 @@ def addAllowedVehicle(section, vehicle, allVehicles):
             section.setNonAllowedVehicles(bannedVehicles)
 
 def turnCheck(fromSection, toSection):
-    check = False
     turnsOut = fromSection.getDestTurnings()
     for turn in turnsOut:
         destination = turn.getDestination()
         if destination == toSection:
             return
-    if check is False:
-        createTurn(fromSection.getDestination(), fromSection, toSection)
+    createTurn(fromSection.getDestination(), fromSection, toSection)
 
 def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles, roadTypes, layer):
     # Check if the dummy link already exists
