@@ -52,26 +52,35 @@ def addNode(node):
     return newNode
 
 # Function to create a link (section) object in Aimsun
-def addLink(link, allVehicles, roadTypes):
+def addLink(link, allVehicles, roadTypes, layer):
     # Create the link
-    newLink = GKSystem.getSystem().newObject("GKSection", model)
+    # newLink = GKSystem.getSystem().newObject("GKSection", model)
+    numberOfLanes = max(int(float(link[6])),1)
+    # Set the road type
+    roadTypeName = f"fd{link[7]}"
+    roadType = roadTypes[roadTypeName]
+    # newLink.setRoadType(roadType, True)
+    # get the points
+    nodeType = model.getType("GKNode")
+    fromNode = model.getCatalog().findObjectByExternalId(link[1], nodeType)
+    toNode = model.getCatalog().findObjectByExternalId(link[2], nodeType)
+    points = GKPoints()
+    points.append(fromNode.getPosition())
+    points.append(toNode.getPosition())
+    # lane width
+    laneWidth = 2.0
+    cmd = model.createNewCmd( model.getType( "GKSection" ))
+    cmd.setPoints(numberOfLanes, laneWidth, points, layer)
+    cmd.setRoadType(roadType)
+    model.getCommander().addCommand( cmd )
+    newLink = cmd.createdObject()
     # Set the name to reflect start and end nodes
     name = f"link{link[1]}_{link[2]}"
     newLink.setName(name)
     newLink.setExternalId(name)
-    # Set the road type
-    roadTypeName = f"fd{link[7]}"
-    roadType = roadTypes[roadTypeName]
-    newLink.setRoadType(roadType, True)
     # Set the start and end nodes for the link
-    sectionType = model.getType("GKNode")
-    fromNode = model.getCatalog().findObjectByExternalId(link[1], sectionType)
     newLink.setOrigin(fromNode)
-    toNode = model.getCatalog().findObjectByExternalId(link[2], sectionType)
     newLink.setDestination(toNode)
-    newLink.addPoint(newLink.getOrigin().getPosition())
-    newLink.addPoint(newLink.getDestination().getPosition())
-    newLink.setFromPoints(newLink.getPoints(), 0)
     # Connect the origin and destination nodes to the link
     originConnection = GKSystem.getSystem().newObject("GKObjectConnection", model)
     originConnection.setOwner(fromNode)
@@ -81,12 +90,6 @@ def addLink(link, allVehicles, roadTypes):
     destinationConnection.setOwner(toNode)
     destinationConnection.setConnectionObject(newLink)
     toNode.addConnection(destinationConnection)
-    # add the lanes
-    # make sure there is at least one lane
-    numberOfLanes = max(int(float(link[6])),1)
-    for l in range(numberOfLanes):
-        lane = GKSectionLane()
-        newLink.addLane(lane)
     # set the allowed mode by link not road type
     newLink.setUseRoadTypeNonAllowedVehicles(False)
     # create list of banned vehicles
@@ -1004,6 +1007,7 @@ def main(argv):
     roadTypes = addRoadTypes(roadTypeNames)
     print("Read base network data file")
     links, nodes, centroids, centroidSet = readFile(f"{argv[2]}/base.211")
+    layer = model.getGeoModel().findLayer("Network")
     nodeStartTime = time.perf_counter()
     print("Add nodes")
     print(f"Number of nodes to import: {len(nodes)}")
@@ -1032,7 +1036,7 @@ def main(argv):
             centroidConnections.append(link)
         # If from and to are both nodes, add the link
         else:
-            addLink(link, allVehicles, roadTypes)
+            addLink(link, allVehicles, roadTypes, layer)
         # output the progress of the import
         if (counter % infoStepSize) == 0:
             print(f"{counter} links added")
@@ -1062,7 +1066,7 @@ def main(argv):
     transitEndTime = time.perf_counter()
     print(f"Time to import transit: {transitEndTime-transitStartTime}s")
     # Draw all graphical elements to the visible network layer
-    layer = model.getGeoModel().findLayer("Network")
+    
     drawLinksAndNodes(layer)
     print("Finished import")
     # Save the network to file
