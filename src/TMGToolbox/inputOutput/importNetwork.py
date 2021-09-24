@@ -548,7 +548,7 @@ def importTransit(fileName, roadTypes, layer):
         addTransitLine(lineId,lineName,linkPath,busStops,lineVehicle,allVehicles, roadTypes, layer)
     print("Transit import complete")
 
-def createCentroid(centroidInfo):
+def createCentroid(centroidInfo, centroidConfiguration):
     nodeId = centroidInfo[1]
     xCoord = float(centroidInfo[2])
     yCoord = float(centroidInfo[3])
@@ -560,10 +560,12 @@ def createCentroid(centroidInfo):
     if existingCentroid != None:
         return existingCentroid
     # Create the centroid
-    centroid = GKSystem.getSystem().newObject("GKCentroid", model)
+    cmd = model.createNewCmd( model.getType( "GKCentroid" ))
+    cmd.setData(GKPoint(xCoord, yCoord), centroidConfiguration)
+    model.getCommander().addCommand( cmd )
+    centroid = cmd.createdObject()
     centroid.setExternalId(f"centroid_{nodeId}")
     centroid.setName(f"centroid_{nodeId}")
-    centroid.setFromPosition(GKPoint(xCoord, yCoord))
     return centroid
 
 # Create centroid configuration
@@ -576,7 +578,7 @@ def createCentroidConfiguration(name, listOfCentroidInfo):
     centroidConfig.setExternalId(name)
     print("Create and add the centroids")
     for centroidInfo in listOfCentroidInfo:
-        centroid = createCentroid(centroidInfo)
+        centroid = createCentroid(centroidInfo, centroidConfig)
         # Add the centroid to the centroid configuration if not already included
         if centroidConfig.contains(centroid) is False:
             centroidConfig.addCentroid(centroid)
