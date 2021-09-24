@@ -51,6 +51,12 @@ def addNode(node):
     # For now ignoring the Data1, Data 2, Data 3, and Label columns
     return newNode
 
+def getPointsFromNodes(fromNode, toNode):
+    points = GKPoints()
+    points.append(fromNode.getPosition())
+    points.append(toNode.getPosition())
+    return points
+
 # Function to create a link (section) object in Aimsun
 def addLink(link, allVehicles, roadTypes, layer):
     # Create the link
@@ -64,9 +70,7 @@ def addLink(link, allVehicles, roadTypes, layer):
     nodeType = model.getType("GKNode")
     fromNode = model.getCatalog().findObjectByExternalId(link[1], nodeType)
     toNode = model.getCatalog().findObjectByExternalId(link[2], nodeType)
-    points = GKPoints()
-    points.append(fromNode.getPosition())
-    points.append(toNode.getPosition())
+    points = getPointsFromNodes(fromNode, toNode)
     # lane width
     laneWidth = 2.0
     cmd = model.createNewCmd( model.getType( "GKSection" ))
@@ -113,29 +117,32 @@ def addLink(link, allVehicles, roadTypes, layer):
     capacityPerLane = float(link[10])
     newLink.setCapacity(float(numberOfLanes) * capacityPerLane)
 
-def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles, roadTypes):
+def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles, roadTypes, layer):
     # Create the link
-    newLink = GKSystem.getSystem().newObject("GKSection", model)
-    newLink.setName(f"dummylink_{transitLine.getExternalId()}")
-    newLink.setExternalId(f"dummylink_{transitLine.getExternalId()}")
-    # Set the road type
-    roadType = roadTypes["dummyLinkRoadType"]
-    newLink.setRoadType(roadType, True)
-    # Set the start end end points of the link
+    numberOfLanes = 1
+    laneWidth = 2.0
     nodePoint = node.getPosition()
     linkLength = 20.00
-    newLink.addPoint(GKPoint(nodePoint.x-linkLength, nodePoint.y))
-    newLink.addPoint(nodePoint)
-    newLink.setFromPoints(newLink.getPoints(), 0)
+    points = GKPoints()
+    points.append(GKPoint(nodePoint.x-linkLength, nodePoint.y))
+    points.append(nodePoint)
+    roadType = roadTypes["dummyLinkRoadType"]
+    cmd = model.createNewCmd( model.getType( "GKSection" ))
+    cmd.setPoints(numberOfLanes, laneWidth, points, layer)
+    cmd.setRoadType(roadType)
+    model.getCommander().addCommand( cmd )
+    newLink = cmd.createdObject()
+
+    newLink.setName(f"dummylink_{transitLine.getExternalId()}")
+    newLink.setExternalId(f"dummylink_{transitLine.getExternalId()}")
+
     # Set the desination link to the node
     newLink.setDestination(node)
     destinationConnection = GKSystem.getSystem().newObject("GKObjectConnection", model)
     destinationConnection.setOwner(node)
     destinationConnection.setConnectionObject(newLink)
     node.addConnection(destinationConnection)
-    # make one lane for dummy link
-    lane = GKSectionLane()
-    newLink.addLane(lane)
+
     # Set the allowed mode to only include transit vehicle
     newLink.setUseRoadTypeNonAllowedVehicles(False)
     # create list of banned vehicles
@@ -424,7 +431,7 @@ def addBusStop(fromNodeId, toNodeId, link, start, repeatNumber):
     return busStop
 
 # Function to build the transit lines Aimsun
-def addTransitLine(lineId, lineName, pathLinks, busStops, transitVehicle, allVehicles, roadTypes):
+def addTransitLine(lineId, lineName, pathLinks, busStops, transitVehicle, allVehicles, roadTypes, layer):
     cmd = model.createNewCmd( model.getType( "GKPublicLine" ) )
     cmd.setModel( model )
     model.getCommander().addCommand( cmd )
@@ -434,7 +441,7 @@ def addTransitLine(lineId, lineName, pathLinks, busStops, transitVehicle, allVeh
     links = []
     # Add the dummy link at the start of the line
     firstLink = pathLinks[0]
-    dummyLink, dummyLinkStop = addDummyLink(transitVehicle, firstLink.getOrigin(), firstLink, ptLine, allVehicles, roadTypes)
+    dummyLink, dummyLinkStop = addDummyLink(transitVehicle, firstLink.getOrigin(), firstLink, ptLine, allVehicles, roadTypes, layer)
     ptLine.add(dummyLink, None)
     # add the dummyLink to the busStops list
     allBusStops = busStops
@@ -490,7 +497,7 @@ def getPath(pathList):
     return nodes, links
 
 # Function to create the transit lines from reading the file to adding to the network
-def importTransit(fileName, roadTypes):
+def importTransit(fileName, roadTypes, layer):
     # read the transit file
     print("Import transit network")
     print("Read transit file")
@@ -535,7 +542,7 @@ def importTransit(fileName, roadTypes):
             else:
                 busStops.append(None)
         # add the transit line
-        addTransitLine(lineId,lineName,linkPath,busStops,lineVehicle,allVehicles, roadTypes)
+        addTransitLine(lineId,lineName,linkPath,busStops,lineVehicle,allVehicles, roadTypes, layer)
     print("Transit import complete")
 
 def createCentroid(centroidInfo):
@@ -1058,7 +1065,7 @@ def main(argv):
     print(f"Time to add centroids: {centroidEndTime-centroidStartTime}")
     # Import the transit network
     transitStartTime = time.perf_counter()
-    importTransit(f"{argv[2]}/transit.221", roadTypes)
+    importTransit(f"{argv[2]}/transit.221", roadTypes, layer)
     createTransitCentroidConnections(centroidConfig)
     pedestrianType = definePedestrianType()
     print("Build walking transfers")
