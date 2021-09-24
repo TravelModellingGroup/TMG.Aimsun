@@ -156,9 +156,7 @@ def addDummyLink(transitVehicle, node, nextLink, transitLine, allVehicles, roadT
     if len(bannedVehicles)>0:
         newLink.setNonAllowedVehicles(bannedVehicles)
     # Make the turning object to the first link in the transit line
-    newTurn = GKSystem.getSystem().newObject("GKTurning", model)
-    newTurn.setConnection(newLink, nextLink)
-    node.addTurning(newTurn, True)
+    newTurn = createTurn(node, newLink, nextLink)
     # add a transit stop
     busStop = GKSystem.getSystem().newObject("GKBusStop", model)
     model.getCatalog().add(busStop)
@@ -227,10 +225,13 @@ def readTurnsFile(filename):
 
 # Function to create a turn
 def createTurn(node, fromLink, toLink):
-    newTurn = GKSystem.getSystem().newObject("GKTurning", model)
+    cmd = model.createNewCmd(model.getType( "GKTurning" ))
+    cmd.setTurning(fromLink, toLink)
+    model.getCommander().addCommand( cmd )
+    newTurn = cmd.createdObject()
+
     newTurn.setExternalId(f"turn_{fromLink.getExternalId()}_{toLink.getExternalId()}")
     newTurn.setNode(node)
-    newTurn.setConnection(fromLink, toLink)
     # True for curve turning, false for sorting the turnings
     node.addTurning(newTurn, True, False)
 
