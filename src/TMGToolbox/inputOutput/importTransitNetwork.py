@@ -30,8 +30,10 @@ def cacheNodeConnections(listOfNodes, listOfSections):
     for section in listOfSections:
         fromNode = section.getOrigin()
         toNode = section.getDestination()
-        nodeConnections[fromNode].add(section)
-        nodeConnections[toNode].add(section)
+        if fromNode is not None:
+            nodeConnections[fromNode].add(section)
+        if toNode is not None:
+            nodeConnections[toNode].add(section)
     return nodeConnections
 
 def main(argv):
@@ -43,7 +45,6 @@ def main(argv):
     nodes = cacheAllOfTypeByExternalId("GKNode", model, catalog)
     sections = cacheAllOfTypeByExternalId("GKSection", model, catalog)
     nodeConnections = cacheNodeConnections(nodes.values(), sections.values())
-    
 
 if __name__ == "__main__":
     main(sys.argv)
