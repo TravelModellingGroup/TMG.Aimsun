@@ -1044,6 +1044,18 @@ def importFromBrigde(console, model, networkDirectory, outputNetworkFile):
     model.getCommander().addCommand( None )
     return console, model
 
+def loadModel(filepath, console):
+    if console.open(filepath):
+        model = console.getModel()
+        print("Open network")
+    else:
+        console.getLog().addError("Cannot load the network")
+        print("Cannot load the network")
+        return -1
+    catalog = model.getCatalog()
+    geomodel = model.getGeoModel()
+    return model, catalog, geomodel
+
 # Main script to complete the full netowrk import
 def main(argv):
     overallStartTime = time.perf_counter()
@@ -1053,15 +1065,8 @@ def main(argv):
         return -1
     # Start a console
     console = ANGConsole()
-    # Load a network
-    if console.open(argv[1]): 
-        global model
-        model = console.getModel()
-        print("Open blank network")
-    else:
-        console.getLog().addError("Cannot load the network")
-        print("Cannot load network")
-        return -1
+    global model
+    model, catalog, geomodel = loadModel(argv[1], console)
     # Import the new network
     print("Import network")
     print("Define modes")
