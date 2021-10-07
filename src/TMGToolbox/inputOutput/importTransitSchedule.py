@@ -6,7 +6,7 @@ from PyANGKernel import *
 from PyANGConsole import *
 import shlex
 import csv
-from importNetwork import readTransitFile
+from importTransitNetwork import readTransitFile
 
 def readServiceTables(fileLocation, header=True):
     serviceTables = []
