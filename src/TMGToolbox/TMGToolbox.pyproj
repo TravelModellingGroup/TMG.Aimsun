@@ -5,13 +5,16 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{65137642-fc78-4537-b8dd-704968f6ab6d}</ProjectGuid>
     <ProjectHome />
-    <StartupFile />
+    <StartupFile>..\..\aimsunBridge.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <InterpreterId />
+    <InterpreterId>Global|PythonCore|3.7</InterpreterId>
+    <IsWindowsApplication>False</IsWindowsApplication>
+    <CommandLineArguments>DEBUGaimsun</CommandLineArguments>
+    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
@@ -37,6 +40,9 @@
     <Compile Include="inputOutput\importMatrixFromCSVThirdNormalized.py" />
     <Compile Include="inputOutput\importNetworkPackage.py" />
     <Compile Include="inputOutput\__init__.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|PythonCore|3.7" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>
