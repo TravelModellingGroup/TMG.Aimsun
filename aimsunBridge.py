@@ -27,6 +27,10 @@ import traceback
 import shlex
 import array
 import threading
+import json
+import importlib
+import importlib.util
+print ('default ', os.getcwd())
 
 class AimSunBridge:
     """this class is the aimsun bridge we are building that is based off the emme bridge """
@@ -136,7 +140,21 @@ class AimSunBridge:
         except Exception as e:
             print (e)
             return "error reading"
+        
+    def executeAimsunScript(self, moduleDict):
+        #this function is responsible for calling the importbridge
+        #ie spencers code
+        #requreiment is for the code to be flexible and robust being able to call any 
+        #import module with any function inside of it with inputs to be passable and also 
+        #be able to pass back error messages#)
 
+        spec = importlib.util.spec_from_file_location(moduleDict['tool'], moduleDict['parameters']['ModulePath'])
+        moduleToRun = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(moduleToRun)
+        func = getattr(moduleToRun, moduleDict['parameters']['ModuleFunction'])
+        funArgs = moduleDict['parameters']['ModuleArguments']
+        func(*funArgs)
+        
     def executeModule(self):
         macroName = None
         parameterString = None
@@ -147,6 +165,9 @@ class AimSunBridge:
             parameterString = self.readString()
             #send to the pipe that we ran the message successfully
             self.sendSuccess()
+            nameSpace = {'tool':macroName, 'parameters':json.loads(parameterString)}
+            #run our script with passed in json
+            self.executeAimsunScript(nameSpace)
         except Exception as e:
             self.sendRuntimeError(str(e))
         return

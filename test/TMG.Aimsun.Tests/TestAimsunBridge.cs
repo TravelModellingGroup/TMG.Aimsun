@@ -18,6 +18,7 @@
 */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 
 namespace TMG.Aimsun.Tests
 {
@@ -40,9 +41,17 @@ namespace TMG.Aimsun.Tests
         [TestMethod]
         public void ConstructAimsunBridge()
         {
-            string test = "{'Name': 'test1', 'Name2':'test2'}";
-            Helper.Modeller.Run(null, "Module1Test", test);
-            Helper.Modeller.Run(null, "Module1Test2", test);
+
+            //string test2 = "{'Name'': }"; 
+            //Helper.TestConfiguration.BlankNetwork;
+            string moduleName = Helper.TestConfiguration.BlankNetwork;
+            string json = JsonConvert.SerializeObject(Helper.TestConfiguration);
+
+            //string test = "{'Name': moduleName, 'Name2':'test2'}";
+            //string ans = Helper.buildJSONParameters(test);
+            Helper.Modeller.Run(null, Helper.TestConfiguration.ModuleName, json);
+            Helper.Modeller.Run(null, "pedestrian", json);
+            
         }
     }
 }

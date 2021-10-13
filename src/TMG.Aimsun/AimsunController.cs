@@ -108,8 +108,6 @@ namespace TMG.Aimsun
             //check if file path or ang file exists
             if (!projectFile.EndsWith(".ang") | !File.Exists(projectFile))
             {
-                //TODO WE NEED TO PASS THIS TO THE RUNTIME EXCEPTION
-                //Console.Write("this is a tet file doesn't exist add this to xtmfruntimmeexception");
                 throw new XTMFRuntimeException(module, $"The Aimsun ProjectFile doesn't exist at {projectFile}"); // + e.Message);
             }
 

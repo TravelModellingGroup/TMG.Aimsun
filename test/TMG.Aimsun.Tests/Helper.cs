@@ -22,9 +22,28 @@ using System.IO;
 using Newtonsoft.Json;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics;
+using XTMF;
+using System.Collections.Generic;
 
 namespace TMG.Aimsun.Tests
 {
+    class TestConfiguration
+    {
+        //a property class of all the json keys. When we parse a json file we save the result to this class
+        //json object of files of interest
+        public string BlankNetwork { get; set; }
+        public string OutputNetworkFile { get; set; }
+        public string NetworkDirectory { get; set; }
+        public string AimsunPath { get; set; }
+        public string ImportNetworkPyPath { get; set; }
+        public string ModuleName { get; set; }
+        public string ModulePath { get; set; }
+        public string ModuleFunction { get; set; }
+
+        public IList<string> ModuleArguments { get; set;}
+        
+    }
+
     internal static class Helper
     {
         //This class is a helper class that will help with generic functions
@@ -33,18 +52,15 @@ namespace TMG.Aimsun.Tests
 
         //initialize the modeller controller
         public static ModellerController Modeller { get; private set; }
-        //name of json file
+        public static TestConfiguration TestConfiguration { get; set; }
 
-        class TestConfiguration
+        internal static string buildJSONParameters(string value)
         {
-            //a property class of all the json keys. When we parse a json file we save the result to this class
-            //json object of files of interest
-            public string BlankNetwork { get; set; }
-            public string OutputNetworkFile { get; set; }
-            public string NetworkDirectory {  get; set; }
-            public string AimsunPath { get; set;  }
-            public string ImportNetworkPyPath {  get; set;}
+            //a function to convert a string into a json serialized object
+            string json = JsonConvert.SerializeObject(value);
+            return json;
         }
+
         internal static void InitializeAimsun()
         {
             //method to read the configuration file, parse and extract the data and run the modeller
@@ -59,13 +75,14 @@ namespace TMG.Aimsun.Tests
                 else
                 {
                     var jsonData = File.ReadAllText(configFile.FullName);
-                    var configuration = JsonConvert.DeserializeObject<TestConfiguration>(jsonData);
 
+                    TestConfiguration = JsonConvert.DeserializeObject<TestConfiguration>(jsonData);
+                    
                     //check if debugger is attached if it is used a random name otherwise use the default name DEBUGaimsum
                     bool debuggerAttached = Debugger.IsAttached;
                     string pipeName = debuggerAttached ? "DEBUGaimsun" : Guid.NewGuid().ToString();
-                    
-                    Modeller = new ModellerController(null, configuration.BlankNetwork, pipeName, configuration.AimsunPath, !debuggerAttached);
+
+                    Modeller = new ModellerController(null, TestConfiguration.BlankNetwork, pipeName, TestConfiguration.AimsunPath, !debuggerAttached);
                 }
             }
         }
