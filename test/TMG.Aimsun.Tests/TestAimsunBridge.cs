@@ -41,16 +41,9 @@ namespace TMG.Aimsun.Tests
         [TestMethod]
         public void ConstructAimsunBridge()
         {
-
-            //string test2 = "{'Name'': }"; 
-            //Helper.TestConfiguration.BlankNetwork;
             string moduleName = Helper.TestConfiguration.BlankNetwork;
             string json = JsonConvert.SerializeObject(Helper.TestConfiguration);
-
-            //string test = "{'Name': moduleName, 'Name2':'test2'}";
-            //string ans = Helper.buildJSONParameters(test);
             Helper.Modeller.Run(null, Helper.TestConfiguration.ModuleName, json);
-            Helper.Modeller.Run(null, "pedestrian", json);
             
         }
     }

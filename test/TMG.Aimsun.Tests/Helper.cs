@@ -35,13 +35,9 @@ namespace TMG.Aimsun.Tests
         public string OutputNetworkFile { get; set; }
         public string NetworkDirectory { get; set; }
         public string AimsunPath { get; set; }
-        public string ImportNetworkPyPath { get; set; }
         public string ModuleName { get; set; }
         public string ModulePath { get; set; }
-        public string ModuleFunction { get; set; }
-
-        public IList<string> ModuleArguments { get; set;}
-        
+        public string ModuleFunction { get; set; }        
     }
 
     internal static class Helper

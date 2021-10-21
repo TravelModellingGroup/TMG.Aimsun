@@ -25,6 +25,7 @@ using System.IO.Pipes;
 using XTMF;
 using System.Reflection;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace TMG.Aimsun
 {
@@ -115,18 +116,30 @@ namespace TMG.Aimsun
             _aimsunPipe = new NamedPipeServerStream(pipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
             try
             {
-                if (launchAimsun == true)
-                {
-                    //get location of assembly where modellercontroller is
-                    var codeBase = typeof(ModellerController).GetTypeInfo().Assembly.Location;
-                    string argumentString = "-script " + AddQuotes(Path.Combine(Path.GetDirectoryName(codeBase), "AimsunBridge.py"))
-                                            + " " + AddQuotes(pipeName);
-                    var aimsun = new Process();
-                    var startInfo = new ProcessStartInfo(Path.Combine(aimsunPath, "aconsole.exe"), argumentString);
-                    startInfo.WorkingDirectory = aimsunPath;
-                    aimsun.StartInfo = startInfo;
-                    aimsun.Start();
-                }
+                var codeBase = typeof(ModellerController).GetTypeInfo().Assembly.Location;
+                string argumentString = "-script " + AddQuotes(Path.Combine(Path.GetDirectoryName(codeBase), "AimsunBridge.py"))
+                                        + " " + AddQuotes(pipeName) + " " + AddQuotes(projectFile);
+                var aimsun = new Process();
+
+
+                var startInfo = new ProcessStartInfo(Path.Combine(aimsunPath, "aconsole.exe"), argumentString);
+                startInfo.WorkingDirectory = aimsunPath;
+                aimsun.StartInfo = startInfo;
+                aimsun.Start();
+                //if (launchAimsun == true)
+                //{
+                //    //get location of assembly where modellercontroller is
+                //    var codeBase = typeof(ModellerController).GetTypeInfo().Assembly.Location;
+                //    string argumentString = "-script " + AddQuotes(Path.Combine(Path.GetDirectoryName(codeBase), "AimsunBridge.py"))
+                //                            + " " + AddQuotes(pipeName) + " " + AddQuotes(projectFile);
+                //    var aimsun = new Process();
+
+
+                //    var startInfo = new ProcessStartInfo(Path.Combine(aimsunPath, "aconsole.exe"), argumentString);
+                //    startInfo.WorkingDirectory = aimsunPath;
+                //    aimsun.StartInfo = startInfo;
+                //    aimsun.Start();
+                //}
                 _aimsunPipe.WaitForConnection();
                 var reader = new BinaryReader(_aimsunPipe, System.Text.Encoding.Unicode, true);
                 reader.ReadInt32();    

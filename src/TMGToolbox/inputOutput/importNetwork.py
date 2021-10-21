@@ -3,7 +3,9 @@
 
 # Load in the required libraries
 import sys
+import os
 import time
+
 from PyANGBasic import *
 from PyANGKernel import *
 from PyANGConsole import *
@@ -483,6 +485,7 @@ def deleteAllObjectConnections():
             model.getCommander().addCommand(cmd)
 
 def loadModel(filepath, console):
+    print('loadmodel filePATH ', filepath)
     if console.open(filepath):
         model = console.getModel()
         print("Open network")
@@ -494,6 +497,105 @@ def loadModel(filepath, console):
     geomodel = model.getGeoModel()
     return model, catalog, geomodel
 
+def run_aimsun(parameters, model, console): #, catalog, geomodel, console):
+    #A general function called in all python modules called by bridge. Responsible
+    #for extracting data and running appropiate functions. 
+    print ('run_aimsun ran ', parameters)
+    blankNetwork = parameters['BlankNetwork']
+    outputNetworkFile = parameters["OutputNetworkFile"]
+    networkDirectory = parameters["NetworkDirectory"]
+    main2([blankNetwork, networkDirectory, outputNetworkFile, model, console]) # catalog, geomodel, console ])
+
+# Main script to complete the full netowrk import
+def main2(argv):
+    overallStartTime = time.perf_counter()
+    global model
+    print ('ARGV! IS ', argv)
+    #model, catalog, geomodel, console = argv[3], argv[4], argv[5], argv[6]
+    model, console = argv[3], argv[4]
+    catalog = model.getCatalog()
+    geomodel = model.getGeoModel()
+
+    # Import the new network
+    print("Import network")
+    print("Define modes")
+    modes = defineModes(f"{argv[1]}/modes.201")
+    # Cache the vehicle types
+    allVehicles=[]
+    sectionType = model.getType("GKVehicle")
+    for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
+        for vehicle in iter(types.values()):
+            allVehicles.append(vehicle)
+    print("Define road types")
+    roadTypeNames = readFunctionsFile(f"{argv[1]}/functions.411")
+    roadTypes = addRoadTypes(roadTypeNames)
+    print("Read base network data file")
+    links, nodes, centroids, centroidSet = readFile(f"{argv[1]}/base.211")
+    layer = model.getGeoModel().findLayer("Network")
+    nodeStartTime = time.perf_counter()
+    print("Add nodes")
+    print(f"Number of nodes to import: {len(nodes)}")
+    allNodes = []
+    counter = 0
+    infoStepSize = int(len(nodes)/4)
+    for node in nodes:
+        counter += 1
+        newNode = addNode(node)
+        allNodes.append(newNode)
+        # output the progress of the import
+        if (counter % infoStepSize) == 0:
+            print(f"{counter} nodes added")
+    nodeConnections = initializeNodeConnections(allNodes)
+    nodeEndTime = time.perf_counter()
+    print(f"Time to import nodes: {nodeEndTime-nodeStartTime}s")
+    linkStartTime = time.perf_counter()
+    print("Add links")
+    print(f"Number of links to import: {len(links)}")
+    centroidConnections = []
+    counter = 0
+    infoStepSize = int(len(links)/4)
+    for link in links:
+        counter += 1
+        # If the from or to nodes are centroids flag as a centroid connector
+        if link[1] in centroidSet or link[2] in centroidSet:
+            centroidConnections.append(link)
+        # If from and to are both nodes, add the link
+        else:
+            addLink(link, allVehicles, roadTypes, layer, nodeConnections)
+        # output the progress of the import
+        if (counter % infoStepSize) == 0:
+            print(f"{counter} links added")
+    print("Add curvature to links")
+    addLinkCurvatures(f"{argv[1]}/shapes.251", model.getCatalog())
+    linkEndTime = time.perf_counter()
+    print(f"Time to import links: {linkEndTime-linkStartTime}s")
+    turnStartTime = time.perf_counter()
+    # Build the turns (connections betweek links)
+    createTurnsFromFile(f"{argv[1]}/turns.231", allNodes, nodeConnections)
+    turnEndTime = time.perf_counter()
+    print(f"Time to build turns: {turnEndTime-turnStartTime}s")
+    # Add the centroids
+    centroidStartTime = time.perf_counter()
+    print("Add centroids")
+    centroidConfig = createCentroidConfiguration("baseCentroidConfig", centroids)
+    buildCentroidConnections(centroidConnections)
+    centroidEndTime = time.perf_counter()
+    print(f"Time to add centroids: {centroidEndTime-centroidStartTime}")
+    # Draw all graphical elements to the visible network layer
+    drawLinksAndNodes(layer)
+    # remove the object connections used for performance improvements
+    # these are not needed for the final network
+    print("Finished import")
+    # Save the network to file
+    print("Save network")
+    console.save(argv[2])
+    overallEndTime = time.perf_counter()
+    print(f"Overall runtime: {overallEndTime-overallStartTime}s")
+    # Reset the Aimsun undo buffer
+    model.getCommander().addCommand( None )
+    return 0
+    
+
 # Main script to complete the full netowrk import
 def main(argv):
     overallStartTime = time.perf_counter()
@@ -504,6 +606,7 @@ def main(argv):
     # Start a console
     console = ANGConsole()
     global model
+    print ('ARGV! IS ', argv)
     model, catalog, geomodel = loadModel(argv[1], console)
     # Import the new network
     print("Import network")
@@ -593,4 +696,8 @@ def main(argv):
 #         s.updatePosition()
 
 if __name__ == "__main__":
+    #store the sys.argv files here
+    val = sys.argv
+    #open the console here
+    #main(val[0], val[1], val[2])
     main(sys.argv)
