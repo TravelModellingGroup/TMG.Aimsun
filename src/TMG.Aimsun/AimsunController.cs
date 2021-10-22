@@ -126,6 +126,9 @@ namespace TMG.Aimsun
                 startInfo.WorkingDirectory = aimsunPath;
                 aimsun.StartInfo = startInfo;
                 aimsun.Start();
+                // This Code is commented out for debugging purposes if one wishes to debug using two visual studio
+                // instances. This would be useful if you need to debug the bridge itself. Note your project settings 
+                // will need to be readjusted.
                 //if (launchAimsun == true)
                 //{
                 //    //get location of assembly where modellercontroller is
@@ -133,8 +136,6 @@ namespace TMG.Aimsun
                 //    string argumentString = "-script " + AddQuotes(Path.Combine(Path.GetDirectoryName(codeBase), "AimsunBridge.py"))
                 //                            + " " + AddQuotes(pipeName) + " " + AddQuotes(projectFile);
                 //    var aimsun = new Process();
-
-
                 //    var startInfo = new ProcessStartInfo(Path.Combine(aimsunPath, "aconsole.exe"), argumentString);
                 //    startInfo.WorkingDirectory = aimsunPath;
                 //    aimsun.StartInfo = startInfo;
@@ -178,7 +179,7 @@ namespace TMG.Aimsun
                                 }
                             case SignalTermination:
                                 {
-                                    throw new XTMFRuntimeException(caller, "The EMME ModellerBridge panicked and unexpectedly shutdown.");
+                                    throw new XTMFRuntimeException(caller, "The Aimsun ModellerBridge panicked and unexpectedly shutdown.");
                                 }
                             case SignalCheckToolExists:
                                 {
@@ -192,7 +193,7 @@ namespace TMG.Aimsun
                                 }
                             default:
                                 {
-                                    throw new XTMFRuntimeException(caller, "Unknown message passed back from the EMME ModellerBridge.  Signal number " + result);
+                                    throw new XTMFRuntimeException(caller, "Unknown message passed back from the Aimsun ModellerBridge.  Signal number " + result);
                                 }
                         }
 
@@ -202,13 +203,14 @@ namespace TMG.Aimsun
             }
             catch (EndOfStreamException)
             {
-                throw new XTMFRuntimeException(caller, "We were unable to communicate with EMME.  Please make sure you have an active EMME license.  If the problem persists, sometimes rebooting has helped fix this issue with EMME.");
+                throw new XTMFRuntimeException(caller, "We were unable to communicate with Aimsun.  Please make sure you have an active Aimsun license.  If the problem persists, sometimes rebooting has helped fix this issue with Aimsun.");
             }
             catch (IOException e)
             {
-                throw new XTMFRuntimeException(caller, "I/O Connection with EMME ended while waiting for data, with:\r\n" + e.Message);
+                throw new XTMFRuntimeException(caller, "I/O Connection with Aimsun ended while waiting for data, with:\r\n" + e.Message);
             }
         }
+
         /// <summary>
         /// Throws an exception if the bridge has been disposed
         /// </summary>
@@ -216,7 +218,7 @@ namespace TMG.Aimsun
         {
             if (_aimsunPipe == null)
             {
-                throw new XTMFRuntimeException(caller, "EMME Bridge was invoked even though it has already been disposed.");
+                throw new XTMFRuntimeException(caller, "Aimsun Bridge was invoked even though it has already been disposed.");
             }
         }
 
@@ -247,7 +249,7 @@ namespace TMG.Aimsun
                 }
                 catch (IOException e)
                 {
-                    throw new XTMFRuntimeException(caller, "I/O Connection with EMME while sending data, with:\r\n" + e.Message);
+                    throw new XTMFRuntimeException(caller, "I/O Connection with Aimsun while sending data, with:\r\n" + e.Message);
                 }
                 return WaitForAimsunResponse(caller);
             }

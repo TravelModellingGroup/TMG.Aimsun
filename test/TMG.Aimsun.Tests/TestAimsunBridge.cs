@@ -43,8 +43,7 @@ namespace TMG.Aimsun.Tests
         {
             string moduleName = Helper.TestConfiguration.BlankNetwork;
             string json = JsonConvert.SerializeObject(Helper.TestConfiguration);
-            Helper.Modeller.Run(null, Helper.TestConfiguration.ModuleName, json);
-            
+            Helper.Modeller.Run(null, Helper.TestConfiguration.ModuleName, json);  
         }
     }
 }
