@@ -30,15 +30,6 @@ import threading
 import json
 import importlib
 import importlib.util
-# these paths can be hardcoded since they are on windows C drive
-os.chdir("C:\\Program Files\\Aimsun\\Aimsun Next 20\\")
-# append aimsun folders to sys.path
-sys.path.append("C:\\Program Files\\Aimsun\\Aimsun Next 20\\")
-sys.path.append("C:\\Program Files\\Aimsun\\Aimsun Next 20\\plugins\\")
-sys.path.append("C:\\Program Files\\Aimsun\\Aimsun Next 20\\plugins\\python\\")
-sys.path.append("C:\\Program Files\\Aimsun\\Aimsun Next 20\\Lib")
-sys.path.append("C:\\Program Files\\Aimsun\\Aimsun Next 20\\Lib\\site-packages")
-# load the aconsole libraries so we can create a console model here
 from PyANGApp import *
 from PyANGBasic import *
 from PyANGKernel import *
@@ -221,7 +212,6 @@ class AimSunBridge:
                 # try:
                 input = self.readInt()
                 if input == self.SignalTermination:
-                    # _m.logbook_write("Exiting on termination signal from XTMF")
                     exit = True
                 elif input == self.SignalStartModuleBinaryParameters:
                     self.executeModule(console, model)

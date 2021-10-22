@@ -27,10 +27,13 @@ using System.Collections.Generic;
 
 namespace TMG.Aimsun.Tests
 {
+    /// <summary>
+    /// a property class of all the json keys. 
+    /// When we parse a json file we save the result to this class
+    /// json object of files of interest
+    /// </summary>
     class TestConfiguration
     {
-        //a property class of all the json keys. When we parse a json file we save the result to this class
-        //json object of files of interest
         public string BlankNetwork { get; set; }
         public string OutputNetworkFile { get; set; }
         public string NetworkDirectory { get; set; }
@@ -40,12 +43,13 @@ namespace TMG.Aimsun.Tests
         public string ModuleFunction { get; set; }        
     }
 
+    /// <summary>
+    /// This class is a helper class that will help with generic functions
+    /// First generic call is to open and read a task json which will house all the filepaths 
+    /// and important information to run the bridge from Unittests 
+    /// </summary>
     internal static class Helper
     {
-        //This class is a helper class that will help with generic functions
-        //First generic call is to open and read a task json which will house all the filepaths 
-        //and important information to run the bridge from Unittests 
-
         //initialize the modeller controller
         public static ModellerController Modeller { get; private set; }
         public static TestConfiguration TestConfiguration { get; set; }
