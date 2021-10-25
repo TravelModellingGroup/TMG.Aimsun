@@ -32,6 +32,7 @@ namespace TMG.Aimsun.Tests
             //get modeller if modeller is not null dispose
             Helper.Modeller?.Dispose();
         }
+
         [Microsoft.VisualStudio.TestTools.UnitTesting.AssemblyInitialize]
         public static void InitTest(TestContext _)
         {
@@ -42,7 +43,6 @@ namespace TMG.Aimsun.Tests
         [TestMethod]
         public void ConstructAimsunBridge()
         {
-            //JsonParameterBuilder.
             string json = JsonConvert.SerializeObject(Helper.TestConfiguration);
             //function that can take string or whatever and generate json and combine two json together
             string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importNetwork.py");
