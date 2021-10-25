@@ -120,8 +120,6 @@ namespace TMG.Aimsun
                 string argumentString = "-script " + AddQuotes(Path.Combine(Path.GetDirectoryName(codeBase), "AimsunBridge.py"))
                                         + " " + AddQuotes(pipeName) + " " + AddQuotes(projectFile);
                 var aimsun = new Process();
-
-
                 var startInfo = new ProcessStartInfo(Path.Combine(aimsunPath, "aconsole.exe"), argumentString);
                 startInfo.WorkingDirectory = aimsunPath;
                 aimsun.StartInfo = startInfo;
@@ -149,7 +147,6 @@ namespace TMG.Aimsun
             {
                 throw e.InnerException;
             }
-
         }
 
         private bool WaitForAimsunResponse(IModule caller)
@@ -196,10 +193,8 @@ namespace TMG.Aimsun
                                     throw new XTMFRuntimeException(caller, "Unknown message passed back from the Aimsun ModellerBridge.  Signal number " + result);
                                 }
                         }
-
                     }
                 }
-
             }
             catch (EndOfStreamException)
             {
@@ -272,7 +267,6 @@ namespace TMG.Aimsun
                 _aimsunPipe = null;
             }
         }
-
         public void Dispose()
         {
             Dispose(true);

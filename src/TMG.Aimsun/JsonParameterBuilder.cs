@@ -12,7 +12,6 @@ namespace TMG.Aimsun
             using (var backing = new MemoryStream())
             {
                 using (var textStream = new StreamWriter(backing, Encoding.UTF8))
-
                 using (var writer = new JsonTextWriter(textStream))
                 {
                     writer.WriteStartObject();

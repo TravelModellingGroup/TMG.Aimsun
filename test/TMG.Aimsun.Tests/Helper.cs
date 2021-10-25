@@ -48,16 +48,12 @@ namespace TMG.Aimsun.Tests
     /// </summary>
     internal static class Helper
     {
-        //initialize the modeller controller
+        /// <summary>
+        /// Modeller Controller Initialized
+        /// </summary>
         public static ModellerController Modeller { get; private set; }
         public static TestConfiguration TestConfiguration { get; set; }
 
-        internal static string buildJSONParameters(string value)
-        {
-            //a function to convert a string into a json serialized object
-            string json = JsonConvert.SerializeObject(value);
-            return json;
-        }
         internal static void InitializeAimsun()
         {
             //method to read the configuration file, parse and extract the data and run the modeller

@@ -63,9 +63,6 @@ namespace TMG.Aimsun.Tests
             };
             string jsonData = JsonConvert.SerializeObject(myData2);
             Helper.Modeller.Run(null, modulePath, jsonData);
-
-
         }
-
     }
 }
