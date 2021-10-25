@@ -38,9 +38,7 @@ namespace TMG.Aimsun.Tests
         public string OutputNetworkFile { get; set; }
         public string NetworkDirectory { get; set; }
         public string AimsunPath { get; set; }
-        public string ModuleName { get; set; }
-        public string ModulePath { get; set; }
-        public string ModuleFunction { get; set; }        
+        public string ModulePath { get; set; }     
     }
 
     /// <summary>
@@ -60,13 +58,12 @@ namespace TMG.Aimsun.Tests
             string json = JsonConvert.SerializeObject(value);
             return json;
         }
-
         internal static void InitializeAimsun()
         {
             //method to read the configuration file, parse and extract the data and run the modeller
             if (Modeller == null)
             {
-                //check if the file exists ouptut an error if it doesn't exist for some reason
+                //check if the file exists output an error if it doesn't exist for some reason
                 var configFile = new FileInfo("TMG.Aimsun.Test.Configuration.json");
                 if (!configFile.Exists)
                 {

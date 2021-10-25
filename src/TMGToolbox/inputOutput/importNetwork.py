@@ -512,7 +512,7 @@ def loadModel(filepath, console):
     geomodel = model.getGeoModel()
     return model, catalog, geomodel
 
-def run_aimsun(parameters, model, console):
+def runAimsun(parameters, model, console):
     # A general function called in all python modules called by bridge. Responsible
     # for extracting data and running appropriate functions.
     blankNetwork = parameters['BlankNetwork']

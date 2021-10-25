@@ -112,7 +112,7 @@ namespace TMG.Aimsun
                 throw new XTMFRuntimeException(module, $"The Aimsun ProjectFile doesn't exist at {projectFile}"); // + e.Message);
             }
 
-            //create a named pipe as a serverstream 
+            //create a named pipe as a server stream 
             _aimsunPipe = new NamedPipeServerStream(pipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
             try
             {

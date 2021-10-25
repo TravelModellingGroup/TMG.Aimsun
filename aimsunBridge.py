@@ -147,10 +147,11 @@ class AimSunBridge:
     def executeAimsunScript(self, moduleDict, console, model):
         # This function is responsible for calling the modules of interest. It passes 
         # in the console and model and uses the importlib library to import and run the module
-        spec = importlib.util.spec_from_file_location(moduleDict['tool'], moduleDict['parameters']['ModulePath'])
+        spec = importlib.util.spec_from_file_location('tool', moduleDict['toolPath'])
         moduleToRun = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(moduleToRun)
-        func = getattr(moduleToRun, moduleDict['parameters']['ModuleFunction'])
+        #runAimsun is a function that all modules will have hence hard-coded here
+        func = getattr(moduleToRun, "runAimsun")
         # attaching module name of particular and running it with parameters
         func(moduleDict['parameters'], model, console)
 
@@ -162,7 +163,7 @@ class AimSunBridge:
             # extract the name of the tool along with the parameters and pass it to the function
             macroName = self.readString()
             parameterString = self.readString()
-            nameSpace = {'tool':macroName, 'parameters':json.loads(parameterString)}
+            nameSpace = {'toolPath':macroName, 'parameters':json.loads(parameterString)}
             # run our script with passed in json
             self.executeAimsunScript(nameSpace, console, model)         
             # send to the pipe that we ran the message successfully
