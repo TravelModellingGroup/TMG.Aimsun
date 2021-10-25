@@ -114,14 +114,6 @@ def addLink(link, allVehicles, roadTypes, layer, nodeConnections):
     # Connect the origin and destination nodes to the link
     nodeConnections[fromNode].add(newLink)
     nodeConnections[toNode].add(newLink)
-    # originConnection = GKSystem.getSystem().newObject("GKObjectConnection", model)
-    # originConnection.setOwner(fromNode)
-    # originConnection.setConnectionObject(newLink)
-    # fromNode.addConnection(originConnection)
-    # destinationConnection = GKSystem.getSystem().newObject("GKObjectConnection", model)
-    # destinationConnection.setOwner(toNode)
-    # destinationConnection.setConnectionObject(newLink)
-    # toNode.addConnection(destinationConnection)
     # set the allowed mode by link not road type
     newLink.setUseRoadTypeNonAllowedVehicles(False)
     # create list of banned vehicles
@@ -608,28 +600,18 @@ def _execute(blankNetwork, networkDirectory, outputNetworkFile, inputModel, cons
     model.getCommander().addCommand( None )
     return 0
 
-# This node positions is in the Aimsun docs as needed for macro models
-# Not sure what it does for now
-# print("Update Node Positions")
-# sectionType = model.getType("GKNode")
-# for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
-#     for s in iter(types.values()):
-#         s.updatePosition()
-
 def run(inputArgs):
     # this function takes commands from the terminal, creates a console and model to pass
     # to the _execute function
     # Start a console
     console = ANGConsole()
     global model
-    print ('MAIN AMAINADF ', inputArgs)
     blankNetwork = inputArgs[1]
     networkDirectory = inputArgs[2]
     outputNetworkFile = inputArgs[3]
     # generate a model of the input network
     model, catalog, geomodel = loadModel(blankNetwork, console)
     _execute(blankNetwork, networkDirectory, outputNetworkFile, model, console) 
-
 
 if __name__ == "__main__":
     # function to parse the command line arguments and run network script

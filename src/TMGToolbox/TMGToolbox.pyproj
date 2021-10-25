@@ -36,6 +36,8 @@
     <Compile Include="common\utilities.py" />
     <Compile Include="inputOutput\exportNetworkPackage.py" />
     <Compile Include="inputOutput\importNetwork.py" />
+    <Compile Include="inputOutput\importPedestrians.py" />
+    <Compile Include="inputOutput\importTransitNetwork.py" />
     <Compile Include="inputOutput\importTransitSchedule.py" />
     <Compile Include="inputOutput\importMatrixFromCSVThirdNormalized.py" />
     <Compile Include="inputOutput\importNetworkPackage.py" />
