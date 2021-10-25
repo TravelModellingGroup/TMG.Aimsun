@@ -39,15 +39,30 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="TMGInterfaces">
+      <HintPath>..\..\..\XTMF-Dev\Modules\TMGInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="XTMFInterfaces">
+      <HintPath>..\..\..\XTMF-Dev\Modules\XTMFInterfaces.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="AimsunController.cs" />
+    <Compile Include="JsonParameterBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\..\aimsunBridge.py">
       <Link>aimsunBridge.py</Link>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MSTest.TestFramework">
+      <Version>2.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>13.0.1</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

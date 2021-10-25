@@ -1,9 +1,27 @@
-# This script reads the network files from EMME and builds
-# a road and transit network in Aimsun
+"""
+    Copyright 2021 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+"""
 
 # Load in the required libraries
 import sys
+import os
 import time
+
 from PyANGBasic import *
 from PyANGKernel import *
 from PyANGConsole import *
@@ -376,7 +394,7 @@ def buildCentroidConnections(listOfCentroidConnections):
         toNode = connectInfo[2]
         newCentroidConnection(fromNode, toNode, nodeType, centroidType, catalog)
 
-# Reads the modes file and defines all possible modes on the netowrk
+# Reads the modes file and defines all possible modes on the network
 def defineModes(filename):
     # Delete the default modes
     sectionType = model.getType("GKVehicle")
@@ -405,7 +423,7 @@ def defineModes(filename):
             newVeh.setName(lineItems[2])
             newVeh.setTransportationMode(newMode)
             vehicleTypes.append(newVeh)
-    # save vehicle in netowrk file
+    # save vehicle in network file
     folderName = "GKModel::vehicles"
     folder = model.getCreateRootFolder().findFolder( folderName )
     if folder is None:
@@ -452,7 +470,7 @@ def addRoadTypes(listOfNames):
         newRoadType.setName("fd0")
         newRoadType.setExternalId("fd0")
         newRoadType.setDrawMode(0) # default to road draw
-    # add the road type to the dict
+    # add the road type to the dictionary
     roadTypes["fd0"] = newRoadType
     # Repeat the process for all road types in listOfNames
     for name in listOfNames:
@@ -466,7 +484,7 @@ def addRoadTypes(listOfNames):
             newRoadType.setName(name)
             newRoadType.setExternalId(name)
             newRoadType.setDrawMode(0) # default to road draw mode
-        # add the road type to the dict
+        # add the road type to the dictionary
         roadTypes[name] = newRoadType
     return roadTypes
 
@@ -494,21 +512,27 @@ def loadModel(filepath, console):
     geomodel = model.getGeoModel()
     return model, catalog, geomodel
 
-# Main script to complete the full netowrk import
-def main(argv):
+def runAimsun(parameters, model, console):
+    # A general function called in all python modules called by bridge. Responsible
+    # for extracting data and running appropriate functions.
+    blankNetwork = parameters['BlankNetwork']
+    outputNetworkFile = parameters["OutputNetworkFile"]
+    networkDirectory = parameters["NetworkDirectory"]
+    _execute(blankNetwork, networkDirectory, outputNetworkFile, model, console)
+
+# Main script to complete the full network import
+def _execute(blankNetwork, networkDirectory, outputNetworkFile, inputModel, console):
+    print ('main ran')
     overallStartTime = time.perf_counter()
-    if len(argv) < 3:
-        print("Incorrect Number of Arguments")
-        print("Arguments: -script script.py blankAimsunProjectFile.ang networkDirectory outputNetworkFile.ang")
-        return -1
-    # Start a console
-    console = ANGConsole()
     global model
-    model, catalog, geomodel = loadModel(argv[1], console)
+    model = inputModel
+    catalog = model.getCatalog()
+    geomodel = model.getGeoModel()
+
     # Import the new network
     print("Import network")
     print("Define modes")
-    modes = defineModes(f"{argv[2]}/modes.201")
+    modes = defineModes(f"{networkDirectory}/modes.201")
     # Cache the vehicle types
     allVehicles=[]
     sectionType = model.getType("GKVehicle")
@@ -516,10 +540,10 @@ def main(argv):
         for vehicle in iter(types.values()):
             allVehicles.append(vehicle)
     print("Define road types")
-    roadTypeNames = readFunctionsFile(f"{argv[2]}/functions.411")
+    roadTypeNames = readFunctionsFile(f"{networkDirectory}/functions.411")
     roadTypes = addRoadTypes(roadTypeNames)
     print("Read base network data file")
-    links, nodes, centroids, centroidSet = readFile(f"{argv[2]}/base.211")
+    links, nodes, centroids, centroidSet = readFile(f"{networkDirectory}/base.211")
     layer = model.getGeoModel().findLayer("Network")
     nodeStartTime = time.perf_counter()
     print("Add nodes")
@@ -555,12 +579,12 @@ def main(argv):
         if (counter % infoStepSize) == 0:
             print(f"{counter} links added")
     print("Add curvature to links")
-    addLinkCurvatures(f"{argv[2]}/shapes.251", model.getCatalog())
+    addLinkCurvatures(f"{networkDirectory}/shapes.251", model.getCatalog())
     linkEndTime = time.perf_counter()
     print(f"Time to import links: {linkEndTime-linkStartTime}s")
     turnStartTime = time.perf_counter()
     # Build the turns (connections betweek links)
-    createTurnsFromFile(f"{argv[2]}/turns.231", allNodes, nodeConnections)
+    createTurnsFromFile(f"{networkDirectory}/turns.231", allNodes, nodeConnections)
     turnEndTime = time.perf_counter()
     print(f"Time to build turns: {turnEndTime-turnStartTime}s")
     # Add the centroids
@@ -577,7 +601,7 @@ def main(argv):
     print("Finished import")
     # Save the network to file
     print("Save network")
-    console.save(argv[3])
+    console.save(outputNetworkFile)
     overallEndTime = time.perf_counter()
     print(f"Overall runtime: {overallEndTime-overallStartTime}s")
     # Reset the Aimsun undo buffer
@@ -592,5 +616,21 @@ def main(argv):
 #     for s in iter(types.values()):
 #         s.updatePosition()
 
+def run(inputArgs):
+    # this function takes commands from the terminal, creates a console and model to pass
+    # to the _execute function
+    # Start a console
+    console = ANGConsole()
+    global model
+    print ('MAIN AMAINADF ', inputArgs)
+    blankNetwork = inputArgs[1]
+    networkDirectory = inputArgs[2]
+    outputNetworkFile = inputArgs[3]
+    # generate a model of the input network
+    model, catalog, geomodel = loadModel(blankNetwork, console)
+    _execute(blankNetwork, networkDirectory, outputNetworkFile, model, console) 
+
+
 if __name__ == "__main__":
-    main(sys.argv)
+    # function to parse the command line arguments and run network script
+    run(sys.argv)
