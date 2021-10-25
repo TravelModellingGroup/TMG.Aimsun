@@ -48,21 +48,5 @@ namespace TMG.Aimsun.Tests
             string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importNetwork.py");
             Helper.Modeller.Run(null, modulePath, json);
         }
-
-        [TestMethod]
-        public void TestJSON()
-        {
-            string modulePath = "C:\\Users\\sandhela\\source\\repos\\TravelModellingGroup\\TMG.Aimsun\\src\\TMGToolbox\\inputOutput\\importNetwork.py";
-            var myData2 = new
-            {
-                BlankNetwork = "C:\\Users\\sandhela\\source\\repos\\TravelModellingGroup\\TMG.Aimsun\\aimsunFiles\\blankNetwork.ang",
-                OutputNetworkFile = "C:\\Users\\sandhela\\source\\repos\\TravelModellingGroup\\TMG.Aimsun\\aimsunFiles\\FrabitztownNetwork.ang",
-                NetworkDirectory = "C:\\Users\\sandhela\\source\\repos\\TravelModellingGroup\\TMG.Aimsun\\inputFiles\\Frabitztown",
-                AimsunPath = "C:\\Program Files\\Aimsun\\Aimsun Next 20",
-                ModulePath = "C:\\Users\\sandhela\\source\\repos\\TravelModellingGroup\\TMG.Aimsun\\src\\TMGToolbox\\inputOutput\\importNetwork.py",
-            };
-            string jsonData = JsonConvert.SerializeObject(myData2);
-            Helper.Modeller.Run(null, modulePath, jsonData);
-        }
     }
 }

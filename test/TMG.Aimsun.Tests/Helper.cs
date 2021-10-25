@@ -52,8 +52,9 @@ namespace TMG.Aimsun.Tests
         /// Initialized singleton Modeller Controller object
         /// </summary>
         public static ModellerController Modeller { get; private set; }
+
         /// <summary>
-        /// Initialized the JSON parser class
+        /// Singleton TestConfiguration object that stores the test configuration parameters
         /// </summary>
         public static TestConfiguration TestConfiguration { get; set; }
 
