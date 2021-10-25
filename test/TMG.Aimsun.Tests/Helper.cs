@@ -49,9 +49,12 @@ namespace TMG.Aimsun.Tests
     internal static class Helper
     {
         /// <summary>
-        /// Modeller Controller Initialized
+        /// Initialized singleton Modeller Controller object
         /// </summary>
         public static ModellerController Modeller { get; private set; }
+        /// <summary>
+        /// Initialized the JSON parser class
+        /// </summary>
         public static TestConfiguration TestConfiguration { get; set; }
 
         internal static void InitializeAimsun()
@@ -68,13 +71,10 @@ namespace TMG.Aimsun.Tests
                 else
                 {
                     var jsonData = File.ReadAllText(configFile.FullName);
-
                     TestConfiguration = JsonConvert.DeserializeObject<TestConfiguration>(jsonData);
-                    
                     //check if debugger is attached if it is used a random name otherwise use the default name DEBUGaimsum
                     bool debuggerAttached = Debugger.IsAttached;
                     string pipeName = debuggerAttached ? "DEBUGaimsun" : Guid.NewGuid().ToString();
-
                     Modeller = new ModellerController(null, TestConfiguration.BlankNetwork, pipeName, TestConfiguration.AimsunPath, !debuggerAttached);
                 }
             }
