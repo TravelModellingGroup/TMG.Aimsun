@@ -192,28 +192,34 @@ class AimSunBridge:
     def checkToolExists(self):
         return True
 
-    def loadModel(self):
-        """Function to load the model"""
-        # open the console and create a model. This is passed around inside this script and also
-        # to external modules
-        console = ANGConsole([])
+    def loadModel(self, console):
+        """Function to load the model
+        open the console and create a model. This is passed around inside this script and also
+        to external modules
+        """
         if console.open(self.NetworkPath):
             model = console.getModel()
             print("Network opened successfully")
         else:
             console.getLog().addError("Cannot load the network")
             print("Cannot load the network")
-        return console, model
+        return model
 
 
-    def switchModel(self):
+    def switchModel(self, console):
+        """function to open a new model based on a new network. The network filepath
+        is passed from the bridge
+        """
         print ("switching model")
         try:
             # extract the name of the tool along with the parameters and pass it to the function
             self.NetworkPath = self.readString()
-            print (self.NetworkPath)
-            console, model = self.loadModel()
-            return console, model
+            print ('switched path files ', self.NetworkPath)
+
+            model = self.loadModel(console)
+            # send to the pipe that we ran the message successfully
+            self.sendSuccess()
+            return model
         except Exception as e:
             self.sendRuntimeError(str(e))
 
@@ -226,7 +232,8 @@ class AimSunBridge:
 
         # open the console and create a model. This is passed around inside this script and also
         # the modules of interest.
-        console, model = self.loadModel()
+        console = ANGConsole([])
+        model = self.loadModel(console)  
 
         # send the start signal the first signal to C# server side
         self.sendSignal(self.SignalStart)
@@ -243,10 +250,7 @@ class AimSunBridge:
                 elif input == self.SwitchNetworkPath:
                     #we need to switch the network path and open console and get
                     #model to that network
-                    self.switchModel()
-                    # send to the pipe that we ran the message successfully
-                    self.sendSuccess()
-                    self.sendSignal(self.SignalStart)
+                    model = self.switchModel(console)
                 else:
                     # If we do not understand what XTMF is saying quietly die
                     exit = True

@@ -509,7 +509,7 @@ def runAimsun(parameters, model, console):
     # for extracting data and running appropriate functions.
     blankNetwork = parameters['BlankNetwork']
     outputNetworkFile = parameters["OutputNetworkFile"]
-    networkDirectory = parameters["NetworkDirectory"]
+    networkDirectory = parameters["ModelDirectory"]
     _execute(blankNetwork, networkDirectory, outputNetworkFile, model, console)
 
 # Main script to complete the full network import

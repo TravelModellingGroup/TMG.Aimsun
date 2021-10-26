@@ -36,7 +36,7 @@ namespace TMG.Aimsun.Tests
     {
         public string BlankNetwork { get; set; }
         public string OutputNetworkFile { get; set; }
-        public string NetworkDirectory { get; set; }
+        public string ModelDirectory { get; set; }
         public string AimsunPath { get; set; }
         public string ModulePath { get; set; }     
     }

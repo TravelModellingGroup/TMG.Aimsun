@@ -221,7 +221,7 @@ namespace TMG.Aimsun
                 throw new XTMFRuntimeException(caller, "Aimsun Bridge was invoked even though it has already been disposed.");
             }
         }
-        public bool SwitchModel(IModule caller, string macroName, string jsonParameters)
+        public bool SwitchModel(IModule caller, string networkPath, string jsonParameters)
         {
             lock (this)
             {
@@ -232,17 +232,8 @@ namespace TMG.Aimsun
                     var writer = new BinaryWriter(_aimsunPipe, Encoding.Unicode, true);
                     {
                         writer.Write(SignalSwitchNetworkPath);
-                        writer.Write(macroName.Length);
-                        writer.Write(macroName.ToCharArray());
-                        if (jsonParameters == null)
-                        {
-                            writer.Write((int)0);
-                        }
-                        else
-                        {
-                            writer.Write(jsonParameters.Length);
-                            writer.Write(jsonParameters.ToCharArray());
-                        }
+                        writer.Write(networkPath.Length);
+                        writer.Write(networkPath.ToCharArray());
                         writer.Flush();
                     }
                 }

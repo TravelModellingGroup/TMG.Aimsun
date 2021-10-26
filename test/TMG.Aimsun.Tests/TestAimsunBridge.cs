@@ -36,7 +36,7 @@ namespace TMG.Aimsun.Tests
         [Microsoft.VisualStudio.TestTools.UnitTesting.AssemblyInitialize]
         public static void InitTest(TestContext _)
         {
-            //initalize the Aimsun module
+            //initialize the Aimsun module
             Helper.InitializeAimsun();
         }
 
