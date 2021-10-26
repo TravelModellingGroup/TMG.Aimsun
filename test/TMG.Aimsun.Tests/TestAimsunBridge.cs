@@ -48,5 +48,18 @@ namespace TMG.Aimsun.Tests
             string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importNetwork.py");
             Helper.Modeller.Run(null, modulePath, json);
         }
+
+        [TestMethod]
+        public void SwitchNetworkPath()
+        {
+            //we're testing we can switch the network path and then run the newtwok
+            string bn = Helper.TestConfiguration.BlankNetwork;
+            Helper.Modeller.SwitchModel(null, bn, null);
+            //now we run the network
+            string json = JsonConvert.SerializeObject(Helper.TestConfiguration);
+            //function that can take string or whatever and generate json and combine two json together
+            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importNetwork.py");
+            Helper.Modeller.Run(null, modulePath, json);
+        }
     }
 }

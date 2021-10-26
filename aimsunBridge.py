@@ -71,6 +71,8 @@ class AimSunBridge:
         self.SignalStartModuleBinaryParameters = 14
         """Signal to XTMF saying that the current tool is not compatible with XTMF2"""
         self.SignalIncompatibleTool = 15
+        """A signal to switch and open the console on a new path"""
+        self.SwitchNetworkPath = 16
         
         # open the named pipe
         pipeName = sys.argv[1] 
@@ -190,6 +192,32 @@ class AimSunBridge:
     def checkToolExists(self):
         return True
 
+    def loadModel(self):
+        """Function to load the model"""
+        # open the console and create a model. This is passed around inside this script and also
+        # to external modules
+        console = ANGConsole([])
+        if console.open(self.NetworkPath):
+            model = console.getModel()
+            print("Network opened successfully")
+        else:
+            console.getLog().addError("Cannot load the network")
+            print("Cannot load the network")
+        return console, model
+
+
+    def switchModel(self):
+        print ("switching model")
+        try:
+            # extract the name of the tool along with the parameters and pass it to the function
+            self.NetworkPath = self.readString()
+            print (self.NetworkPath)
+            console, model = self.loadModel()
+            return console, model
+        except Exception as e:
+            self.sendRuntimeError(str(e))
+
+
     def run(self):
         # Function to run the pipe
         # use a local exit flag if the flag is set to true we will gracefully exist and
@@ -197,14 +225,8 @@ class AimSunBridge:
         exit = False
 
         # open the console and create a model. This is passed around inside this script and also
-        # to external modules
-        console = ANGConsole([])
-        if console.open(self.NetworkPath):
-            model = console.getModel()
-            print("Network opened succesfully")
-        else:
-            console.getLog().addError("Cannot load the network")
-            print("Cannot load the network")
+        # the modules of interest.
+        console, model = self.loadModel()
 
         # send the start signal the first signal to C# server side
         self.sendSignal(self.SignalStart)
@@ -218,6 +240,13 @@ class AimSunBridge:
                     self.executeModule(console, model)
                 elif input == self.SignalCheckToolExists:
                     self.checkToolExists()
+                elif input == self.SwitchNetworkPath:
+                    #we need to switch the network path and open console and get
+                    #model to that network
+                    self.switchModel()
+                    # send to the pipe that we ran the message successfully
+                    self.sendSuccess()
+                    self.sendSignal(self.SignalStart)
                 else:
                     # If we do not understand what XTMF is saying quietly die
                     exit = True

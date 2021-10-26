@@ -98,6 +98,11 @@ namespace TMG.Aimsun
         /// contain an entry point for a call from XTMF2.
         /// </summary>
         private const int SignalIncompatibleTool = 15;
+        /// <summary>
+        /// A signal from the modeller bridge saying to switch the network path for the console to open
+        /// and not use the starting network
+        /// </summary>
+        private const int SignalSwitchNetworkPath = 16;
 
         private string AddQuotes(string fileName)
         {
@@ -214,6 +219,38 @@ namespace TMG.Aimsun
             if (_aimsunPipe == null)
             {
                 throw new XTMFRuntimeException(caller, "Aimsun Bridge was invoked even though it has already been disposed.");
+            }
+        }
+        public bool SwitchModel(IModule caller, string macroName, string jsonParameters)
+        {
+            lock (this)
+            {
+                try
+                {
+                    EnsureWriteAvailable(caller);
+                    // clear out all of the old input before starting
+                    var writer = new BinaryWriter(_aimsunPipe, Encoding.Unicode, true);
+                    {
+                        writer.Write(SignalSwitchNetworkPath);
+                        writer.Write(macroName.Length);
+                        writer.Write(macroName.ToCharArray());
+                        if (jsonParameters == null)
+                        {
+                            writer.Write((int)0);
+                        }
+                        else
+                        {
+                            writer.Write(jsonParameters.Length);
+                            writer.Write(jsonParameters.ToCharArray());
+                        }
+                        writer.Flush();
+                    }
+                }
+                catch (IOException e)
+                {
+                    throw new XTMFRuntimeException(caller, "I/O Connection with Aimsun while sending data, with:\r\n" + e.Message);
+                }
+                return WaitForAimsunResponse(caller);
             }
         }
 
