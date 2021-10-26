@@ -34,11 +34,11 @@ namespace TMG.Aimsun.Tests
     /// </summary>
     class TestConfiguration
     {
-        public string BlankNetwork { get; set; }
-        public string OutputNetworkFile { get; set; }
+        public string Network { get; set; }
+        public string NetworkFolder { get; set; }
         public string ModelDirectory { get; set; }
         public string AimsunPath { get; set; }
-        public string ModulePath { get; set; }     
+        public string ModulePath { get; set; }
     }
 
     /// <summary>
@@ -76,7 +76,8 @@ namespace TMG.Aimsun.Tests
                     //check if debugger is attached if it is used a random name otherwise use the default name DEBUGaimsum
                     bool debuggerAttached = Debugger.IsAttached;
                     string pipeName = debuggerAttached ? "DEBUGaimsun" : Guid.NewGuid().ToString();
-                    Modeller = new ModellerController(null, TestConfiguration.BlankNetwork, pipeName, TestConfiguration.AimsunPath, !debuggerAttached);
+                    string Network = Path.Combine(TestConfiguration.NetworkFolder, "aimsunFiles", TestConfiguration.Network);
+                    Modeller = new ModellerController(null, Network, pipeName, TestConfiguration.AimsunPath, !debuggerAttached);
                 }
             }
         }

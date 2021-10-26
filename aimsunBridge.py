@@ -147,8 +147,9 @@ class AimSunBridge:
             return "error reading"
         
     def executeAimsunScript(self, moduleDict, console, model):
-        # This function is responsible for calling the modules of interest. It passes 
-        # in the console and model and uses the importlib library to import and run the module
+        """This function is responsible for calling the modules of interest. It passes 
+        in the console and model and uses the importlib library to import and run the module
+        """
         spec = importlib.util.spec_from_file_location('tool', moduleDict['toolPath'])
         moduleToRun = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(moduleToRun)
@@ -158,6 +159,9 @@ class AimSunBridge:
         func(moduleDict['parameters'], model, console)
 
     def executeModule(self, console, model):
+        """Function which executes the modules by extracting the tool and 
+        its json parameters
+        """
         macroName = None
         parameterString = None
         # run the module here
@@ -222,7 +226,6 @@ class AimSunBridge:
             return model
         except Exception as e:
             self.sendRuntimeError(str(e))
-
 
     def run(self):
         # Function to run the pipe
