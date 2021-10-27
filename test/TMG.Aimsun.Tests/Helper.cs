@@ -34,10 +34,13 @@ namespace TMG.Aimsun.Tests
     /// </summary>
     class TestConfiguration
     {
+        //The name of the parent network we wish to run
         public string Network { get; set; }
+        //The parent directory where both the unzipped network and the aimsun files reside and are located
         public string NetworkFolder { get; set; }
-        public string ModelDirectory { get; set; }
+        //Path to where Aimsun is installed and located 
         public string AimsunPath { get; set; }
+        //base root folder to where aimsun python modules are saved
         public string ModulePath { get; set; }
     }
 

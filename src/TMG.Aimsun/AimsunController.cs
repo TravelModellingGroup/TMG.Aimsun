@@ -129,21 +129,6 @@ namespace TMG.Aimsun
                 startInfo.WorkingDirectory = aimsunPath;
                 aimsun.StartInfo = startInfo;
                 aimsun.Start();
-                // This Code is commented out for debugging purposes if one wishes to debug using two visual studio
-                // instances. This would be useful if you need to debug the bridge itself. Note your project settings 
-                // will need to be readjusted.
-                //if (launchAimsun == true)
-                //{
-                //    //get location of assembly where modellercontroller is
-                //    var codeBase = typeof(ModellerController).GetTypeInfo().Assembly.Location;
-                //    string argumentString = "-script " + AddQuotes(Path.Combine(Path.GetDirectoryName(codeBase), "AimsunBridge.py"))
-                //                            + " " + AddQuotes(pipeName) + " " + AddQuotes(projectFile);
-                //    var aimsun = new Process();
-                //    var startInfo = new ProcessStartInfo(Path.Combine(aimsunPath, "aconsole.exe"), argumentString);
-                //    startInfo.WorkingDirectory = aimsunPath;
-                //    aimsun.StartInfo = startInfo;
-                //    aimsun.Start();
-                //}
                 _aimsunPipe.WaitForConnection();
                 var reader = new BinaryReader(_aimsunPipe, System.Text.Encoding.Unicode, true);
                 reader.ReadInt32();    

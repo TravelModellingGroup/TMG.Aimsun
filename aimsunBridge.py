@@ -72,7 +72,7 @@ class AimSunBridge:
         """Signal to XTMF saying that the current tool is not compatible with XTMF2"""
         self.SignalIncompatibleTool = 15
         """A signal to switch and open the console on a new path"""
-        self.SwitchNetworkPath = 16
+        self.SignalSwitchNetworkPath = 16
         
         # open the named pipe
         pipeName = sys.argv[1] 
@@ -250,7 +250,7 @@ class AimSunBridge:
                     self.executeModule(console, model)
                 elif input == self.SignalCheckToolExists:
                     self.checkToolExists()
-                elif input == self.SwitchNetworkPath:
+                elif input == self.SignalSwitchNetworkPath:
                     #we need to switch the network path and open console and get
                     #model to that network
                     model = self.switchModel(console)
