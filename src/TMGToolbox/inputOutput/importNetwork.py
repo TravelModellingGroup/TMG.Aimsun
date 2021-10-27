@@ -512,7 +512,6 @@ def runAimsun(parameters, model, console):
     _execute(networkDirectory, outputNetworkFile, model, console)
 
 # Main script to complete the full network import
-#def _execute(blankNetwork, networkDirectory, outputNetworkFile, inputModel, console):
 def _execute(networkDirectory, outputNetworkFile, inputModel, console):
     print ('main ran')
     overallStartTime = time.perf_counter()
