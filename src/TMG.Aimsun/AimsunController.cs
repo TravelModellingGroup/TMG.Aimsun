@@ -206,6 +206,11 @@ namespace TMG.Aimsun
                 throw new XTMFRuntimeException(caller, "Aimsun Bridge was invoked even though it has already been disposed.");
             }
         }
+
+        /// <summary>
+        /// Method outputting a bool that alllows us to pass in a NetworkPath to
+        /// change the network we wish to analyze. Useful for running our unittests
+        /// </summary>
         public bool SwitchModel(IModule caller, string networkPath)
         {
             lock (this)

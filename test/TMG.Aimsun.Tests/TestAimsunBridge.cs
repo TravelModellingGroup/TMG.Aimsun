@@ -43,36 +43,18 @@ namespace TMG.Aimsun.Tests
         [TestMethod]
         public void ConstructAimsunBridge()
         {
-            string json = JsonConvert.SerializeObject(Helper.TestConfiguration);
             //function that can take string or whatever and generate json and combine two json together
             string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importNetwork.py");
-            var myData2 = new
+            ///<summary>
+            ///the json parameters we will pass to the bridge via the pipe that are the inputs to the python
+            ///modules
+            ///</summary>
+            string jsonParameters = JsonConvert.SerializeObject(new
             {
                 OutputNetworkFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetwork.ang"),
                 ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown")
-            };
-            string jsonData = JsonConvert.SerializeObject(myData2);
-            Helper.Modeller.Run(null, modulePath, jsonData);
-        }
-
-        [TestMethod]
-        public void SwitchNetworkPath()
-        {
-            //we're testing we can switch the network path and then run the network
-            string bn = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\blankNetworkWithVdfs.ang");
-            //Helper.TestConfiguration.Network;
-            Helper.Modeller.SwitchModel(null, bn);
-            //now we run the network
-            string json = JsonConvert.SerializeObject(Helper.TestConfiguration);
-            //function that can take string or whatever and generate json and combine two json together
-            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importNetwork.py");
-            var myData2 = new
-            {
-                OutputNetworkFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetwork.ang"),
-                ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown")
-            };
-            string jsonData = JsonConvert.SerializeObject(myData2);
-            Helper.Modeller.Run(null, modulePath, jsonData);
+            });
+            Helper.Modeller.Run(null, modulePath, jsonParameters);
         }
     }
 }
