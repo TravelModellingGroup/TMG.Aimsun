@@ -109,7 +109,7 @@ namespace TMG.Aimsun
             return String.Concat("\"", fileName, "\"");
         }
 
-        public ModellerController(IModule module, string projectFile, string pipeName, string aimsunPath, bool launchAimsun=true)
+        public ModellerController(IModule module, string projectFile, string pipeName, string aimsunPath)
         {
             //check if file path or ang file exists
             if (!projectFile.EndsWith(".ang") | !File.Exists(projectFile))
@@ -208,8 +208,8 @@ namespace TMG.Aimsun
         }
 
         /// <summary>
-        /// Method outputting a bool that alllows us to pass in a NetworkPath to
-        /// change the network we wish to analyze. Useful for running our unittests
+        /// Method outputting a bool that allows us to pass in a NetworkPath to
+        /// change the network we wish to analyze. Useful for running our unit tests
         /// </summary>
         public bool SwitchModel(IModule caller, string networkPath)
         {

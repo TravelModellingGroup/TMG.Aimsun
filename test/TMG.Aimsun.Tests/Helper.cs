@@ -88,7 +88,7 @@ namespace TMG.Aimsun.Tests
                     bool debuggerAttached = Debugger.IsAttached;
                     string pipeName = debuggerAttached ? "DEBUGaimsun" : Guid.NewGuid().ToString();
                     string Network = Path.Combine(TestConfiguration.NetworkFolder, "aimsunFiles", TestConfiguration.Network);
-                    Modeller = new ModellerController(null, Network, pipeName, TestConfiguration.AimsunPath, !debuggerAttached);
+                    Modeller = new ModellerController(null, Network, pipeName, TestConfiguration.AimsunPath);
                 }
             }
         }
