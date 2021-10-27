@@ -600,17 +600,17 @@ def _execute(networkDirectory, outputNetworkFile, inputModel, console):
     return 0
 
 def run(inputArgs):
-    # this function takes commands from the terminal, creates a console and model to pass
-    # to the _execute function
+    """ This function takes commands from the terminal, creates a console and model to pass
+    to the _execute function """
     # Start a console
     console = ANGConsole()
     global model
-    blankNetwork = inputArgs[1]
+    Network = inputArgs[1]
     networkDirectory = inputArgs[2]
     outputNetworkFile = inputArgs[3]
     # generate a model of the input network
-    model, catalog, geomodel = loadModel(blankNetwork, console)
-    _execute(blankNetwork, networkDirectory, outputNetworkFile, model, console) 
+    model, catalog, geomodel = loadModel(Network, console)
+    _execute(networkDirectory, outputNetworkFile, model, console) 
 
 if __name__ == "__main__":
     # function to parse the command line arguments and run network script

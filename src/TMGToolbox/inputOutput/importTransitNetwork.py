@@ -374,12 +374,26 @@ def buildWalkingTransfers(catalog, geomodel, model):
     for stop in iter(busStops.values()):
         addWalkingTimes(stop, geomodel, 200.0, 10, busStopType, model)
 
-def main(argv):
+def runAimsun(parameters, model, console):
+    """
+     A general function called in all python modules called by bridge. Responsible
+     for extracting data and running appropriate functions.
+    """
+    outputNetworkFile = parameters["OutputNetworkFile"]
+    networkDirectory = parameters["ModelDirectory"]
+    _execute(networkDirectory, outputNetworkFile, model, console)
+
+
+def _execute(networkDirectory, outputNetworkFile, inputModel, console):
+    """ Main execute function to run the simulation """
     overallStartTime = time.perf_counter()
     loadModelStartTime = time.perf_counter()
-    console = ANGConsole()
-    inputModel, networkDir, outputNetworkFilename = parseArguments(argv)
-    model, catalog, geomodel = loadModel(inputModel, console)
+    networkDir = networkDirectory
+    outputNetworkFilename = outputNetworkFile
+    model = inputModel
+    catalog = model.getCatalog()
+    geomodel = model.getGeoModel()
+
     networkLayer = geomodel.findLayer("Network")
     nodes = cacheAllOfTypeByExternalId("GKNode", model, catalog)
     sections = cacheAllOfTypeByExternalId("GKSection", model, catalog)
@@ -400,5 +414,19 @@ def main(argv):
     overallEndTime = time.perf_counter()
     print(f"Overall runtime: {overallEndTime-overallStartTime}")
 
+def run(inputArgs):
+    """ This function takes commands from the terminal, creates a console and model to pass
+    to the _execute function """
+    # Start a console
+    console = ANGConsole()
+    Network = inputArgs[1]
+    networkDirectory = inputArgs[2]
+    outputNetworkFile = inputArgs[3]
+    # generate a model of the input network
+    model, catalog, geomodel = loadModel(Network, console)
+    #run the _execute function
+    _execute(networkDirectory, outputNetworkFile, model, console)
+
 if __name__ == "__main__":
-    main(sys.argv)
+    # function to parse the command line arguments and run network script
+    run(sys.argv)

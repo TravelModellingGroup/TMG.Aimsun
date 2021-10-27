@@ -30,6 +30,7 @@ import threading
 import json
 import importlib
 import importlib.util
+import traceback
 from PyANGApp import *
 from PyANGBasic import *
 from PyANGKernel import *
@@ -143,7 +144,8 @@ class AimSunBridge:
             stringArray.fromfile(self.aimsunPipe, length)
             return stringArray.tounicode()
         except Exception as e:
-            print (e)
+            #traceback outputs more information such as call output stack
+            traceback.print_exc()
             return "error reading"
         
     def executeAimsunScript(self, moduleDict, console, model):
@@ -152,6 +154,8 @@ class AimSunBridge:
         """
         spec = importlib.util.spec_from_file_location('tool', moduleDict['toolPath'])
         moduleToRun = importlib.util.module_from_spec(spec)
+        #we need to append the Toolbox/InputPut folder path so all relative imports will work
+        sys.path.append(moduleDict['parameters']['ToolboxInputOutputPath'])
         spec.loader.exec_module(moduleToRun)
         #runAimsun is a function that all modules will have hence hard-coded here
         func = getattr(moduleToRun, "runAimsun")
@@ -175,6 +179,8 @@ class AimSunBridge:
             # send to the pipe that we ran the message successfully
             self.sendSuccess()
         except Exception as e:
+            #traceback outputs more information such as call output stack
+            traceback.print_exc()
             self.sendRuntimeError(str(e))
         return
 
