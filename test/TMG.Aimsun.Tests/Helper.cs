@@ -34,11 +34,22 @@ namespace TMG.Aimsun.Tests
     /// </summary>
     class TestConfiguration
     {
-        public string BlankNetwork { get; set; }
-        public string OutputNetworkFile { get; set; }
-        public string NetworkDirectory { get; set; }
+        ///<summary>
+        ///The name of the parent network we wish to run
+        ///</summary>
+        public string Network { get; set; }
+        ///<summary>
+        ///The parent folder where both the unzipped network and the aimsun files reside and are located
+        ///</summary>
+        public string NetworkFolder { get; set; }
+        ///<summary>
+        ///Path to where Aimsun is installed and located 
+        ///</summary>
         public string AimsunPath { get; set; }
-        public string ModulePath { get; set; }     
+        ///<summary>
+        ///Base root folder to where aimsun python Aimsun modules are located
+        ///</summary>
+        public string ModulePath { get; set; }
     }
 
     /// <summary>
@@ -76,7 +87,8 @@ namespace TMG.Aimsun.Tests
                     //check if debugger is attached if it is used a random name otherwise use the default name DEBUGaimsum
                     bool debuggerAttached = Debugger.IsAttached;
                     string pipeName = debuggerAttached ? "DEBUGaimsun" : Guid.NewGuid().ToString();
-                    Modeller = new ModellerController(null, TestConfiguration.BlankNetwork, pipeName, TestConfiguration.AimsunPath, !debuggerAttached);
+                    string Network = Path.Combine(TestConfiguration.NetworkFolder, "aimsunFiles", TestConfiguration.Network);
+                    Modeller = new ModellerController(null, Network, pipeName, TestConfiguration.AimsunPath);
                 }
             }
         }

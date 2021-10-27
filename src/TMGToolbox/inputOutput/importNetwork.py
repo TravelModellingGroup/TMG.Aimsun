@@ -507,13 +507,12 @@ def loadModel(filepath, console):
 def runAimsun(parameters, model, console):
     # A general function called in all python modules called by bridge. Responsible
     # for extracting data and running appropriate functions.
-    blankNetwork = parameters['BlankNetwork']
     outputNetworkFile = parameters["OutputNetworkFile"]
-    networkDirectory = parameters["NetworkDirectory"]
-    _execute(blankNetwork, networkDirectory, outputNetworkFile, model, console)
+    networkDirectory = parameters["ModelDirectory"]
+    _execute(networkDirectory, outputNetworkFile, model, console)
 
 # Main script to complete the full network import
-def _execute(blankNetwork, networkDirectory, outputNetworkFile, inputModel, console):
+def _execute(networkDirectory, outputNetworkFile, inputModel, console):
     print ('main ran')
     overallStartTime = time.perf_counter()
     global model

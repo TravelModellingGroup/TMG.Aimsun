@@ -98,13 +98,18 @@ namespace TMG.Aimsun
         /// contain an entry point for a call from XTMF2.
         /// </summary>
         private const int SignalIncompatibleTool = 15;
+        /// <summary>
+        /// A signal from the modeller bridge saying to switch the network path for the console to open
+        /// and not use the starting network
+        /// </summary>
+        private const int SignalSwitchNetworkPath = 16;
 
         private string AddQuotes(string fileName)
         {
             return String.Concat("\"", fileName, "\"");
         }
 
-        public ModellerController(IModule module, string projectFile, string pipeName, string aimsunPath, bool launchAimsun=true)
+        public ModellerController(IModule module, string projectFile, string pipeName, string aimsunPath)
         {
             //check if file path or ang file exists
             if (!projectFile.EndsWith(".ang") | !File.Exists(projectFile))
@@ -124,21 +129,6 @@ namespace TMG.Aimsun
                 startInfo.WorkingDirectory = aimsunPath;
                 aimsun.StartInfo = startInfo;
                 aimsun.Start();
-                // This Code is commented out for debugging purposes if one wishes to debug using two visual studio
-                // instances. This would be useful if you need to debug the bridge itself. Note your project settings 
-                // will need to be readjusted.
-                //if (launchAimsun == true)
-                //{
-                //    //get location of assembly where modellercontroller is
-                //    var codeBase = typeof(ModellerController).GetTypeInfo().Assembly.Location;
-                //    string argumentString = "-script " + AddQuotes(Path.Combine(Path.GetDirectoryName(codeBase), "AimsunBridge.py"))
-                //                            + " " + AddQuotes(pipeName) + " " + AddQuotes(projectFile);
-                //    var aimsun = new Process();
-                //    var startInfo = new ProcessStartInfo(Path.Combine(aimsunPath, "aconsole.exe"), argumentString);
-                //    startInfo.WorkingDirectory = aimsunPath;
-                //    aimsun.StartInfo = startInfo;
-                //    aimsun.Start();
-                //}
                 _aimsunPipe.WaitForConnection();
                 var reader = new BinaryReader(_aimsunPipe, System.Text.Encoding.Unicode, true);
                 reader.ReadInt32();    
@@ -214,6 +204,34 @@ namespace TMG.Aimsun
             if (_aimsunPipe == null)
             {
                 throw new XTMFRuntimeException(caller, "Aimsun Bridge was invoked even though it has already been disposed.");
+            }
+        }
+
+        /// <summary>
+        /// Method outputting a bool that allows us to pass in a NetworkPath to
+        /// change the network we wish to analyze. Useful for running our unit tests
+        /// </summary>
+        public bool SwitchModel(IModule caller, string networkPath)
+        {
+            lock (this)
+            {
+                try
+                {
+                    EnsureWriteAvailable(caller);
+                    // clear out all of the old input before starting
+                    var writer = new BinaryWriter(_aimsunPipe, Encoding.Unicode, true);
+                    {
+                        writer.Write(SignalSwitchNetworkPath);
+                        writer.Write(networkPath.Length);
+                        writer.Write(networkPath.ToCharArray());
+                        writer.Flush();
+                    }
+                }
+                catch (IOException e)
+                {
+                    throw new XTMFRuntimeException(caller, "I/O Connection with Aimsun while sending data, with:\r\n" + e.Message);
+                }
+                return WaitForAimsunResponse(caller);
             }
         }
 

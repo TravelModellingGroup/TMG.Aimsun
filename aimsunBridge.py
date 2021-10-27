@@ -71,6 +71,8 @@ class AimSunBridge:
         self.SignalStartModuleBinaryParameters = 14
         """Signal to XTMF saying that the current tool is not compatible with XTMF2"""
         self.SignalIncompatibleTool = 15
+        """A signal to switch and open the console on a new path"""
+        self.SignalSwitchNetworkPath = 16
         
         # open the named pipe
         pipeName = sys.argv[1] 
@@ -145,8 +147,9 @@ class AimSunBridge:
             return "error reading"
         
     def executeAimsunScript(self, moduleDict, console, model):
-        # This function is responsible for calling the modules of interest. It passes 
-        # in the console and model and uses the importlib library to import and run the module
+        """This function is responsible for calling the modules of interest. It passes 
+        in the console and model and uses the importlib library to import and run the module
+        """
         spec = importlib.util.spec_from_file_location('tool', moduleDict['toolPath'])
         moduleToRun = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(moduleToRun)
@@ -156,6 +159,9 @@ class AimSunBridge:
         func(moduleDict['parameters'], model, console)
 
     def executeModule(self, console, model):
+        """Function which executes the modules by extracting the tool and 
+        its json parameters
+        """
         macroName = None
         parameterString = None
         # run the module here
@@ -190,6 +196,37 @@ class AimSunBridge:
     def checkToolExists(self):
         return True
 
+    def loadModel(self, console):
+        """Function to load the model
+        open the console and create a model. This is passed around inside this script and also
+        to external modules
+        """
+        if console.open(self.NetworkPath):
+            model = console.getModel()
+            print("Network opened successfully")
+        else:
+            console.getLog().addError("Cannot load the network")
+            print("Cannot load the network")
+        return model
+
+
+    def switchModel(self, console):
+        """function to open a new model based on a new network. The network filepath
+        is passed from the bridge
+        """
+        print ("switching model")
+        try:
+            # extract the name of the tool along with the parameters and pass it to the function
+            self.NetworkPath = self.readString()
+            print ('switched path files ', self.NetworkPath)
+
+            model = self.loadModel(console)
+            # send to the pipe that we ran the message successfully
+            self.sendSuccess()
+            return model
+        except Exception as e:
+            self.sendRuntimeError(str(e))
+
     def run(self):
         # Function to run the pipe
         # use a local exit flag if the flag is set to true we will gracefully exist and
@@ -197,14 +234,9 @@ class AimSunBridge:
         exit = False
 
         # open the console and create a model. This is passed around inside this script and also
-        # to external modules
+        # the modules of interest.
         console = ANGConsole([])
-        if console.open(self.NetworkPath):
-            model = console.getModel()
-            print("Network opened succesfully")
-        else:
-            console.getLog().addError("Cannot load the network")
-            print("Cannot load the network")
+        model = self.loadModel(console)  
 
         # send the start signal the first signal to C# server side
         self.sendSignal(self.SignalStart)
@@ -218,6 +250,10 @@ class AimSunBridge:
                     self.executeModule(console, model)
                 elif input == self.SignalCheckToolExists:
                     self.checkToolExists()
+                elif input == self.SignalSwitchNetworkPath:
+                    #we need to switch the network path and open console and get
+                    #model to that network
+                    model = self.switchModel(console)
                 else:
                     # If we do not understand what XTMF is saying quietly die
                     exit = True

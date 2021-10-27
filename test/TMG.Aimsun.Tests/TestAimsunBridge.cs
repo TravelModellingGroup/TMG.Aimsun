@@ -36,17 +36,25 @@ namespace TMG.Aimsun.Tests
         [Microsoft.VisualStudio.TestTools.UnitTesting.AssemblyInitialize]
         public static void InitTest(TestContext _)
         {
-            //initalize the Aimsun module
+            //initialize the Aimsun module
             Helper.InitializeAimsun();
         }
 
         [TestMethod]
         public void ConstructAimsunBridge()
         {
-            string json = JsonConvert.SerializeObject(Helper.TestConfiguration);
             //function that can take string or whatever and generate json and combine two json together
             string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importNetwork.py");
-            Helper.Modeller.Run(null, modulePath, json);
+            ///<summary>
+            ///the json parameters we will pass to the bridge via the pipe that are the inputs to the python
+            ///modules
+            ///</summary>
+            string jsonParameters = JsonConvert.SerializeObject(new
+            {
+                OutputNetworkFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetwork.ang"),
+                ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown")
+            });
+            Helper.Modeller.Run(null, modulePath, jsonParameters);
         }
     }
 }
