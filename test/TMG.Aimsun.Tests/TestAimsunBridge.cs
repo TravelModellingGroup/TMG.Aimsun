@@ -56,13 +56,29 @@ namespace TMG.Aimsun.Tests
         [TestMethod]
         public void TestImportTransitNetwork()
         {
-            //change the network from blank to Frabitztown
+            //change the network
             string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetwork.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
             string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importTransitNetwork.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
                 OutputNetworkFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetworkWithTransit.ang"),
+                ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown"),
+                ToolboxInputOutputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "src\\TMGToolbox\\inputOutput")
+            });
+            Helper.Modeller.Run(null, modulePath, jsonParameters);
+        }
+
+        [TestMethod]
+        public void TestImportPedestrians()
+        {
+            //change the network
+            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetworkWithTransit.ang");
+            Helper.Modeller.SwitchModel(null, newNetwork);
+            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importPedestrians.py");
+            string jsonParameters = JsonConvert.SerializeObject(new
+            {
+                OutputNetworkFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetworkWithPedestrians.ang"),
                 ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown"),
                 ToolboxInputOutputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "src\\TMGToolbox\\inputOutput")
             });
