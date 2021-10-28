@@ -43,7 +43,6 @@ namespace TMG.Aimsun.Tests
         [TestMethod]
         public void ConstructAimsunBridge()
         {
-            //function that can take string or whatever and generate json and combine two json together
             string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importNetwork.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
@@ -60,7 +59,6 @@ namespace TMG.Aimsun.Tests
             //change the network from blank to Frabitztown
             string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetwork.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
-            //function that can take string or whatever and generate json and combine two json together
             string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importTransitNetwork.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {

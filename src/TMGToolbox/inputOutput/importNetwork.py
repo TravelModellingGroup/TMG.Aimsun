@@ -604,7 +604,8 @@ def _execute(networkDirectory, outputNetworkFile, inputModel, console):
 
 def runFomConsole(inputArgs):
     """ This function takes commands from the terminal, creates a console and model to pass
-    to the _execute function """
+    to the _execute function 
+    """
     # Start a console
     console = ANGConsole()
     global model

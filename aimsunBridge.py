@@ -152,19 +152,24 @@ class AimSunBridge:
         """This function is responsible for calling the modules of interest. It passes 
         in the console and model and uses the importlib library to import and run the module
         """
-        spec = importlib.util.spec_from_file_location('tool', moduleDict['toolPath'])
-        moduleToRun = importlib.util.module_from_spec(spec)
-        #we need to append the Toolbox/InputPut folder path so all relative imports will work
-        sys.path.append(moduleDict['parameters']['ToolboxInputOutputPath'])
-        print ('BEFORE ', sys.path)
-        spec.loader.exec_module(moduleToRun)
-        #runAimsun is a function that all modules will have hence hard-coded here
-        func = getattr(moduleToRun, "run_xtmf")
-        # attaching module name of particular and running it with parameters
-        func(moduleDict['parameters'], model, console)
-        #remove the Toolbox folder from the sys.path once the module is finished executing
-        #remove the last element from the list
-        sys.path.pop()
+        try:
+            spec = importlib.util.spec_from_file_location('tool', moduleDict['toolPath'])
+            moduleToRun = importlib.util.module_from_spec(spec)
+            #we need to append the Toolbox/InputPut folder path so all relative imports will work
+            sys.path.append(moduleDict['parameters']['ToolboxInputOutputPath'])
+            spec.loader.exec_module(moduleToRun)
+            #runAimsun is a function that all modules will have hence hard-coded here
+            func = getattr(moduleToRun, "run_xtmf")
+            # attaching module name of particular and running it with parameters
+            func(moduleDict['parameters'], model, console)
+        except Exception as e:
+            #traceback outputs more information such as call output stack
+            e = traceback.print_exc()
+            self.sendRuntimeError(repr(e))
+        finally:
+            #remove the Toolbox folder from the sys.path once the module is finished executing
+            #remove the last element from the list
+            sys.path.pop()
 
     def executeModule(self, console, model):
         """Function which executes the modules by extracting the tool and 
