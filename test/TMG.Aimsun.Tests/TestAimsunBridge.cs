@@ -43,16 +43,28 @@ namespace TMG.Aimsun.Tests
         [TestMethod]
         public void ConstructAimsunBridge()
         {
-            //function that can take string or whatever and generate json and combine two json together
             string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importNetwork.py");
-            ///<summary>
-            ///the json parameters we will pass to the bridge via the pipe that are the inputs to the python
-            ///modules
-            ///</summary>
             string jsonParameters = JsonConvert.SerializeObject(new
             {
                 OutputNetworkFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetwork.ang"),
-                ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown")
+                ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown"),
+                ToolboxInputOutputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "src\\TMGToolbox\\inputOutput")
+            });
+            Helper.Modeller.Run(null, modulePath, jsonParameters);
+        }
+
+        [TestMethod]
+        public void TestImportTransitNetwork()
+        {
+            //change the network from blank to Frabitztown
+            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetwork.ang");
+            Helper.Modeller.SwitchModel(null, newNetwork);
+            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importTransitNetwork.py");
+            string jsonParameters = JsonConvert.SerializeObject(new
+            {
+                OutputNetworkFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetworkWithTransit.ang"),
+                ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown"),
+                ToolboxInputOutputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "src\\TMGToolbox\\inputOutput")
             });
             Helper.Modeller.Run(null, modulePath, jsonParameters);
         }
