@@ -156,11 +156,15 @@ class AimSunBridge:
         moduleToRun = importlib.util.module_from_spec(spec)
         #we need to append the Toolbox/InputPut folder path so all relative imports will work
         sys.path.append(moduleDict['parameters']['ToolboxInputOutputPath'])
+        print ('BEFORE ', sys.path)
         spec.loader.exec_module(moduleToRun)
         #runAimsun is a function that all modules will have hence hard-coded here
-        func = getattr(moduleToRun, "runAimsun")
+        func = getattr(moduleToRun, "run_xtmf")
         # attaching module name of particular and running it with parameters
         func(moduleDict['parameters'], model, console)
+        #remove the Toolbox folder from the sys.path once the module is finished executing
+        #remove the last element from the list
+        sys.path.pop()
 
     def executeModule(self, console, model):
         """Function which executes the modules by extracting the tool and 
@@ -175,7 +179,7 @@ class AimSunBridge:
             parameterString = self.readString()
             nameSpace = {'toolPath':macroName, 'parameters':json.loads(parameterString)}
             # run our script with passed in json
-            self.executeAimsunScript(nameSpace, console, model)         
+            self.executeAimsunScript(nameSpace, console, model)
             # send to the pipe that we ran the message successfully
             self.sendSuccess()
         except Exception as e:

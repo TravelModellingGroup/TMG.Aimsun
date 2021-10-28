@@ -374,7 +374,7 @@ def buildWalkingTransfers(catalog, geomodel, model):
     for stop in iter(busStops.values()):
         addWalkingTimes(stop, geomodel, 200.0, 10, busStopType, model)
 
-def runAimsun(parameters, model, console):
+def run_xtmf(parameters, model, console):
     """
      A general function called in all python modules called by bridge. Responsible
      for extracting data and running appropriate functions.
@@ -385,7 +385,9 @@ def runAimsun(parameters, model, console):
 
 
 def _execute(networkDirectory, outputNetworkFile, inputModel, console):
-    """ Main execute function to run the simulation """
+    """ 
+    Main execute function to run the simulation 
+    """
     overallStartTime = time.perf_counter()
     loadModelStartTime = time.perf_counter()
     networkDir = networkDirectory
@@ -414,9 +416,11 @@ def _execute(networkDirectory, outputNetworkFile, inputModel, console):
     overallEndTime = time.perf_counter()
     print(f"Overall runtime: {overallEndTime-overallStartTime}")
 
-def run(inputArgs):
-    """ This function takes commands from the terminal, creates a console and model to pass
-    to the _execute function """
+def runFromConsole(inputArgs):
+    """
+    This function takes commands from the terminal, creates a console and model to pass
+    to the _execute function
+    """
     # Start a console
     console = ANGConsole()
     Network = inputArgs[1]
@@ -429,4 +433,4 @@ def run(inputArgs):
 
 if __name__ == "__main__":
     # function to parse the command line arguments and run network script
-    run(sys.argv)
+    runFromConsole(sys.argv)

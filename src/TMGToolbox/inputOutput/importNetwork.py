@@ -504,16 +504,19 @@ def loadModel(filepath, console):
     geomodel = model.getGeoModel()
     return model, catalog, geomodel
 
-def runAimsun(parameters, model, console):
-    # A general function called in all python modules called by bridge. Responsible
-    # for extracting data and running appropriate functions.
+def run_xtmf(parameters, model, console):
+    """
+    A general function called in all python modules called by bridge. Responsible
+    for extracting data and running appropriate functions.
+    """
     outputNetworkFile = parameters["OutputNetworkFile"]
     networkDirectory = parameters["ModelDirectory"]
     _execute(networkDirectory, outputNetworkFile, model, console)
 
-# Main script to complete the full network import
 def _execute(networkDirectory, outputNetworkFile, inputModel, console):
-    print ('main ran')
+    """ 
+    Main execute function to run the simulation 
+    """
     overallStartTime = time.perf_counter()
     global model
     model = inputModel
@@ -599,7 +602,7 @@ def _execute(networkDirectory, outputNetworkFile, inputModel, console):
     model.getCommander().addCommand( None )
     return 0
 
-def run(inputArgs):
+def runFomConsole(inputArgs):
     """ This function takes commands from the terminal, creates a console and model to pass
     to the _execute function """
     # Start a console
@@ -614,4 +617,4 @@ def run(inputArgs):
 
 if __name__ == "__main__":
     # function to parse the command line arguments and run network script
-    run(sys.argv)
+    runFromConsole(sys.argv)
