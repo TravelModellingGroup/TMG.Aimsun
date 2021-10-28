@@ -162,10 +162,6 @@ class AimSunBridge:
             func = getattr(moduleToRun, "run_xtmf")
             # attaching module name of particular and running it with parameters
             func(moduleDict['parameters'], model, console)
-        except Exception as e:
-            #traceback outputs more information such as call output stack
-            e = traceback.print_exc()
-            self.sendRuntimeError(repr(e))
         finally:
             #remove the Toolbox folder from the sys.path once the module is finished executing
             #remove the last element from the list
@@ -189,8 +185,8 @@ class AimSunBridge:
             self.sendSuccess()
         except Exception as e:
             #traceback outputs more information such as call output stack
-            traceback.print_exc()
-            self.sendRuntimeError(str(e))
+            err = traceback.print_exc()
+            self.sendRuntimeError(repr(err))
         return
 
     def sendRuntimeError(self, problem):
