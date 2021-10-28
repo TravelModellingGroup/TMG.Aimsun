@@ -189,15 +189,29 @@ def createTransitCentroidConnections(centroidConfiguration, nodeConnections, mod
             pedCentroid.setCentroidConfiguration(pedCentroidConfig)
             pedArea.addCentroid(pedCentroid)
             geomodel.add(pedestrianLayer, pedCentroid)
-    
     return pedCentroidConfig
 
-def main(argv):
+def run_xtmf(parameters, model, console):
+    """
+    A general function called in all python modules called by bridge. Responsible
+    for extracting data and running appropriate functions.
+    """
+    outputNetworkFile = parameters["OutputNetworkFile"]
+    networkDirectory = parameters["ModelDirectory"]
+    _execute(networkDirectory, outputNetworkFile, model, console)
+
+def _execute(networkDirectory, outputNetworkFile, inputModel, console):
+    """ 
+    Main execute function to run the simulation 
+    """
     overallStartTime = time.perf_counter()
     loadModelStartTime = time.perf_counter()
-    console = ANGConsole()
-    inputModel, networkDir, outputNetworkFilename = parseArguments(argv)
-    model, catalog, geomodel = loadModel(inputModel, console)
+    networkDir = networkDirectory
+    outputNetworkFilename = outputNetworkFile
+    model = inputModel
+    catalog = model.getCatalog()
+    geomodel = model.getGeoModel()
+    
     nodes = cacheAllOfTypeByExternalId("GKNode", model, catalog)
     sections = cacheAllOfTypeByExternalId("GKSection", model, catalog)
     nodeConnections = cacheNodeConnections(nodes.values(), sections.values())
@@ -214,6 +228,23 @@ def main(argv):
     console.save(outputNetworkFilename)
     overallEndTime = time.perf_counter()
     print(f"Overall runtime: {overallEndTime-overallStartTime}")
+    
+def runFromConsole(inputArgs):
+    """
+    This function takes commands from the terminal, creates a console and model to pass
+    to the _execute function
+    """
+    # Start a console
+    console = ANGConsole()
+    Network = inputArgs[1]
+    networkDirectory = inputArgs[2]
+    outputNetworkFile = inputArgs[3]
+    # generate a model of the input network
+    model, catalog, geomodel = loadModel(Network, console)
+    #run the _execute function
+    _execute(networkDirectory, outputNetworkFile, model, console)
 
 if __name__ == "__main__":
-    main(sys.argv)
+    #main(sys.argv)
+    # function to parse the command line arguments and run network script
+    runFromConsole(sys.argv)
