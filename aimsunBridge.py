@@ -153,10 +153,10 @@ class AimSunBridge:
         in the console and model and uses the importlib library to import and run the module
         """
         try:
-            spec = importlib.util.spec_from_file_location('tool', moduleDict['toolPath'])
-            moduleToRun = importlib.util.module_from_spec(spec)
             #we need to append the Toolbox/InputPut folder path so all relative imports will work
             sys.path.append(moduleDict['parameters']['ToolboxInputOutputPath'])
+            spec = importlib.util.spec_from_file_location('tool', moduleDict['toolPath'])
+            moduleToRun = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(moduleToRun)
             #runAimsun is a function that all modules will have hence hard-coded here
             func = getattr(moduleToRun, "run_xtmf")
