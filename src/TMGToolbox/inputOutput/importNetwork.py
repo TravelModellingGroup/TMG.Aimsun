@@ -602,7 +602,7 @@ def _execute(networkDirectory, outputNetworkFile, inputModel, console):
     model.getCommander().addCommand( None )
     return 0
 
-def runFomConsole(inputArgs):
+def runFromConsole(inputArgs):
     """ This function takes commands from the terminal, creates a console and model to pass
     to the _execute function 
     """
