@@ -24,29 +24,18 @@ using System.IO;
 namespace TMG.Aimsun.Tests
 {
     [TestClass]
-    public class TestAimsunBridge
+    public class TestModuleImportTransitNetwork
     {
-        [Microsoft.VisualStudio.TestTools.UnitTesting.AssemblyCleanup]
-        public static void TestCleanUp()
-        {
-            //get modeller if modeller is not null dispose
-            Helper.Modeller?.Dispose();
-        }
-
-        [Microsoft.VisualStudio.TestTools.UnitTesting.AssemblyInitialize]
-        public static void InitTest(TestContext _)
-        {
-            //initialize the Aimsun module
-            Helper.InitializeAimsun();
-        }
-
         [TestMethod]
-        public void ConstructAimsunBridge()
+        public void TestImportTransitNetwork()
         {
-            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importNetwork.py");
+            //change the network
+            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetwork.ang");
+            Helper.Modeller.SwitchModel(null, newNetwork);
+            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importTransitNetwork.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
-                OutputNetworkFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\output\\FrabitztownNetwork.ang"),
+                OutputNetworkFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\output\\FrabitztownNetworkWithTransit.ang"),
                 ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown"),
                 ToolboxInputOutputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "src\\TMGToolbox\\inputOutput")
             });
