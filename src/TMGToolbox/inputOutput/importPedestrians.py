@@ -245,6 +245,5 @@ def runFromConsole(inputArgs):
     _execute(networkDirectory, outputNetworkFile, model, console)
 
 if __name__ == "__main__":
-    #main(sys.argv)
     # function to parse the command line arguments and run network script
     runFromConsole(sys.argv)
