@@ -24,24 +24,10 @@ using System.IO;
 namespace TMG.Aimsun.Tests
 {
     [TestClass]
-    public class TestAimsunBridge
+    public class TestModuleImportNetwork
     {
-        [Microsoft.VisualStudio.TestTools.UnitTesting.AssemblyCleanup]
-        public static void TestCleanUp()
-        {
-            //get modeller if modeller is not null dispose
-            Helper.Modeller?.Dispose();
-        }
-
-        [Microsoft.VisualStudio.TestTools.UnitTesting.AssemblyInitialize]
-        public static void InitTest(TestContext _)
-        {
-            //initialize the Aimsun module
-            Helper.InitializeAimsun();
-        }
-
         [TestMethod]
-        public void ConstructAimsunBridge()
+        public void ImportNetwork()
         {
             string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importNetwork.py");
             string jsonParameters = JsonConvert.SerializeObject(new
