@@ -86,6 +86,24 @@ namespace TMG.Aimsun.Tests
         }
 
         [TestMethod]
+        public void TestImportTransitSchedule()
+        {
+            //change the network
+            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetworkWithPedestrians.ang");
+            Helper.Modeller.SwitchModel(null, newNetwork);
+            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importTransitSchedule.py");
+            string jsonParameters = JsonConvert.SerializeObject(new
+            {
+                OutputNetworkFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\output\\FrabitztownNetworkWithTransitSchedule.ang"),
+                ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown"),
+                ToolboxInputOutputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "src\\TMGToolbox\\inputOutput"),
+                csvFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frab_service_table.csv"),
+                TransitFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown\\transit.221 ")
+            });
+            Helper.Modeller.Run(null, modulePath, jsonParameters);
+        }   
+
+        [TestMethod]
         public void TestImportMatrixFromCSVThirdNormalizedTestOD()
         {
             //change the network

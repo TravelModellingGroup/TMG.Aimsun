@@ -111,32 +111,67 @@ def addServiceToLine(lineId, departures, arrivals, transitVehDict, vehicle=None)
     transitLine.addTimeTable(timeTable)
     return transitLine
 
-def main(argv):
+def run_xtmf(parameters, model, console):
+    """
+    A general function called in all python modules called by bridge. Responsible
+    for extracting data and running appropriate functions.
+    """
+    outputNetworkFile = parameters["OutputNetworkFile"]
+    _execute(outputNetworkFile, model, console, parameters)
+
+def _execute(outputNetworkFile, inputModel, console, parameters):
     print("Import transit schedules")
-    if len(argv)<5:
-        print("Incorrect Number of Arguments")
-        print("Arguments: -script script.py aimsunProjectFile.ang serviceTable.csv transitFile.221 outputNetworkFile.ang")
-        return 1
-    # Start a console
-    console = ANGConsole()
-    # Load a network
-    if console.open(argv[1]): 
-        global model
-        model = console.getModel()
-        print("open blank network")
-    else:
-        console.getLog().addError("Cannot load the network")
-        print("cannot load network")
-        return -1
-    transitFile = argv[3]
+    global model
+    model = inputModel
+   
+    transitFile = parameters["TransitFile"]
     transitVehDict = buildTransitVehDict(transitFile)
-    serviceTables = readServiceTables(argv[2])
+    serviceTables = readServiceTables(parameters["csvFile"])
     for serviceTable in serviceTables:
         addServiceToLine(serviceTable[0], serviceTable[1], serviceTable[2], transitVehDict)
     # Save the network file
     print("Save Network")
-    console.save(argv[4])
+    console.save(outputNetworkFile)
     return 0
 
+def loadModel(filepath, console):
+    """
+    function to open the console and return a created model
+    object
+    """
+    if console.open(filepath):
+        model = console.getModel()
+        print("Open network")
+    else:
+        console.getLog().addError("Cannot load the network")
+        print("Cannot load the network")
+        return -1
+    return model
+
+def runFromConsole(inputArgs):
+    """
+    This function takes commands from the terminal, creates a console and model to pass
+    to the _execute function
+    """
+    # Start a console
+    console = ANGConsole()
+
+    #extract the arguments from the command line
+    #incoming network
+    Network = inputArgs[1]
+    #output network file name
+    outputNetworkFile = inputArgs[4]
+    #create a dictionary of additional argument parameters from the command line
+    parameters = {
+                    "TransitFile":inputArgs[3],
+                    "csvFile": inputArgs[2]
+                 }
+
+    # generate a model of the input network
+    model = loadModel(Network, console)
+    #run the _execute function
+    _execute(outputNetworkFile, model, console, parameters)
+
 if __name__ == "__main__":
-    main(sys.argv)
+    # function to parse the command line arguments and run network script
+    runFromConsole(sys.argv)
