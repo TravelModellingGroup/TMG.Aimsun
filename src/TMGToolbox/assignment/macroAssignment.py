@@ -44,6 +44,14 @@ def create_scenario(model, trafficDemand, ptPlan):
 
     scenario.setOutputData(dataToOutput)
 
+    return (scenario, PathAssignment)
+
+    return (experiment, scenario)
+
+def experiment_for_create_scenario(model, scenario, PathAssignment):
+    """
+    function to create the experiment
+    """
     experiment = GKSystem.getSystem().newObject( "MacroExperiment", model )
     experiment.setEngine( "FrankWolfe" )
     params = experiment.createParameters()
@@ -56,7 +64,8 @@ def create_scenario(model, trafficDemand, ptPlan):
     experiment.setScenario( scenario )
     experiment.setOutputPathAssignment( PathAssignment )
 
-    return (experiment, scenario)
+    return experiment
+    
 
 def pt_scenario(model, system, experiment, trafficDemand, ptPlan):
     """
@@ -77,16 +86,19 @@ def pt_scenario(model, system, experiment, trafficDemand, ptPlan):
     cmd.setEngine( "PTFrequencyBased" )
     cmd.setAlgorithm( "AllOrNothing" )
     model.getCommander().addCommand( cmd )
+    return (ptScenario, cmd)
+
+def experiment_pt_scenario(system, cmd):
+    """
+    build experiment for pt_scenario and run transit assignment
+    """
     ptExperiment = cmd.createdObject()
-    # # Execute the scenarios
-    print("Run road assignment")
-    system.executeAction( "execute", experiment, [], "static assignment")
-    experiment.getStatsManager().createTrafficState()
+    # Execute the scenarios
     print("Run transit assignment")
     system.executeAction( "execute", ptExperiment, [], "transit assignment")
-    return ptExperiment, ptScenario
+    return ptExperiment
 
-def pt_skim_matrices(model, ptExperiment):
+def get_pt_skim_matrices(model, ptExperiment):
     # Generate PT Skim Matrices
     skimMatrices = ptExperiment.getOutputData().getSkimMatrices()
     contConfType = model.getType('GKPedestrianCentroidConfiguration')
@@ -145,7 +157,7 @@ def run_xtmf(parameters, model, console):
     """
     outputNetworkFile = parameters["OutputNetworkFile"]
     _execute(outputNetworkFile, model, console)
-
+    
 def _execute(outputNetworkFile, inputModel, console):
     """ 
     Main execute function to run the simulation 
@@ -161,6 +173,7 @@ def _execute(outputNetworkFile, inputModel, console):
 
     catalog = model.getCatalog()
     system = GKSystem.getSystem()
+
     # add info from the OD Matrix into a traffic demand item which is used in the model
     trafficDemand = GKSystem.getSystem().newObject("GKTrafficDemand", model)
     scheduleDemandItem = GKScheduleDemandItem()
@@ -180,14 +193,27 @@ def _execute(outputNetworkFile, inputModel, console):
     scheduleDemandItem.setDuration(int(xtmf_parameters["duration"]*60.0))
     scheduleDemandItem.setTrafficDemandItem(odMatrix)
     trafficDemand.addToSchedule(scheduleDemandItem)
+
     #create a PT Plan
     ptPlan = create_PT_plan(model)
-    #Create the scenario
-    experiment, scenario = create_scenario(model, trafficDemand, ptPlan)
+
+    # Create the scenario
+    scenario, pathAssignment = create_scenario(model, trafficDemand, ptPlan)
+    #generate the experiment 
+    experiment = experiment_for_create_scenario(model, scenario, pathAssignment)
+
+    # Execute the scenario for road assignment
+    print("Run road assignment")
+    system.executeAction( "execute", experiment, [], "static assignment")
+    experiment.getStatsManager().createTrafficState()
+    
     #create a PT scenario
-    ptExperiment, ptScenario = pt_scenario(model, system, experiment, trafficDemand, ptPlan)
+    ptScenario, cmd = pt_scenario(model, system, experiment, trafficDemand, ptPlan)
+    ptExperiment = experiment_pt_scenario(system, cmd)
+
     # Generate PT Skim Matrices
-    skimMatrices = pt_skim_matrices(model, ptExperiment)
+    skimMatrices = get_pt_skim_matrices(model, ptExperiment)
+
     # Save the Network
     save_network(outputNetworkFile, console, model, skimMatrices, scenario, ptScenario, experiment, 
                  ptExperiment, trafficDemand, ptPlan)
