@@ -70,6 +70,7 @@
     <Compile Include="TestModuleImportPedestrians.cs" />
     <Compile Include="TestModuleImportTransitSchedule.cs" />
     <Compile Include="TestModuleImportMatrixFromCSVThirdNormalized.cs" />
+    <Compile Include="TestModuleMacroAssignment.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
