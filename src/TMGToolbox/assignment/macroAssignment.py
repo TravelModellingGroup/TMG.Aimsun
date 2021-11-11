@@ -10,16 +10,10 @@ from PyFrankWolfePlugin import *
 import sys
 import os
 
-def create_schedule_demand_item(model, system):
+def create_schedule_demand_item(model, system, xtmf_parameters):
     """
     Function which generates and creates the TrafficDemand Data
     """
-    xtmf_parameters = {
-        'matrix': 'testOD',
-        # placeholder default values
-        'start': 6.0 * 60.0,
-        'duration': 3.0 * 60.0
-    }
     # add info from the OD Matrix into a traffic demand item which is used in the model
     trafficDemand = GKSystem.getSystem().newObject("GKTrafficDemand", model)
     scheduleDemandItem = GKScheduleDemandItem()
@@ -33,7 +27,7 @@ def create_schedule_demand_item(model, system):
     # add in the transit demand
     scheduleDemandItem = GKScheduleDemandItem()
     sectionType = model.getType("GKODMatrix")
-    odMatrix = model.getCatalog().findObjectByExternalId("transitOD", sectionType)
+    odMatrix = model.getCatalog().findObjectByExternalId(xtmf_parameters["transitDemand"], sectionType)
     # TODO make these paramters for the scenario length
     scheduleDemandItem.setFrom(int(xtmf_parameters["start"]*60.0))
     scheduleDemandItem.setDuration(int(xtmf_parameters["duration"]*60.0))
@@ -189,16 +183,24 @@ def run_xtmf(parameters, model, console):
     for extracting data and running appropriate functions.
     """
     outputNetworkFile = parameters["OutputNetworkFile"]
-    _execute(outputNetworkFile, model, console)
+    #extract the parameters and save to dictionary
+    xtmf_parameters = {
+        'matrix': parameters["Matrix"],
+        # placeholder default values
+        'start': parameters["Start"],
+        'duration': parameters["Duration"],
+        'transitDemand': parameters["transitDemand"]
+    }
+    _execute(outputNetworkFile, model, console, xtmf_parameters)
 
-def _execute(outputNetworkFile, inputModel, console):
+def _execute(outputNetworkFile, inputModel, console, xtmf_parameters):
     """ 
     Main execute function to run the simulation 
     """
     model = inputModel
     system = GKSystem.getSystem()
     #extract the trafficDemand data
-    trafficDemand = create_schedule_demand_item(model, system)
+    trafficDemand = create_schedule_demand_item(model, system, xtmf_parameters)
     #create a PT Plan
     ptPlan = create_PT_plan(model)
     # Create the scenario
@@ -226,6 +228,14 @@ def runFromConsole(inputArgs):
     #extract the data from the command line arguments
     inputNetwork = inputArgs[1]
     outputNetworkFile = inputArgs[2]
+    #extract the parameters and save to dictionary
+    xtmf_parameters = {
+        'matrix': inputArgs[3],
+        # placeholder default values
+        'start': float(inputArgs[4]),
+        'duration': float(inputArgs[5]),
+        'transitDemand':inputArgs[6]
+    }
     # Start a console
     console = ANGConsole()
     # generate a model of the input network
@@ -238,7 +248,7 @@ def runFromConsole(inputArgs):
         console.getLog().addError("Cannot load the network")
         raise Exception("Cannot load network")
     #call the _execute() function
-    _execute(outputNetworkFile, model, console)
+    _execute(outputNetworkFile, model, console, xtmf_parameters)
 
 if __name__ == "__main__":
     # function to parse the command line arguments and run network script
