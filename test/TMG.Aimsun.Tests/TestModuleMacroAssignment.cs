@@ -39,7 +39,7 @@ namespace TMG.Aimsun.Tests
                 OutputNetworkFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\output\\FrabitztownNetworkWithAssign.ang"),
                 ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown"),
                 ToolboxInputOutputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "src\\TMGToolbox\\inputOutput"),
-                Matrix = "testOD",
+                autoDemand = "testOD",
                 Start = 6.0 * 60.0,
                 Duration = 3.0 * 60.0,
                 transitDemand = "transitOD"

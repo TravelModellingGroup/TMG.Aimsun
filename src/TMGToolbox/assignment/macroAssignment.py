@@ -18,7 +18,7 @@ def create_schedule_demand_item(model, system, xtmf_parameters):
     trafficDemand = GKSystem.getSystem().newObject("GKTrafficDemand", model)
     scheduleDemandItem = GKScheduleDemandItem()
     sectionType = model.getType("GKODMatrix")
-    odMatrix = model.getCatalog().findObjectByExternalId(xtmf_parameters["matrix"], sectionType)
+    odMatrix = model.getCatalog().findObjectByExternalId(xtmf_parameters["autoDemand"], sectionType)
     # TODO make these parameters for the scenario length
     scheduleDemandItem.setFrom(int(xtmf_parameters["start"]*60.0))
     scheduleDemandItem.setDuration(int(xtmf_parameters["duration"]*60.0))
@@ -185,7 +185,7 @@ def run_xtmf(parameters, model, console):
     outputNetworkFile = parameters["OutputNetworkFile"]
     #extract the parameters and save to dictionary
     xtmf_parameters = {
-        'matrix': parameters["Matrix"],
+        'autoDemand': parameters["autoDemand"],
         # placeholder default values
         'start': parameters["Start"],
         'duration': parameters["Duration"],
@@ -230,7 +230,7 @@ def runFromConsole(inputArgs):
     outputNetworkFile = inputArgs[2]
     #extract the parameters and save to dictionary
     xtmf_parameters = {
-        'matrix': inputArgs[3],
+        'autoDemand': inputArgs[3],
         # placeholder default values
         'start': float(inputArgs[4]),
         'duration': float(inputArgs[5]),
