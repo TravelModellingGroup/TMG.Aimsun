@@ -257,13 +257,10 @@ class AimSunBridge:
             #check if file exists and was saved
             boolFileExists = os.path.isfile( outputPath)
             if boolFileExists == False:
-                self.sendRuntimeError(str("This filepath doesn't exist please check the directory is correct"))
+                self.sendRuntimeError("This filepath doesn't exist please check the directory is correct.")
             else:
                 #send successful run of command
                 self.sendSuccess()
-            
-            #send successful run of command
-            #self.sendSuccess()
         except Exception as e:
             #traceback outputs more information such as call output stack
             err = traceback.print_exc()

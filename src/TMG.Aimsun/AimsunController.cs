@@ -242,10 +242,13 @@ namespace TMG.Aimsun
                 return WaitForAimsunResponse(caller);
             }
         }
-
         /// <summary>
         /// Method to save the networkModel based on the file path provided
         /// </summary>
+        /// <param name="caller"></param>
+        /// <param name="networkPath"></param>
+        /// <returns></returns>
+        /// <exception cref="XTMFRuntimeException"></exception>
         public bool SaveNetworkModel(IModule caller, string networkPath)
         {
             lock (this)
@@ -269,7 +272,6 @@ namespace TMG.Aimsun
                 return WaitForAimsunResponse(caller);
             }
         }
-
         public bool Run(IModule caller, string macroName, string jsonParameters)
         {
             lock (this)
