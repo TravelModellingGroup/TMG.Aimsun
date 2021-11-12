@@ -238,7 +238,8 @@ class AimSunBridge:
             self.sendSuccess()
             return model
         except Exception as e:
-            self.sendRuntimeError(str(e))
+            err = traceback.print_exc()
+            self.sendRuntimeError(str(err))
 
     def saveModel(self, console, model):
         """
@@ -247,15 +248,26 @@ class AimSunBridge:
         """
         try:
             outputPath = self.readString()
+            print ('saving file to: ', outputPath)
             #save model to outputpath file location
             console.save(outputPath)
             # Reset the Aimsun undo buffer
             model.getCommander().addCommand(None)
+
+            #check if file exists and was saved
+            boolFileExists = os.path.isfile( outputPath)
+            if boolFileExists == False:
+                self.sendRuntimeError(str("This filepath doesn't exist please check the directory is correct"))
+            else:
+                #send successful run of command
+                self.sendSuccess()
+            
             #send successful run of command
-            self.sendSuccess()
+            #self.sendSuccess()
         except Exception as e:
             #traceback outputs more information such as call output stack
             err = traceback.print_exc()
+            self.sendRuntimeError(str(err))
 
     def run(self):
         # Function to run the pipe

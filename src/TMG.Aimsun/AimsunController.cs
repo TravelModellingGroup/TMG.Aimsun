@@ -155,6 +155,11 @@ namespace TMG.Aimsun
                         int result = reader.ReadInt32();
                         switch (result)
                         {
+                            case SignalRuntimeError:
+                                {
+                                    toPrint = reader.ReadString();
+                                    throw new XTMFRuntimeException(caller, toPrint);
+                                }
                             case SignalStart:
                                 {
                                     continue;
