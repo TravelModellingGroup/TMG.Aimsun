@@ -36,16 +36,18 @@ from PyANGBasic import *
 from PyANGKernel import *
 from PyANGConsole import *
 
+
 class AimSunBridge:
-    """this class is the aimsun bridge we are building that is based off the emme bridge """
+    """this class is the aimsun bridge we are building that is based off the emme bridge"""
+
     def __init__(self):
         # Message numbers
         """Tell XTMF that we are ready to start accepting messages"""
         self.SignalStart = 0
         """Tell XTMF that we exited / XTMF is telling us to exit"""
         self.SignalTermination = 1
-        #"""XTMF is telling us to start up a tool <Depricated>"""
-        #self.SignalStartModule = 2
+        # """XTMF is telling us to start up a tool <Depricated>"""
+        # self.SignalStartModule = 2
         """Tell XTMF that we have successfully ran the requested tool"""
         self.SignalRunComplete = 3
         """Tell XTMF that we have had an error when creating the parameters"""
@@ -67,17 +69,19 @@ class AimSunBridge:
         """Signal from XTMF to disable writing to logbook"""
         self.SignalDisableLogbook = 12
         """Signal from XTMF to enable writing to logbook"""
-        self.SignalEnableLogbook = 13    
+        self.SignalEnableLogbook = 13
         """Signal from XTMF to start up a tool using binary parameters"""
         self.SignalStartModuleBinaryParameters = 14
         """Signal to XTMF saying that the current tool is not compatible with XTMF2"""
         self.SignalIncompatibleTool = 15
         """A signal to switch and open the console on a new path"""
         self.SignalSwitchNetworkPath = 16
-        
+        """A signal to save the network"""
+        self.SignalSaveNetwork = 17
+
         # open the named pipe
-        pipeName = sys.argv[1] 
-        self.aimsunPipe = open('\\\\.\\pipe\\' + pipeName, 'w+b',0)
+        pipeName = sys.argv[1]
+        self.aimsunPipe = open("\\\\.\\pipe\\" + pipeName, "w+b", 0)
         # extract path of network file
         self.NetworkPath = sys.argv[2]
 
@@ -85,21 +89,21 @@ class AimSunBridge:
         sys.stdin.close()
         self.IOLock = threading.Lock()
         sys.stdin = None
-        # TODO: Figure out what this function is and how to write it 
+        # TODO: Figure out what this function is and how to write it
         # sys.stdout = RedirectToXTMFConsole(self)
 
     def sendSignal(self, signal):
         # this function takes an integer aka the signal number as an input and passes it as a bit 32 signed integer
-        # as an array of type l to c# 
-        intArray = array.array('l')
+        # as an array of type l to c#
+        intArray = array.array("l")
         intArray.append(signal)
         intArray.tofile(self.aimsunPipe)
         # flush the pipe to clear the pipe not the array
         self.aimsunPipe.flush()
         return
-    
+
     def sendString(self, stringToSend):
-        msg = array.array('u', str(stringToSend))
+        msg = array.array("u", str(stringToSend))
         length = len(msg) * msg.itemsize
         tempLength = length
         bytes = 0
@@ -107,7 +111,7 @@ class AimSunBridge:
         while tempLength > 0:
             tempLength = tempLength >> 7
             bytes += 1
-        lengthArray = array.array('B')
+        lengthArray = array.array("B")
         if length <= 0:
             lengthArray.append(0)
         else:
@@ -127,9 +131,9 @@ class AimSunBridge:
         return
 
     def readInt(self):
-        # this function reads the input the c# side server gives us. 
+        # this function reads the input the c# side server gives us.
         # note this function will give us a number a string and a json of parameters
-        intArray = array.array('l')
+        intArray = array.array("l")
         intArray.fromfile(self.aimsunPipe, 1)
         return intArray.pop()
 
@@ -138,37 +142,39 @@ class AimSunBridge:
         length = self.readInt()
         try:
             # create an unicode array
-            stringArray = array.array('u')
+            stringArray = array.array("u")
             # read from the pipe up to the length of the message
             # multiplying by 2 since unicode is 16 bits
             stringArray.fromfile(self.aimsunPipe, length)
             return stringArray.tounicode()
         except Exception as e:
-            #traceback outputs more information such as call output stack
+            # traceback outputs more information such as call output stack
             traceback.print_exc()
             return "error reading"
-        
+
     def executeAimsunScript(self, moduleDict, console, model):
-        """This function is responsible for calling the modules of interest. It passes 
+        """This function is responsible for calling the modules of interest. It passes
         in the console and model and uses the importlib library to import and run the module
         """
         try:
-            #we need to append the Toolbox/InputPut folder path so all relative imports will work
-            sys.path.append(moduleDict['parameters']['ToolboxInputOutputPath'])
-            spec = importlib.util.spec_from_file_location('tool', moduleDict['toolPath'])
+            # we need to append the Toolbox/InputPut folder path so all relative imports will work
+            sys.path.append(moduleDict["parameters"]["ToolboxInputOutputPath"])
+            spec = importlib.util.spec_from_file_location(
+                "tool", moduleDict["toolPath"]
+            )
             moduleToRun = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(moduleToRun)
-            #runAimsun is a function that all modules will have hence hard-coded here
+            # runAimsun is a function that all modules will have hence hard-coded here
             func = getattr(moduleToRun, "run_xtmf")
             # attaching module name of particular and running it with parameters
-            func(moduleDict['parameters'], model, console)
+            func(moduleDict["parameters"], model, console)
         finally:
-            #remove the Toolbox folder from the sys.path once the module is finished executing
-            #remove the last element from the list
+            # remove the Toolbox folder from the sys.path once the module is finished executing
+            # remove the last element from the list
             sys.path.pop()
 
     def executeModule(self, console, model):
-        """Function which executes the modules by extracting the tool and 
+        """Function which executes the modules by extracting the tool and
         its json parameters
         """
         macroName = None
@@ -178,13 +184,16 @@ class AimSunBridge:
             # extract the name of the tool along with the parameters and pass it to the function
             macroName = self.readString()
             parameterString = self.readString()
-            nameSpace = {'toolPath':macroName, 'parameters':json.loads(parameterString)}
+            nameSpace = {
+                "toolPath": macroName,
+                "parameters": json.loads(parameterString),
+            }
             # run our script with passed in json
             self.executeAimsunScript(nameSpace, console, model)
             # send to the pipe that we ran the message successfully
             self.sendSuccess()
         except Exception as e:
-            #traceback outputs more information such as call output stack
+            # traceback outputs more information such as call output stack
             err = traceback.print_exc()
             self.sendRuntimeError(repr(err))
         return
@@ -195,15 +204,15 @@ class AimSunBridge:
         self.sendString(problem)
         self.IOLock.release()
         return
-    
+
     def sendSuccess(self):
         self.IOLock.acquire()
-        intArray = array.array('l')
+        intArray = array.array("l")
         intArray.append(self.SignalRunComplete)
         intArray.tofile(self.aimsunPipe)
         self.IOLock.release()
         return
-    
+
     def checkToolExists(self):
         return True
 
@@ -220,39 +229,66 @@ class AimSunBridge:
             print("Cannot load the network")
         return model
 
-
     def switchModel(self, console):
         """function to open a new model based on a new network. The network filepath
         is passed from the bridge
         """
-        print ("switching model")
+        print("switching model")
         try:
             # extract the name of the tool along with the parameters and pass it to the function
             self.NetworkPath = self.readString()
-            print ('switched path files ', self.NetworkPath)
+            print("switched path files ", self.NetworkPath)
 
             model = self.loadModel(console)
             # send to the pipe that we ran the message successfully
             self.sendSuccess()
             return model
         except Exception as e:
-            self.sendRuntimeError(str(e))
+            err = traceback.print_exc()
+            self.sendRuntimeError(str(err))
+
+    def saveModel(self, console, model):
+        """
+        Save the model to the provided outpath file if bridge passes
+        savenetwork signal
+        """
+        try:
+            outputPath = self.readString()
+            print("saving file to: ", outputPath)
+            # save model to outputpath file location
+            console.save(outputPath)
+            # Reset the Aimsun undo buffer
+            model.getCommander().addCommand(None)
+
+            # check if file exists and was saved
+            boolFileExists = os.path.isfile(outputPath)
+            if boolFileExists == False:
+                self.sendRuntimeError(
+                    "This filepath doesn't exist please check the directory is correct."
+                )
+            else:
+                # send successful run of command
+                self.sendSuccess()
+        except Exception as e:
+            # traceback outputs more information such as call output stack
+            err = traceback.print_exc()
+            self.sendRuntimeError(str(err))
 
     def run(self):
         # Function to run the pipe
         # use a local exit flag if the flag is set to true we will gracefully exist and
-        # close the pipe otherwise we keep it running if exit=false the default setting 
+        # close the pipe otherwise we keep it running if exit=false the default setting
         exit = False
 
         # open the console and create a model. This is passed around inside this script and also
         # the modules of interest.
         console = ANGConsole([])
-        model = self.loadModel(console)  
+        model = self.loadModel(console)
 
         # send the start signal the first signal to C# server side
         self.sendSignal(self.SignalStart)
         try:
-            while (not exit):
+            while not exit:
                 # try:
                 input = self.readInt()
                 if input == self.SignalTermination:
@@ -262,9 +298,12 @@ class AimSunBridge:
                 elif input == self.SignalCheckToolExists:
                     self.checkToolExists()
                 elif input == self.SignalSwitchNetworkPath:
-                    #we need to switch the network path and open console and get
-                    #model to that network
+                    # we need to switch the network path and open console and get
+                    # model to that network
                     model = self.switchModel(console)
+                elif input == self.SignalSaveNetwork:
+                    # we need to save the network
+                    self.saveModel(console, model)
                 else:
                     # If we do not understand what XTMF is saying quietly die
                     exit = True
@@ -274,10 +313,12 @@ class AimSunBridge:
             console.close()
         return
 
+
 def main():
     # initialize and run the class
     aimsunMain = AimSunBridge()
     aimsunMain.run()
-    
+
+
 if __name__ == "__main__":
     main()

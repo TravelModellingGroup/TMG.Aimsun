@@ -103,7 +103,10 @@ namespace TMG.Aimsun
         /// and not use the starting network
         /// </summary>
         private const int SignalSwitchNetworkPath = 16;
-
+        /// <summary>
+        /// A signal from the modeller bridge saying to save the network model now. 
+        /// </summary>
+        private const int SignalSaveNetwork = 17;
         private string AddQuotes(string fileName)
         {
             return String.Concat("\"", fileName, "\"");
@@ -131,7 +134,7 @@ namespace TMG.Aimsun
                 aimsun.Start();
                 _aimsunPipe.WaitForConnection();
                 var reader = new BinaryReader(_aimsunPipe, System.Text.Encoding.Unicode, true);
-                reader.ReadInt32();    
+                reader.ReadInt32();
             }
             catch (AggregateException e)
             {
@@ -152,6 +155,11 @@ namespace TMG.Aimsun
                         int result = reader.ReadInt32();
                         switch (result)
                         {
+                            case SignalRuntimeError:
+                                {
+                                    toPrint = reader.ReadString();
+                                    throw new XTMFRuntimeException(caller, toPrint);
+                                }
                             case SignalStart:
                                 {
                                     continue;
@@ -209,7 +217,7 @@ namespace TMG.Aimsun
 
         /// <summary>
         /// Method outputting a bool that allows us to pass in a NetworkPath to
-        /// change the network we wish to analyze. Useful for running our unit tests
+        /// change the network we wish to analyze. Useful for running our unit tests.
         /// </summary>
         public bool SwitchModel(IModule caller, string networkPath)
         {
@@ -235,6 +243,45 @@ namespace TMG.Aimsun
             }
         }
 
+        /// <summary>
+        /// Method to save the network model based on the file path provided.
+        /// </summary>
+        /// <param name="caller">The calling module. Used for reporting errors for XTMF.</param>
+        /// <param name="networkPath">The path to where the saved .ang network file is stored.</param>
+        /// <returns>Returns true if the script executed successfully, false otherwise.</returns>
+        /// <exception cref="XTMFRuntimeException"></exception>
+        public bool SaveNetworkModel(IModule caller, string networkPath)
+        {
+            lock (this)
+            {
+                try
+                {
+                    EnsureWriteAvailable(caller);
+                    // clear out all of the old input before starting
+                    var writer = new BinaryWriter(_aimsunPipe, Encoding.Unicode, true);
+                    {
+                        writer.Write(SignalSaveNetwork);
+                        writer.Write(networkPath.Length);
+                        writer.Write(networkPath.ToCharArray());
+                        writer.Flush();
+                    }
+                }
+                catch (IOException e)
+                {
+                    throw new XTMFRuntimeException(caller, "I/O Connection with Aimsun while sending data, with:\r\n" + e.Message);
+                }
+                return WaitForAimsunResponse(caller);
+            }
+        }
+
+        /// <summary>
+        /// Method to run Aimsun modules.
+        /// </summary>
+        /// <param name="caller">The calling module. Used for reporting errors for XTMF.</param>
+        /// <param name="macroName">Name of Aimsun module to run.</param>
+        /// <param name="jsonParameters">Input parameters to pass into the Aimsun module passed as json.</param>
+        /// <returns>Returns true if the script executed successfully, false otherwise.</returns>
+        /// <exception cref="XTMFRuntimeException"></exception>
         public bool Run(IModule caller, string macroName, string jsonParameters)
         {
             lock (this)
