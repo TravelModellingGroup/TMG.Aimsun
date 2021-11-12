@@ -243,12 +243,10 @@ namespace TMG.Aimsun
             }
         }
         /// <summary>
-        /// Method to save the networkModel based on the file path provided
+        /// Method to save the network model based on the file path provided
         /// </summary>
-        /// <param name="caller"></param>
-        /// <param name="networkPath"></param>
-        /// <returns></returns>
-        /// <exception cref="XTMFRuntimeException"></exception>
+        /// <param name="caller" IModule instance></param>
+        /// <param name="networkPath" the path to the output network file></param>
         public bool SaveNetworkModel(IModule caller, string networkPath)
         {
             lock (this)
