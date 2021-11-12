@@ -600,7 +600,7 @@ def _execute(networkDirectory, outputNetworkFile, inputModel, console):
     print(f"Overall runtime: {overallEndTime-overallStartTime}s")
     # Reset the Aimsun undo buffer
     model.getCommander().addCommand( None )
-    return 0
+    return console #0
 
 def runFromConsole(inputArgs):
     """ This function takes commands from the terminal, creates a console and model to pass

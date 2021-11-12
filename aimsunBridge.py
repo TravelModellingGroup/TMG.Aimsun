@@ -74,6 +74,8 @@ class AimSunBridge:
         self.SignalIncompatibleTool = 15
         """A signal to switch and open the console on a new path"""
         self.SignalSwitchNetworkPath = 16
+        """A signal to save the network"""
+        self.SignalSaveNetwork = 17
         
         # open the named pipe
         pipeName = sys.argv[1] 
@@ -238,6 +240,23 @@ class AimSunBridge:
         except Exception as e:
             self.sendRuntimeError(str(e))
 
+    def saveModel(self, console, model):
+        """
+        Save the model to the provided outpath file if bridge passes 
+        savenetwork signal
+        """
+        try:
+            outputPath = self.readString()
+            #save model to outputpath file location
+            console.save(outputPath)
+            # Reset the Aimsun undo buffer
+            model.getCommander().addCommand(None)
+            #send successful run of command
+            self.sendSuccess()
+        except Exception as e:
+            #traceback outputs more information such as call output stack
+            err = traceback.print_exc()
+
     def run(self):
         # Function to run the pipe
         # use a local exit flag if the flag is set to true we will gracefully exist and
@@ -265,6 +284,9 @@ class AimSunBridge:
                     #we need to switch the network path and open console and get
                     #model to that network
                     model = self.switchModel(console)
+                elif input == self.SignalSaveNetwork:
+                    #we need to save the network
+                    self.saveModel(console, model)
                 else:
                     # If we do not understand what XTMF is saying quietly die
                     exit = True

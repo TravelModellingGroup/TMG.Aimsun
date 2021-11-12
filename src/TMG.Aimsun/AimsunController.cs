@@ -103,7 +103,10 @@ namespace TMG.Aimsun
         /// and not use the starting network
         /// </summary>
         private const int SignalSwitchNetworkPath = 16;
-
+        /// <summary>
+        /// A signal from the modeller bridge saying to save the network model now. 
+        /// </summary>
+        private const int SignalSaveNetwork = 17;
         private string AddQuotes(string fileName)
         {
             return String.Concat("\"", fileName, "\"");
@@ -222,6 +225,33 @@ namespace TMG.Aimsun
                     var writer = new BinaryWriter(_aimsunPipe, Encoding.Unicode, true);
                     {
                         writer.Write(SignalSwitchNetworkPath);
+                        writer.Write(networkPath.Length);
+                        writer.Write(networkPath.ToCharArray());
+                        writer.Flush();
+                    }
+                }
+                catch (IOException e)
+                {
+                    throw new XTMFRuntimeException(caller, "I/O Connection with Aimsun while sending data, with:\r\n" + e.Message);
+                }
+                return WaitForAimsunResponse(caller);
+            }
+        }
+
+        /// <summary>
+        /// Method to save the networkModel based on the file path provided
+        /// </summary>
+        public bool SaveNetworkModel(IModule caller, string networkPath)
+        {
+            lock (this)
+            {
+                try
+                {
+                    EnsureWriteAvailable(caller);
+                    // clear out all of the old input before starting
+                    var writer = new BinaryWriter(_aimsunPipe, Encoding.Unicode, true);
+                    {
+                        writer.Write(SignalSaveNetwork);
                         writer.Write(networkPath.Length);
                         writer.Write(networkPath.ToCharArray());
                         writer.Flush();
