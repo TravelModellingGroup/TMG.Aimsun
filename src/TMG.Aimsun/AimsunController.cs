@@ -134,7 +134,7 @@ namespace TMG.Aimsun
                 aimsun.Start();
                 _aimsunPipe.WaitForConnection();
                 var reader = new BinaryReader(_aimsunPipe, System.Text.Encoding.Unicode, true);
-                reader.ReadInt32();    
+                reader.ReadInt32();
             }
             catch (AggregateException e)
             {
@@ -217,7 +217,7 @@ namespace TMG.Aimsun
 
         /// <summary>
         /// Method outputting a bool that allows us to pass in a NetworkPath to
-        /// change the network we wish to analyze. Useful for running our unit tests
+        /// change the network we wish to analyze. Useful for running our unit tests.
         /// </summary>
         public bool SwitchModel(IModule caller, string networkPath)
         {
@@ -242,11 +242,14 @@ namespace TMG.Aimsun
                 return WaitForAimsunResponse(caller);
             }
         }
+
         /// <summary>
-        /// Method to save the network model based on the file path provided
+        /// Method to save the network model based on the file path provided.
         /// </summary>
-        /// <param name="caller" IModule instance></param>
-        /// <param name="networkPath" the path to the output network file></param>
+        /// <param name="caller">The calling module. Used for reporting errors for XTMF.</param>
+        /// <param name="networkPath">The path to where the saved .ang network file is stored.</param>
+        /// <returns>Returns true if the script executed successfully, false otherwise.</returns>
+        /// <exception cref="XTMFRuntimeException"></exception>
         public bool SaveNetworkModel(IModule caller, string networkPath)
         {
             lock (this)
@@ -270,6 +273,15 @@ namespace TMG.Aimsun
                 return WaitForAimsunResponse(caller);
             }
         }
+
+        /// <summary>
+        /// Method to run Aimsun modules.
+        /// </summary>
+        /// <param name="caller">The calling module. Used for reporting errors for XTMF.</param>
+        /// <param name="macroName">Name of Aimsun module to run.</param>
+        /// <param name="jsonParameters">Input parameters to pass into the Aimsun module passed as json.</param>
+        /// <returns>Returns true if the script executed successfully, false otherwise.</returns>
+        /// <exception cref="XTMFRuntimeException"></exception>
         public bool Run(IModule caller, string macroName, string jsonParameters)
         {
             lock (this)
