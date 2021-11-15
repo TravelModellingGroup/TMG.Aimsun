@@ -28,26 +28,26 @@ using System.Collections.Generic;
 namespace TMG.Aimsun.Tests
 {
     /// <summary>
-    /// a property class of all the json keys. 
+    /// a property class of all the json configuration keys. 
     /// When we parse a json file we save the result to this class
-    /// json object of files of interest
+    /// json object of files of interest.
     /// </summary>
     class TestConfiguration
     {
         ///<summary>
-        ///The name of the parent network we wish to run
+        ///The name of the parent network we wish to run.
         ///</summary>
         public string Network { get; set; }
         ///<summary>
-        ///The parent folder where both the unzipped network and the aimsun files reside and are located
+        ///The parent folder where both the unzipped network and the aimsun files reside and are located.
         ///</summary>
         public string NetworkFolder { get; set; }
         ///<summary>
-        ///Path to where Aimsun is installed and located 
+        ///Path to where Aimsun is installed and located.
         ///</summary>
         public string AimsunPath { get; set; }
         ///<summary>
-        ///Base root folder to where aimsun python Aimsun modules are located
+        ///Base root folder to where aimsun python Aimsun modules are located.
         ///</summary>
         public string ModulePath { get; set; }
     }
@@ -60,18 +60,18 @@ namespace TMG.Aimsun.Tests
     internal static class Helper
     {
         /// <summary>
-        /// Initialized singleton Modeller Controller object
+        /// Initialized singleton Modeller Controller object.
         /// </summary>
         public static ModellerController Modeller { get; private set; }
 
         /// <summary>
-        /// Singleton TestConfiguration object that stores the test configuration parameters
+        /// Singleton TestConfiguration object that stores the test configuration parameters.
         /// </summary>
         public static TestConfiguration TestConfiguration { get; set; }
 
         internal static void InitializeAimsun()
         {
-            //method to read the configuration file, parse and extract the data and run the modeller
+            //Method to read the configuration file, parse and extract the data and run the modeller
             if (Modeller == null)
             {
                 //check if the file exists output an error if it doesn't exist for some reason

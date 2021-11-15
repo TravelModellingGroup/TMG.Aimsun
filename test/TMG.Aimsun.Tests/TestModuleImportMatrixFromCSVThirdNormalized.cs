@@ -76,6 +76,5 @@ namespace TMG.Aimsun.Tests
             });
             Helper.Modeller.Run(null, modulePath, jsonParameters);
         }
-
     }
 }
