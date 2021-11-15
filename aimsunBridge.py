@@ -38,7 +38,7 @@ from PyANGConsole import *
 
 
 class AimSunBridge:
-    """this class is the aimsun bridge we are building that is based off the emme bridge"""
+    """this class is the aimsun bridge we are building that is based off the Emme bridge"""
 
     def __init__(self):
         # Message numbers
@@ -93,7 +93,10 @@ class AimSunBridge:
         # sys.stdout = RedirectToXTMFConsole(self)
 
     def sendSignal(self, signal):
-        # this function takes an integer aka the signal number as an input and passes it as a bit 32 signed integer
+        """
+        this function takes an integer aka the signal number as an input and passes it as
+        a bit 32 signed integer
+        """
         # as an array of type l to c#
         intArray = array.array("l")
         intArray.append(signal)
@@ -103,6 +106,9 @@ class AimSunBridge:
         return
 
     def sendString(self, stringToSend):
+        """
+        Send string  message to XTMF
+        """
         msg = array.array("u", str(stringToSend))
         length = len(msg) * msg.itemsize
         tempLength = length
@@ -131,14 +137,18 @@ class AimSunBridge:
         return
 
     def readInt(self):
-        # this function reads the input the c# side server gives us.
-        # note this function will give us a number a string and a json of parameters
+        """
+        This function reads the input the c# side server gives us.
+        note this function will give us a number a string and a json of parameters.
+        """
         intArray = array.array("l")
         intArray.fromfile(self.aimsunPipe, 1)
         return intArray.pop()
 
     def readString(self):
-        # function to read the string coming from the C# pipeline
+        """
+        Function to read the string coming from the C# pipeline
+        """
         length = self.readInt()
         try:
             # create an unicode array
@@ -153,7 +163,8 @@ class AimSunBridge:
             return "error reading"
 
     def executeAimsunScript(self, moduleDict, console, model):
-        """This function is responsible for calling the modules of interest. It passes
+        """
+        This function is responsible for calling the modules of interest. It passes
         in the console and model and uses the importlib library to import and run the module
         """
         try:
@@ -174,7 +185,8 @@ class AimSunBridge:
             sys.path.pop()
 
     def executeModule(self, console, model):
-        """Function which executes the modules by extracting the tool and
+        """
+        Function which executes the modules by extracting the tool and
         its json parameters
         """
         macroName = None
@@ -199,6 +211,9 @@ class AimSunBridge:
         return
 
     def sendRuntimeError(self, problem):
+        """
+        Send runtime errors to XTMF.
+        """
         self.IOLock.acquire()
         self.sendSignal(self.SignalRuntimeError)
         self.sendString(problem)
@@ -206,6 +221,9 @@ class AimSunBridge:
         return
 
     def sendSuccess(self):
+        """
+        Send a successful run complete signal to XTMF
+        """
         self.IOLock.acquire()
         intArray = array.array("l")
         intArray.append(self.SignalRunComplete)
@@ -217,9 +235,10 @@ class AimSunBridge:
         return True
 
     def loadModel(self, console):
-        """Function to load the model
+        """
+        Function to load the model
         open the console and create a model. This is passed around inside this script and also
-        to external modules
+        to external modules.
         """
         if console.open(self.NetworkPath):
             model = console.getModel()
@@ -230,8 +249,9 @@ class AimSunBridge:
         return model
 
     def switchModel(self, console):
-        """function to open a new model based on a new network. The network filepath
-        is passed from the bridge
+        """
+        Function to open a new model based on a new network. The network filepath
+        is passed from the bridge.
         """
         print("switching model")
         try:
@@ -250,7 +270,7 @@ class AimSunBridge:
     def saveModel(self, console, model):
         """
         Save the model to the provided outpath file if bridge passes
-        savenetwork signal
+        savenetwork signal.
         """
         try:
             outputPath = self.readString()
@@ -275,7 +295,9 @@ class AimSunBridge:
             self.sendRuntimeError(str(err))
 
     def run(self):
-        # Function to run the pipe
+        """
+        Function to run the pipe
+        """
         # use a local exit flag if the flag is set to true we will gracefully exist and
         # close the pipe otherwise we keep it running if exit=false the default setting
         exit = False
@@ -315,7 +337,9 @@ class AimSunBridge:
 
 
 def main():
-    # initialize and run the class
+    """
+    Initialize and run the class.
+    """
     aimsunMain = AimSunBridge()
     aimsunMain.run()
 

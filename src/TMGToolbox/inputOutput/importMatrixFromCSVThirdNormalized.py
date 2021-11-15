@@ -27,7 +27,7 @@ def run_xtmf(parameters, model, console):
 
 def _execute(outputNetworkFile, inputModel, console, parameters):
     """ 
-    Main execute function to run the simulation 
+    Main execute function to run the simulation.
     """
     model = inputModel
     catalog = model.getCatalog()

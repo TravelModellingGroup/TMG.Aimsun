@@ -112,6 +112,14 @@ namespace TMG.Aimsun
             return String.Concat("\"", fileName, "\"");
         }
 
+        /// <summary>
+        /// Method which opens the pipe.
+        /// </summary>
+        /// <param name="module">The calling module. Used for reporting errors for XTMF.</param>
+        /// <param name="projectFile">Path to directory folder where Aimsun folders are located.</param>
+        /// <param name="pipeName">Name of pipe. If running in debug mode, pipe name is called DebugAimsun otherwise name is random number.</param>
+        /// <param name="aimsunPath">Path to aconsole.exe</param>
+        /// <exception cref="XTMFRuntimeException"></exception>
         public ModellerController(IModule module, string projectFile, string pipeName, string aimsunPath)
         {
             //check if file path or ang file exists
@@ -142,6 +150,12 @@ namespace TMG.Aimsun
             }
         }
 
+        /// <summary>
+        /// Method which analyzes the signal coming from the bridge to determine next steps.
+        /// </summary>
+        /// <param name="caller">The calling module. Used for reporting errors for XTMF.</param>
+        /// <returns>Returns True or False. If True bridge stays open. </returns>
+        /// <exception cref="XTMFRuntimeException"></exception>
         private bool WaitForAimsunResponse(IModule caller)
         {
             // now we need to wait
@@ -207,6 +221,8 @@ namespace TMG.Aimsun
         /// <summary>
         /// Throws an exception if the bridge has been disposed
         /// </summary>
+        /// <param name="caller">The calling module. Used for reporting errors for XTMF.</param>
+        /// <exception cref="XTMFRuntimeException"></exception>
         private void EnsureWriteAvailable(IModule caller)
         {
             if (_aimsunPipe == null)
@@ -216,9 +232,13 @@ namespace TMG.Aimsun
         }
 
         /// <summary>
-        /// Method outputting a bool that allows us to pass in a NetworkPath to
-        /// change the network we wish to analyze. Useful for running our unit tests.
+        /// Method that allows us to change the networ by specifying a pre-defined network file.
+        /// Used for running unit tests.
         /// </summary>
+        /// <param name="caller">The calling module. Used for reporting errors for XTMF.</param>
+        /// <param name="networkPath">the path to where the .ang network file is located.</param>
+        /// <returns>Returns true if the script executed successfully, false otherwise.</returns>
+        /// <exception cref="XTMFRuntimeException"></exception>
         public bool SwitchModel(IModule caller, string networkPath)
         {
             lock (this)
@@ -315,6 +335,10 @@ namespace TMG.Aimsun
             }
         }
 
+        /// <summary>
+        /// Method to gracefully close the bridge once all work is finished.
+        /// </summary>
+        /// <param name="managed">Incoming bool value. If True the bridge is closed otherwise keep bridge open.</param>
         private void Dispose(bool managed)
         {
             if (managed)
