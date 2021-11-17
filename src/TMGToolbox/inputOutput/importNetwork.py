@@ -21,7 +21,6 @@
 import sys
 import os
 import time
-
 from PyANGBasic import *
 from PyANGKernel import *
 from PyANGConsole import *
@@ -57,7 +56,7 @@ def readFile(filename):
     return links, nodes, centroids, centroidSet
 
 # Function to create a node object in Aimsun
-def addNode(node):
+def addNode(model, node):
     # Create new node
     cmd = model.createNewCmd(model.getType("GKNode"))
     # Set the position of the node in space
@@ -85,7 +84,7 @@ def getPointsFromNodes(fromNode, toNode):
     return points
 
 # Function to create a link (section) object in Aimsun
-def addLink(link, allVehicles, roadTypes, layer, nodeConnections):
+def addLink(model, link, allVehicles, roadTypes, layer, nodeConnections):
     # Create the link
     numberOfLanes = max(int(float(link[6])),1)
     # Set the road type
@@ -150,7 +149,7 @@ def addLinkCurvature(link, pointsToAdd):
     return link
 
 # Function to read the shapes.251 file and return the applicable links and curvature information
-def readShapesFile(filename, catalog):
+def readShapesFile(model, filename, catalog):
     curves = []
     lines = []
     link = None
@@ -174,8 +173,8 @@ def readShapesFile(filename, catalog):
     return curves
 
 # Function to add the curvature to all applicable links in the network
-def addLinkCurvatures(filename, catalog):
-    curves = readShapesFile(filename, catalog)
+def addLinkCurvatures(model, filename, catalog):
+    curves = readShapesFile(model, filename, catalog)
     for curve in curves:
         addLinkCurvature(curve[0], curve[1])
 
@@ -204,7 +203,7 @@ def createTurn(node, fromLink, toLink, model):
     node.addTurning(newTurn, True, False)
 
 # Function to create the turns from file
-def createTurnsFromFile(filename, listOfAllNodes, nodeConnections):
+def createTurnsFromFile(model, filename, listOfAllNodes, nodeConnections):
     print("Build turns")
     # Copy the list of nodes
     nodes = listOfAllNodes.copy()
@@ -263,14 +262,14 @@ def createTurnsFromFile(filename, listOfAllNodes, nodeConnections):
         # build turnings for the remaining nodes assuming all allowed
         for node in nodesWithDefinedTurns:
             nodes.remove(node)
-        buildTurnings(nodes, nodeConnections)
+        buildTurnings(model, nodes, nodeConnections)
     except FileNotFoundError:
         # If the turns.231 file is not found build in all possible turns
         print("Turns file not found. Build all possible turns")
-        buildTurnings(nodes, nodeConnections)
+        buildTurnings(model, nodes, nodeConnections)
 
 # Function to connect links (sections) in Aimsun
-def buildTurnings(listOfNodes, nodeConnections):
+def buildTurnings(model, listOfNodes, nodeConnections):
     # Get all of the links and nodes
     # Assume that all links that are connected by nodes have all lanes 
     # turning to each other
@@ -291,7 +290,7 @@ def buildTurnings(listOfNodes, nodeConnections):
                 createTurn(node, entering, exiting, model)
 
 # Function to add all visual objects to the gui network layer
-def drawLinksAndNodes(layer):
+def drawLinksAndNodes(model, layer):
     print("Draw objects to the Geo Model")
     modelToAddTo = model.getGeoModel()
     sectionType = model.getType("GKNode")
@@ -315,7 +314,7 @@ def drawLinksAndNodes(layer):
         for s in iter(types.values()):
             modelToAddTo.add(layer, s)
 
-def createCentroid(centroidInfo, centroidConfiguration):
+def createCentroid(model, centroidInfo, centroidConfiguration):
     nodeId = centroidInfo[1]
     xCoord = float(centroidInfo[2])
     yCoord = float(centroidInfo[3])
@@ -336,7 +335,7 @@ def createCentroid(centroidInfo, centroidConfiguration):
     return centroid
 
 # Create centroid configuration
-def createCentroidConfiguration(name, listOfCentroidInfo):
+def createCentroidConfiguration(model, name, listOfCentroidInfo):
     print("Create centroid config object")
     cmd = model.createNewCmd(model.getType("GKCentroidConfiguration"))
     model.getCommander().addCommand( cmd )
@@ -345,7 +344,7 @@ def createCentroidConfiguration(name, listOfCentroidInfo):
     centroidConfig.setExternalId(name)
     print("Create and add the centroids")
     for centroidInfo in listOfCentroidInfo:
-        centroid = createCentroid(centroidInfo, centroidConfig)
+        centroid = createCentroid(model, centroidInfo, centroidConfig)
         # Add the centroid to the centroid configuration if not already included
         if centroidConfig.contains(centroid) is False:
             centroidConfig.addCentroid(centroid)
@@ -357,7 +356,7 @@ def createCentroidConfiguration(name, listOfCentroidInfo):
     folder.append(centroidConfig)
     return centroidConfig
 
-def newCentroidConnection(fromNode, toNode, nodeType, centroidType, catalog):
+def newCentroidConnection(model, fromNode, toNode, nodeType, centroidType, catalog):
     # First check assuming from node to centroid
     nodeToCentroid = True
     node = catalog.findObjectByExternalId(fromNode, nodeType)
@@ -377,17 +376,17 @@ def newCentroidConnection(fromNode, toNode, nodeType, centroidType, catalog):
     return centroidConnection
 
 # Method to create the centroid connections
-def buildCentroidConnections(listOfCentroidConnections):
+def buildCentroidConnections(model, listOfCentroidConnections):
     nodeType = model.getType("GKNode")
     centroidType = model.getType("GKCentroid")
     catalog = model.getCatalog()
     for connectInfo in listOfCentroidConnections:
         fromNode = connectInfo[1]
         toNode = connectInfo[2]
-        newCentroidConnection(fromNode, toNode, nodeType, centroidType, catalog)
+        newCentroidConnection(model, fromNode, toNode, nodeType, centroidType, catalog)
 
 # Reads the modes file and defines all possible modes on the network
-def defineModes(filename):
+def defineModes(filename, model):
     # Delete the default modes
     sectionType = model.getType("GKVehicle")
     for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
@@ -436,7 +435,7 @@ def readFunctionsFile(filename):
                 vdfNames.append(splitLine[1])
     return vdfNames
 
-def addRoadTypes(listOfNames):
+def addRoadTypes(model, listOfNames):
     roadTypes = dict()
     # Add a type for dummy links
     # Check if the type already exists
@@ -518,7 +517,7 @@ def _execute(networkDirectory, outputNetworkFile, inputModel, console):
     Main execute function to run the simulation 
     """
     overallStartTime = time.perf_counter()
-    global model
+    ## global model
     model = inputModel
     catalog = model.getCatalog()
     geomodel = model.getGeoModel()
@@ -526,7 +525,7 @@ def _execute(networkDirectory, outputNetworkFile, inputModel, console):
     # Import the new network
     print("Import network")
     print("Define modes")
-    modes = defineModes(f"{networkDirectory}/modes.201")
+    modes = defineModes(f"{networkDirectory}/modes.201", model)
     # Cache the vehicle types
     allVehicles=[]
     sectionType = model.getType("GKVehicle")
@@ -535,7 +534,7 @@ def _execute(networkDirectory, outputNetworkFile, inputModel, console):
             allVehicles.append(vehicle)
     print("Define road types")
     roadTypeNames = readFunctionsFile(f"{networkDirectory}/functions.411")
-    roadTypes = addRoadTypes(roadTypeNames)
+    roadTypes = addRoadTypes(model, roadTypeNames)
     print("Read base network data file")
     links, nodes, centroids, centroidSet = readFile(f"{networkDirectory}/base.211")
     layer = model.getGeoModel().findLayer("Network")
@@ -547,7 +546,7 @@ def _execute(networkDirectory, outputNetworkFile, inputModel, console):
     infoStepSize = int(len(nodes)/4)
     for node in nodes:
         counter += 1
-        newNode = addNode(node)
+        newNode = addNode(model, node)
         allNodes.append(newNode)
         # output the progress of the import
         if (counter % infoStepSize) == 0:
@@ -568,53 +567,60 @@ def _execute(networkDirectory, outputNetworkFile, inputModel, console):
             centroidConnections.append(link)
         # If from and to are both nodes, add the link
         else:
-            addLink(link, allVehicles, roadTypes, layer, nodeConnections)
+            addLink(model, link, allVehicles, roadTypes, layer, nodeConnections)
         # output the progress of the import
         if (counter % infoStepSize) == 0:
             print(f"{counter} links added")
     print("Add curvature to links")
-    addLinkCurvatures(f"{networkDirectory}/shapes.251", model.getCatalog())
+    addLinkCurvatures(model, f"{networkDirectory}/shapes.251", model.getCatalog())
     linkEndTime = time.perf_counter()
     print(f"Time to import links: {linkEndTime-linkStartTime}s")
     turnStartTime = time.perf_counter()
     # Build the turns (connections betweek links)
-    createTurnsFromFile(f"{networkDirectory}/turns.231", allNodes, nodeConnections)
+    createTurnsFromFile(model, f"{networkDirectory}/turns.231", allNodes, nodeConnections)
     turnEndTime = time.perf_counter()
     print(f"Time to build turns: {turnEndTime-turnStartTime}s")
     # Add the centroids
     centroidStartTime = time.perf_counter()
     print("Add centroids")
-    centroidConfig = createCentroidConfiguration("baseCentroidConfig", centroids)
-    buildCentroidConnections(centroidConnections)
+    centroidConfig = createCentroidConfiguration(model, "baseCentroidConfig", centroids)
+    buildCentroidConnections(model, centroidConnections)
     centroidEndTime = time.perf_counter()
     print(f"Time to add centroids: {centroidEndTime-centroidStartTime}")
     # Draw all graphical elements to the visible network layer
-    drawLinksAndNodes(layer)
-    # remove the object connections used for performance improvements
-    # these are not needed for the final network
+    drawLinksAndNodes(model, layer)
     print("Finished import")
+    overallEndTime = time.perf_counter()
+    print(f"Overall runtime: {overallEndTime-overallStartTime}s")
+    return console
+
+def saveNetwork(console, model, outputNetworkFile):
+    """
+    Function to save the network runs from terminal and called only 
+    inside runFromConsole
+    """
     # Save the network to file
     print("Save network")
     console.save(outputNetworkFile)
-    overallEndTime = time.perf_counter()
-    print(f"Overall runtime: {overallEndTime-overallStartTime}s")
     # Reset the Aimsun undo buffer
     model.getCommander().addCommand( None )
-    return 0
+    print ("Network saved Successfully")
 
 def runFromConsole(inputArgs):
-    """ This function takes commands from the terminal, creates a console and model to pass
+    """
+    This function takes commands from the terminal, creates a console and model to pass
     to the _execute function 
     """
     # Start a console
     console = ANGConsole()
-    global model
+    ##global model
     Network = inputArgs[1]
     networkDirectory = inputArgs[2]
     outputNetworkFile = inputArgs[3]
     # generate a model of the input network
     model, catalog, geomodel = loadModel(Network, console)
     _execute(networkDirectory, outputNetworkFile, model, console) 
+    saveNetwork(console, model, outputNetworkFile)
 
 if __name__ == "__main__":
     # function to parse the command line arguments and run network script

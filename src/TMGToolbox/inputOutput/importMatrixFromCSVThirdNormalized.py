@@ -130,9 +130,19 @@ def _execute(outputNetworkFile, inputModel, console, parameters):
     if folder is None:
         folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
     folder.append(matrix)
-    # Save the network file
-    print("Save Network")
+    return console
+
+def saveNetwork(console, model, outputNetworkFile):
+    """
+    Function to save the network runs from terminal and called only 
+    inside runFromConsole
+    """
+    # Save the network to file
+    print("Save network")
     console.save(outputNetworkFile)
+    # Reset the Aimsun undo buffer
+    model.getCommander().addCommand( None )
+    print ("Network saved Successfully")
     
 def runFromConsole(argv):
     """
@@ -185,6 +195,7 @@ def runFromConsole(argv):
 
     #call the _execute function with parameters
     _execute(outputNetworkFile, model, console, xtmf_parameters)
+    saveNetwork(console, model, outputNetworkFile)
 
 if __name__ == "__main__":
     #function to parse the command line arguments and run network script

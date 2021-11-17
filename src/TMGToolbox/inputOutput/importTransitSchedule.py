@@ -129,10 +129,19 @@ def _execute(outputNetworkFile, inputModel, console, parameters):
     serviceTables = readServiceTables(parameters["csvFile"])
     for serviceTable in serviceTables:
         addServiceToLine(serviceTable[0], serviceTable[1], serviceTable[2], transitVehDict)
-    # Save the network file
-    print("Save Network")
+    return console
+
+def saveNetwork(console, model, outputNetworkFile):
+    """
+    Function to save the network runs from terminal and called only 
+    inside runFromConsole
+    """
+    # Save the network to file
+    print("Save network")
     console.save(outputNetworkFile)
-    return 0
+    # Reset the Aimsun undo buffer
+    model.getCommander().addCommand( None )
+    print ("Network saved Successfully")
 
 def loadModel(filepath, console):
     """
@@ -166,11 +175,11 @@ def runFromConsole(inputArgs):
                     "TransitFile":inputArgs[3],
                     "csvFile": inputArgs[2]
                  }
-
     # generate a model of the input network
     model = loadModel(Network, console)
     #run the _execute function
     _execute(outputNetworkFile, model, console, parameters)
+    saveNetwork(console, model, outputNetworkFile)
 
 if __name__ == "__main__":
     # function to parse the command line arguments and run network script
