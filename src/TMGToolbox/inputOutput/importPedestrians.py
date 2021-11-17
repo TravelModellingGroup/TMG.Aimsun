@@ -224,10 +224,21 @@ def _execute(networkDirectory, outputNetworkFile, inputModel, console):
     createTransitCentroidConnections(centroidConfig, nodeConnections, model, catalog, geomodel)
     pedEndTime = time.perf_counter()
     print(f"Time to import pedestrians: {pedEndTime-pedStartTime}")
-    print("Save network")
-    console.save(outputNetworkFilename)
     overallEndTime = time.perf_counter()
     print(f"Overall runtime: {overallEndTime-overallStartTime}")
+    return console
+
+def saveNetwork(console, model, outputNetworkFile):
+    """
+    Function to save the network runs from terminal and called only 
+    inside runFromConsole
+    """
+    # Save the network to file
+    print("Save network")
+    console.save(outputNetworkFile)
+    # Reset the Aimsun undo buffer
+    model.getCommander().addCommand( None )
+    print ("Network saved Successfully")
     
 def runFromConsole(inputArgs):
     """
@@ -243,6 +254,7 @@ def runFromConsole(inputArgs):
     model, catalog, geomodel = loadModel(Network, console)
     #run the _execute function
     _execute(networkDirectory, outputNetworkFile, model, console)
+    saveNetwork(console, model, outputNetworkFile)
 
 if __name__ == "__main__":
     # function to parse the command line arguments and run network script
