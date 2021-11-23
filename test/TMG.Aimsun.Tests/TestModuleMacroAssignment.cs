@@ -38,7 +38,49 @@ namespace TMG.Aimsun.Tests
             {
                 OutputNetworkFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\output\\FrabitztownNetworkWithAssign.ang"),
                 ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown"),
-                ToolboxInputOutputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "src\\TMGToolbox\\inputOutput"),
+                ToolboxInputOutputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "src\\TMGToolbox\\assignment"),
+                autoDemand = "testOD",
+                Start = 6.0 * 60.0,
+                Duration = 3.0 * 60.0,
+                transitDemand = "transitOD"
+            });
+            Helper.Modeller.Run(null, modulePath, jsonParameters);
+        }
+
+        [TestMethod]
+        public void RunRoadAssignment()
+        {
+            //change the network
+            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetworkWithOd2.ang");
+            Helper.Modeller.SwitchModel(null, newNetwork);
+
+            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "assignment\\roadAssignment.py");
+            string jsonParameters = JsonConvert.SerializeObject(new
+            {
+                OutputNetworkFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\output\\FrabitztownNetworkWithRoadAssign.ang"),
+                ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown"),
+                ToolboxInputOutputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "src\\TMGToolbox\\assignment"),
+                autoDemand = "testOD",
+                Start = 6.0 * 60.0,
+                Duration = 3.0 * 60.0,
+                transitDemand = "transitOD"
+            });
+            Helper.Modeller.Run(null, modulePath, jsonParameters);
+        }
+
+        [TestMethod]
+        public void RunTransitAssignment()
+        {
+            //change the network
+            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetworkWithOd2.ang");
+            Helper.Modeller.SwitchModel(null, newNetwork);
+
+            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "assignment\\transitAssignment.py");
+            string jsonParameters = JsonConvert.SerializeObject(new
+            {
+                OutputNetworkFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\output\\FrabitztownNetworkWithTransitAssign.ang"),
+                ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown"),
+                ToolboxInputOutputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "src\\TMGToolbox\\assignment"),
                 autoDemand = "testOD",
                 Start = 6.0 * 60.0,
                 Duration = 3.0 * 60.0,
