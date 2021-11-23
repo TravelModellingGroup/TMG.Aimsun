@@ -30,8 +30,11 @@
     <Compile Include="..\..\aimsunBridge.py">
       <Link>aimsunBridge.py</Link>
     </Compile>
+    <Compile Include="assignment\commonModule.py" />
+    <Compile Include="assignment\transitAssignment.py" />
     <Compile Include="assignment\dynamicAssignment.py" />
     <Compile Include="assignment\macroAssignment.py" />
+    <Compile Include="assignment\roadAssignment.py" />
     <Compile Include="assignment\__init__.py" />
     <Compile Include="common\utilities.py" />
     <Compile Include="inputOutput\exportNetworkPackage.py" />
