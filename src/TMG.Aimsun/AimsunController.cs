@@ -26,6 +26,7 @@ using XTMF;
 using System.Reflection;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using TMG.Aimsun.InputOutput;
 
 namespace TMG.Aimsun
 {
@@ -92,6 +93,11 @@ namespace TMG.Aimsun
         /// Signal from the bridge that a print statement has been called, to write to the XTMF Console
         /// </summary>
         private const int SignalSentPrintMessage = 11;
+
+        internal bool Run(ImportNetwork importNetwork, string toolName, AimsunControllerParameter[] aimsunControllerParameters)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// A signal from the modeller bridge saying that the tool that was requested to execute does not
@@ -171,7 +177,7 @@ namespace TMG.Aimsun
                         {
                             case SignalRuntimeError:
                                 {
-                                    toPrint = reader.ReadString();
+                                    toPrint = ReadString(reader);
                                     throw new XTMFRuntimeException(caller, toPrint);
                                 }
                             case SignalStart:
@@ -196,7 +202,7 @@ namespace TMG.Aimsun
                                 }
                             case SignalSentPrintMessage:
                                 {
-                                    toPrint = reader.ReadString();
+                                    toPrint = ReadString(reader);
                                     Console.Write(toPrint);
                                     break;
                                 }
@@ -219,6 +225,18 @@ namespace TMG.Aimsun
         }
 
         /// <summary>
+        /// Read the Bytes the bridge passes back 
+        /// </summary>
+        /// <param name="input">The binaryReader object that is passed back from the bridge</param>
+        /// <returns>A string of the command and data</returns>
+        private static string ReadString(BinaryReader input)
+        {
+            int size = input.ReadInt32();
+            byte[] output = input.ReadBytes(size);
+            return System.Text.Encoding.Unicode.GetString(output);
+        }
+
+        /// <summary>
         /// Throws an exception if the bridge has been disposed
         /// </summary>
         /// <param name="caller">The calling module. Used for reporting errors for XTMF.</param>
@@ -232,7 +250,7 @@ namespace TMG.Aimsun
         }
 
         /// <summary>
-        /// Method that allows us to change the networ by specifying a pre-defined network file.
+        /// Method that allows us to change the network by specifying a pre-defined network file.
         /// Used for running unit tests.
         /// </summary>
         /// <param name="caller">The calling module. Used for reporting errors for XTMF.</param>
