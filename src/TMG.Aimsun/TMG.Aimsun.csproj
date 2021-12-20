@@ -48,7 +48,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AimsunController.cs" />
-    <Compile Include="AimsunControllerParameter.cs" />
     <Compile Include="AimsunTool.cs" />
     <Compile Include="LoadAimsunController.cs" />
     <Compile Include="ExecuteToolsFromModellerResource.cs" />

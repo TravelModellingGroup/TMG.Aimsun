@@ -94,11 +94,6 @@ namespace TMG.Aimsun
         /// </summary>
         private const int SignalSentPrintMessage = 11;
 
-        internal bool Run(ImportNetwork importNetwork, string toolName, AimsunControllerParameter[] aimsunControllerParameters)
-        {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         /// A signal from the modeller bridge saying that the tool that was requested to execute does not
         /// contain an entry point for a call from XTMF2.

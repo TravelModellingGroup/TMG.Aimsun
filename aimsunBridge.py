@@ -151,8 +151,7 @@ class AimSunBridge:
         """
         try:
             # we need to append the Toolbox/InputPut folder path so all relative imports will work
-            toolDirectory = os.path.dirname( moduleDict["toolPath"])
-            print ('tool directory ', toolDirectory)
+            toolDirectory = os.path.dirname(moduleDict["toolPath"])
             sys.path.append(toolDirectory)
             spec = importlib.util.spec_from_file_location(
                 "tool", moduleDict["toolPath"]
