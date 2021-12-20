@@ -1,78 +1,46 @@
-﻿using System;
+﻿/*
+    Copyright 2021 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+using System;
 using XTMF;
 using TMG.Input;
+using System.IO;
 
 namespace TMG.Aimsun.InputOutput
 {
     [ModuleInformation(Description = "Add a pedestrian to the network")]
-    public class ImportPedestrian: IAimsunTool, IDataSource<ModellerController>, IDisposable
+    public class ImportPedestrian: IAimsunTool
     {
-        [SubModelInformation(Required = true, Description = "The location of the aimsun project file.")]
+        public const string ToolName = "inputOutput/importPedestrians.py";
 
-        private ModellerController Data;
-        public ModellerController GiveData() => Data;
+        [SubModelInformation(Required = true, Description = "The folder where the network directory is located")]
+        public FileLocation NetworkDirectory;
 
-
-        string pipeName = Guid.NewGuid().ToString();
-        string aimsunPath = "C:\\Program Files\\Aimsun\\Aimsun Next 22";
-        string projectFile = "C:\\Users\\sandhela\\source\\repos\\TravelModellingGroup\\TMG.Aimsun\\aimsunFiles\\blankNetworkWithVdfs.ang";
-
-        public bool Loaded => Data != null;
-        public void LoadData()
-        {
-            if (Data == null)
-            {
-                lock (this)
-                {
-                    if (Data == null)
-                    {
-                        GC.ReRegisterForFinalize(this);
-                        Data = new ModellerController(this, projectFile, pipeName, aimsunPath);
-                    }
-                }
-            }
-        }
-        public void UnloadData()
-        {
-            Dispose();
-        }
-
-        //~ModellerControllerDataSource()
-        //{
-        //    Dispose(true);
-        //}
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool all)
-        {
-            Data?.Dispose();
-            Data = null;
-        }
-
-        private const string ToolName = "Import Aimsun Network";
-
-        [RunParameter("OutputNetworkFile", "", "The path with filename to save the network as an ang file")]
-        public FileLocation OutputNetworkFile;
-
-        [RunParameter("ModelDirectory", "", "The filepath where the network files exist")]
-        public FileLocation ModelDirectory;
-
-        [RunParameter("ToolboxInputOutputPath", "", "The filepath to where the Aimsun toolbox exists")]
-        public FileLocation ToolboxInputOutputPath;
-
-        [RunParameter("Result", "999", "Matrix")]
-        public string Result;
+        [SubModelInformation(Required = true, Description = "The Aimsun toolbox directory is located ")]
+        public FileLocation ToolboxDirectory;
 
         public float Progress
         {
             get;
             set;
         }
+
         public string Name
         {
             get;
@@ -85,15 +53,19 @@ namespace TMG.Aimsun.InputOutput
         {
             return true;
         }
+
         public bool Execute(ModellerController aimsunController)
         {
             if (aimsunController == null)
             {
-                throw new XTMFRuntimeException(this, "this broke for osme reason ");
+                throw new XTMFRuntimeException(this, "this broke for some reason ");
             }
-            aimsunController.Run(this, ToolName, Result);
-
-            return true;
+            return aimsunController.Run(this, Path.Combine(ToolboxDirectory, ToolName),
+                JsonParameterBuilder.BuildParameters(writer =>
+                {
+                    writer.WritePropertyName("ModelDirectory");
+                    writer.WriteValue(NetworkDirectory.GetFilePath());
+                }));
         }
     }
 }

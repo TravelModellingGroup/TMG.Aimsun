@@ -196,18 +196,16 @@ def run_xtmf(parameters, model, console):
     A general function called in all python modules called by bridge. Responsible
     for extracting data and running appropriate functions.
     """
-    outputNetworkFile = parameters["OutputNetworkFile"]
     networkDirectory = parameters["ModelDirectory"]
-    _execute(networkDirectory, outputNetworkFile, model, console)
+    _execute(networkDirectory, model, console)
 
-def _execute(networkDirectory, outputNetworkFile, inputModel, console):
+def _execute(networkDirectory, inputModel, console):
     """ 
     Main execute function to run the simulation 
     """
     overallStartTime = time.perf_counter()
     loadModelStartTime = time.perf_counter()
-    networkDir = networkDirectory
-    outputNetworkFilename = outputNetworkFile
+
     model = inputModel
     catalog = model.getCatalog()
     geomodel = model.getGeoModel()
@@ -253,7 +251,7 @@ def runFromConsole(inputArgs):
     # generate a model of the input network
     model, catalog, geomodel = loadModel(Network, console)
     #run the _execute function
-    _execute(networkDirectory, outputNetworkFile, model, console)
+    _execute(networkDirectory, model, console)
     saveNetwork(console, model, outputNetworkFile)
 
 if __name__ == "__main__":
