@@ -36,6 +36,8 @@ from PyANGBasic import *
 from PyANGKernel import *
 from PyANGConsole import *
 
+import time
+
 
 class AimSunBridge:
     """this class is the aimsun bridge we are building that is based off the Emme bridge"""
@@ -111,27 +113,7 @@ class AimSunBridge:
         """
         msg = array.array("u", str(stringToSend))
         length = len(msg) * msg.itemsize
-        tempLength = length
-        bytes = 0
-        # figure out how many bytes we are going to need to store the length
-        while tempLength > 0:
-            tempLength = tempLength >> 7
-            bytes += 1
-        lengthArray = array.array("B")
-        if length <= 0:
-            lengthArray.append(0)
-        else:
-            tempLength = length
-            for i in range(bytes):
-                current = int(tempLength >> 7)
-                current = int(current << 7)
-                diff = tempLength - current
-                if tempLength < 128:
-                    lengthArray.append(diff)
-                else:
-                    lengthArray.append(diff + 128)
-                tempLength = tempLength >> 7
-        lengthArray.tofile(self.aimsunPipe)
+        self.sendSignal(length)
         msg.tofile(self.aimsunPipe)
         self.aimsunPipe.flush()
         return
@@ -169,7 +151,8 @@ class AimSunBridge:
         """
         try:
             # we need to append the Toolbox/InputPut folder path so all relative imports will work
-            sys.path.append(moduleDict["parameters"]["ToolboxInputOutputPath"])
+            toolDirectory = os.path.dirname(moduleDict["toolPath"])
+            sys.path.append(toolDirectory)
             spec = importlib.util.spec_from_file_location(
                 "tool", moduleDict["toolPath"]
             )
@@ -205,9 +188,14 @@ class AimSunBridge:
             # send to the pipe that we ran the message successfully
             self.sendSuccess()
         except Exception as e:
-            # traceback outputs more information such as call output stack
-            err = traceback.print_exc()
-            self.sendRuntimeError(repr(err))
+            # output the calll stack and pass to XTMF
+            etype, evalue, etb = sys.exc_info()
+            stackList = traceback.extract_tb(etb)
+            msg = "%s: %s\n\nStack trace below:" % (evalue.__class__.__name__, str(evalue))
+            stackList.reverse()
+            for file, line, func, text in stackList:
+                msg += "\n  File '%s', line %s, in %s" % (file, line, func)
+            self.sendRuntimeError(msg)
         return
 
     def sendRuntimeError(self, problem):
@@ -274,7 +262,6 @@ class AimSunBridge:
         """
         try:
             outputPath = self.readString()
-            print("saving file to: ", outputPath)
             # save model to outputpath file location
             console.save(outputPath)
             # Reset the Aimsun undo buffer
