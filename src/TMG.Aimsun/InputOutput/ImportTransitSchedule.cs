@@ -43,7 +43,7 @@ namespace TMG.Aimsun.InputOutput
         {
             if (aimsunController == null)
             {
-                throw new XTMFRuntimeException(this, "this broke for osme reason ");
+                throw new XTMFRuntimeException(this, "AimsunController is not properly setup or initalized.");
             }
             return aimsunController.Run(this, Path.Combine(ToolboxDirectory, ToolName),
                 JsonParameterBuilder.BuildParameters(writer =>
