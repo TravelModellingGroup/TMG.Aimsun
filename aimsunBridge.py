@@ -150,6 +150,9 @@ class AimSunBridge:
         in the console and model and uses the importlib library to import and run the module
         """
         try:
+            #check if the tool exists in the path if it doesn't output an error
+            if not os.path.exists(moduleDict["toolPath"]):
+                raise Exception("Unable to find the tool '" + moduleDict["toolPath"] + "'.")
             # we need to append the Toolbox/InputPut folder path so all relative imports will work
             toolDirectory = os.path.dirname(moduleDict["toolPath"])
             sys.path.append(toolDirectory)

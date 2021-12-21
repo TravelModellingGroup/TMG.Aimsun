@@ -35,7 +35,7 @@ def readServiceTables(fileLocation, header=True):
         serviceTables.append((transitLine, departures, arrivals))
     return serviceTables
 
-def buildTransitVehDict(transitFile):
+def buildTransitVehDict(model, transitFile):
     transitVehDict = dict()
     vehType = model.getType("GKVehicle")
     node, stops, lines = readTransitFile(transitFile)
@@ -51,7 +51,7 @@ def findTransitVehicle(transitLine, transitVehDict):
     transitVehicle = transitVehDict[lineId]
     return transitVehicle
 
-def addServiceToLine(lineId, departures, arrivals, transitVehDict, vehicle=None):
+def addServiceToLine(model, lineId, departures, arrivals, transitVehDict, vehicle=None):
     sectionType = model.getType("GKPublicLine")
     transitLine = model.getCatalog().findObjectByExternalId(lineId, sectionType)
     if transitLine is None:
@@ -116,19 +116,18 @@ def run_xtmf(parameters, model, console):
     A general function called in all python modules called by bridge. Responsible
     for extracting data and running appropriate functions.
     """
-    outputNetworkFile = parameters["OutputNetworkFile"]
-    _execute(outputNetworkFile, model, console, parameters)
+    _execute(model, console, parameters)
 
-def _execute(outputNetworkFile, inputModel, console, parameters):
-    print("Import transit schedules")
-    global model
+def _execute(inputModel, console, parameters):
+    """
+    Main execute function to run the tool
+    """
     model = inputModel
-   
     transitFile = parameters["TransitFile"]
-    transitVehDict = buildTransitVehDict(transitFile)
-    serviceTables = readServiceTables(parameters["csvFile"])
+    transitVehDict = buildTransitVehDict(model, transitFile)
+    serviceTables = readServiceTables(parameters["ServiceTableCSV"])
     for serviceTable in serviceTables:
-        addServiceToLine(serviceTable[0], serviceTable[1], serviceTable[2], transitVehDict)
+        addServiceToLine(model, serviceTable[0], serviceTable[1], serviceTable[2], transitVehDict)
     return console
 
 def saveNetwork(console, model, outputNetworkFile):
@@ -173,12 +172,12 @@ def runFromConsole(inputArgs):
     #create a dictionary of additional argument parameters from the command line
     parameters = {
                     "TransitFile":inputArgs[3],
-                    "csvFile": inputArgs[2]
+                    "ServiceTableCSV": inputArgs[2]
                  }
     # generate a model of the input network
     model = loadModel(Network, console)
     #run the _execute function
-    _execute(outputNetworkFile, model, console, parameters)
+    _execute(model, console, parameters)
     saveNetwork(console, model, outputNetworkFile)
 
 if __name__ == "__main__":
