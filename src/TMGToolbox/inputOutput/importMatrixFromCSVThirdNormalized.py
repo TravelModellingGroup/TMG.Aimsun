@@ -13,7 +13,6 @@ import os
 import warnings as _warn
 import traceback as _tb
 import subprocess as _sp
-# sys.path.append( xtmf_parameters['toolboxPath'] )
 from datetime import time
 
 
@@ -22,10 +21,9 @@ def run_xtmf(parameters, model, console):
     A general function called in all python modules called by bridge. Responsible
     for extracting data and running appropriate functions.
     """
-    outputNetworkFile = parameters["OutputNetworkFile"]
-    _execute(outputNetworkFile, model, console, parameters)
+    _execute(model, console, parameters)
 
-def _execute(outputNetworkFile, inputModel, console, parameters):
+def _execute(inputModel, console, parameters):
     """ 
     Main execute function to run the simulation.
     """
@@ -194,7 +192,7 @@ def runFromConsole(argv):
         raise Exception("cannot load network")
 
     #call the _execute function with parameters
-    _execute(outputNetworkFile, model, console, xtmf_parameters)
+    _execute(model, console, xtmf_parameters)
     saveNetwork(console, model, outputNetworkFile)
 
 if __name__ == "__main__":

@@ -35,9 +35,7 @@ namespace TMG.Aimsun.Tests
             string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importMatrixFromCSVThirdNormalized.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
-                OutputNetworkFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\output\\FrabitztownNetworkWithOd.ang"),
                 ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown"),
-                ToolboxInputOutputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "src\\TMGToolbox\\inputOutput"),
                 MatrixCSV = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frabitztownMatrixList.csv"),
                 ODCSV = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frabitztownOd.csv"),
                 ThirdNormalized = true,
@@ -61,9 +59,7 @@ namespace TMG.Aimsun.Tests
             string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importMatrixFromCSVThirdNormalized.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
-                OutputNetworkFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\output\\FrabitztownNetworkWithOd2.ang"),
                 ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown"),
-                ToolboxInputOutputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "src\\TMGToolbox\\inputOutput"),
                 MatrixCSV = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frabitztownMatrixList.csv"),
                 ODCSV = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frabitztownOd2.csv"),
                 ThirdNormalized = true,
@@ -86,9 +82,7 @@ namespace TMG.Aimsun.Tests
             string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importMatrixFromCSVThirdNormalized.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
-                OutputNetworkFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\output\\FrabitztownNetworkWithOd.ang"),
                 ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown"),
-                ToolboxInputOutputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "src\\TMGToolbox\\inputOutput"),
                 MatrixCSV = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frabitztownMatrixList.csv"),
                 ODCSV = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frabitztownOd.csv"),
                 ThirdNormalized = true,
@@ -115,9 +109,7 @@ namespace TMG.Aimsun.Tests
             string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importMatrixFromCSVThirdNormalized.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
-                OutputNetworkFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\output\\FrabitztownNetworkWithOd2.ang"),
                 ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown"),
-                ToolboxInputOutputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "src\\TMGToolbox\\inputOutput"),
                 MatrixCSV = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frabitztownMatrixList.csv"),
                 ODCSV = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frabitztownOd2.csv"),
                 ThirdNormalized = true,

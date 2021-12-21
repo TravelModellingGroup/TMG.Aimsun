@@ -1,94 +1,47 @@
 ﻿using System;
 using XTMF;
 using TMG.Input;
+using System.IO;
 
 namespace TMG.Aimsun.InputOutput
 {
-    [ModuleInformation(Description = "Import the OD matrixes")]
-    public class ImportMatrixFromCSVThirdNormalized : IAimsunTool, IDataSource<ModellerController>, IDisposable
+    [ModuleInformation(Description = "Import the OD matrixes into the network.")]
+    public class ImportMatrixFromCSVThirdNormalized : IAimsunTool
     {
-        [SubModelInformation(Required = true, Description = "The location of the aimsun project file.")]
+        private const string ToolName = "InputOutput/ImportMatrixFromCSVThirdNormalized.py";
 
-        private ModellerController Data;
-        public ModellerController GiveData() => Data;
+        [SubModelInformation(Required = true, Description = "The network directory is located")]
+        public FileLocation NetworkDirectory;
 
+        [SubModelInformation(Required = true, Description = "The Aimsun toolbox directory is located")]
+        public FileLocation ToolboxDirectory;
 
-        string pipeName = Guid.NewGuid().ToString();
-        string aimsunPath = "C:\\Program Files\\Aimsun\\Aimsun Next 22";
-        string projectFile = "C:\\Users\\sandhela\\source\\repos\\TravelModellingGroup\\TMG.Aimsun\\aimsunFiles\\blankNetworkWithVdfs.ang";
-
-        public bool Loaded => Data != null;
-        public void LoadData()
-        {
-            if (Data == null)
-            {
-                lock (this)
-                {
-                    if (Data == null)
-                    {
-                        GC.ReRegisterForFinalize(this);
-                        Data = new ModellerController(this, projectFile, pipeName, aimsunPath);
-                    }
-                }
-            }
-        }
-        public void UnloadData()
-        {
-            Dispose();
-        }
-
-        //~ModellerControllerDataSource()
-        //{
-        //    Dispose(true);
-        //}
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool all)
-        {
-            Data?.Dispose();
-            Data = null;
-        }
-
-        private const string ToolName = "Import Aimsun Network";
-
-        [RunParameter("OutputNetworkFile", "", "The path with filename to save the network as an ang file")]
-        public FileLocation OutputNetworkFile;
-
-        [RunParameter("ModelDirectory", "", "The filepath where the network files exist")]
-        public FileLocation ModelDirectory;
-
-        [RunParameter("ToolboxInputOutputPath", "", "The filepath to where the Aimsun toolbox exists")]
-        public FileLocation ToolboxInputOutputPath;
-
-        [RunParameter("MatrixCSV", "", "Matrix csv file")]
+        [SubModelInformation(Required = true, Description = "The location of the matrix CSV File")]
         public FileLocation MatrixCSV;
 
-        [RunParameter("ODCSV", "", "OD csv file path")]
+        [SubModelInformation(Required = true, Description = "The location of the OD CSV file")]
         public FileLocation ODCSV;
 
-        [RunParameter("ThirdNormalized", "true", "is the matrix third normalized default is true")]
+        [RunParameter("ThirdNormalized", true, "Is the Matrix third normalized default is true")]
         public bool ThirdNormalized;
 
-        [RunParameter("IncludesHeader", "true", "is the header included ")]
+        [RunParameter("IncludesHeader", true, "Is the header included default is true")]
         public bool IncludesHeader;
 
-        [RunParameter("MatrixID", "testOD", "Matrix ID")]
+        [RunParameter("MatrixID", "testOD", "Matrix ID default is test OD")]
         public string MatrixID;
 
-        [RunParameter("CentroidConfiguration", "baseCentroidConfig", "base centroid ")]
+        [RunParameter("CentroidConfiguration", "baseCentroidConfig", "base centroid")]
         public string CentroidConfiguration;
 
-        [RunParameter("VehicleType", "Car Class ", "Type of car class")]
+        [RunParameter("VehicleType", "Car Class ", "vehcile type defualt is car")]
         public string VehicleType;
 
-        [RunParameter("Result", "999", "Matrix")]
-        public string Result;
+        [RunParameter("InitialTime", "06:00:00:000", "Initial time")]
+        public string InitialTime;
 
+        [RunParameter("DurationTime", "03:00:00:000", "Duration time")]
+        public string DurationTime;
         public float Progress
         {
             get;
@@ -110,11 +63,32 @@ namespace TMG.Aimsun.InputOutput
         {
             if (aimsunController == null)
             {
-                throw new XTMFRuntimeException(this, "this broke for osme reason ");
+                throw new XTMFRuntimeException(this, "AimsunController is not properly setup or initalized.");
             }
-            aimsunController.Run(this, ToolName, Result);
-
-            return true;
+            return aimsunController.Run(this, Path.Combine(ToolboxDirectory, ToolName),
+                JsonParameterBuilder.BuildParameters(writer =>
+                {
+                    writer.WritePropertyName("ModelDirectory");
+                    writer.WriteValue(NetworkDirectory.GetFilePath());
+                    writer.WritePropertyName("MatrixCSV");
+                    writer.WriteValue(MatrixCSV.GetFilePath());
+                    writer.WritePropertyName("ODCSV");
+                    writer.WriteValue(ODCSV.GetFilePath());
+                    writer.WritePropertyName("ThirdNormalized");
+                    writer.WriteValue(ThirdNormalized);
+                    writer.WritePropertyName("IncludesHeader");
+                    writer.WriteValue(IncludesHeader);
+                    writer.WritePropertyName("MatrixID");
+                    writer.WriteValue(MatrixID.ToString());
+                    writer.WritePropertyName("CentroidConfiguration");
+                    writer.WriteValue(CentroidConfiguration.ToString());
+                    writer.WritePropertyName("VehicleType");
+                    writer.WriteValue(VehicleType.ToString());
+                    writer.WritePropertyName("InitialTime");
+                    writer.WriteValue(InitialTime.ToString());
+                    writer.WritePropertyName("DurationTime");
+                    writer.WriteValue(DurationTime.ToString());
+                }));
         }
     }
 }
