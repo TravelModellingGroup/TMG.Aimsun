@@ -35,10 +35,10 @@ namespace TMG.Aimsun.InputOutput
         [SubModelInformation(Required = true, Description = "The directory of the Aimsun toolbox")]
         public FileLocation ToolboxDirectory;
 
-        [SubModelInformation(Required = true, Description = "The directory of the service table csv file")]
+        [SubModelInformation(Required = true, Description = "The file location of the service table csv file")]
         public FileLocation ServiceTableCSV;
 
-        [SubModelInformation(Required = true, Description = "The directory of the transit file")]
+        [SubModelInformation(Required = true, Description = "The file location of the transit file")]
         public FileLocation TransitFile;
 
         public float Progress

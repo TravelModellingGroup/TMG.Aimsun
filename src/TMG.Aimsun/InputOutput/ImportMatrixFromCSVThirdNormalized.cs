@@ -35,10 +35,10 @@ namespace TMG.Aimsun.InputOutput
         [SubModelInformation(Required = true, Description = "The directory of the Aimsun toolbox")]
         public FileLocation ToolboxDirectory;
 
-        [SubModelInformation(Required = true, Description = "The directory of the matrix CSV File")]
+        [SubModelInformation(Required = true, Description = "The file location of the matrix CSV File")]
         public FileLocation MatrixCSV;
 
-        [SubModelInformation(Required = true, Description = "The directory of the OD CSV file")]
+        [SubModelInformation(Required = true, Description = "The file location of the OD CSV file")]
         public FileLocation ODCSV;
 
         [RunParameter("ThirdNormalized", true, "Boolean value to determine if the matrix is third normalized. Default value is true")]
