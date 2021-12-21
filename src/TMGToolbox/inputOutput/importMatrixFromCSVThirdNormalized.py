@@ -1,3 +1,22 @@
+"""
+    Copyright 2021 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
 import csv
 from ctypes import ArgumentError
 from PyANGBasic import *
@@ -13,7 +32,6 @@ import os
 import warnings as _warn
 import traceback as _tb
 import subprocess as _sp
-# sys.path.append( xtmf_parameters['toolboxPath'] )
 from datetime import time
 
 
@@ -22,10 +40,9 @@ def run_xtmf(parameters, model, console):
     A general function called in all python modules called by bridge. Responsible
     for extracting data and running appropriate functions.
     """
-    outputNetworkFile = parameters["OutputNetworkFile"]
-    _execute(outputNetworkFile, model, console, parameters)
+    _execute(model, console, parameters)
 
-def _execute(outputNetworkFile, inputModel, console, parameters):
+def _execute(inputModel, console, parameters):
     """ 
     Main execute function to run the simulation.
     """
@@ -194,7 +211,7 @@ def runFromConsole(argv):
         raise Exception("cannot load network")
 
     #call the _execute function with parameters
-    _execute(outputNetworkFile, model, console, xtmf_parameters)
+    _execute(model, console, xtmf_parameters)
     saveNetwork(console, model, outputNetworkFile)
 
 if __name__ == "__main__":
