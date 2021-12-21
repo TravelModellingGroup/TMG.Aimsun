@@ -516,7 +516,6 @@ def _execute(networkDirectory, inputModel, console):
     Main execute function to run the simulation 
     """
     overallStartTime = time.perf_counter()
-    ## global model
     model = inputModel
     catalog = model.getCatalog()
     geomodel = model.getGeoModel()

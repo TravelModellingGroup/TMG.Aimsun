@@ -29,16 +29,16 @@ namespace TMG.Aimsun.InputOutput
     {
         private const string ToolName = "InputOutput/importTransitSchedule.py";
 
-        [SubModelInformation(Required = true, Description = "The network directory is located")]
+        [SubModelInformation(Required = true, Description = "The directory of the network")]
         public FileLocation NetworkDirectory;
 
-        [SubModelInformation(Required = true, Description = "The Aimsun toolbox directory is located")]
+        [SubModelInformation(Required = true, Description = "The directory of the Aimsun toolbox")]
         public FileLocation ToolboxDirectory;
 
-        [SubModelInformation(Required = true, Description = "The path of the csv file")]
+        [SubModelInformation(Required = true, Description = "The file location of the service table csv file")]
         public FileLocation ServiceTableCSV;
 
-        [SubModelInformation(Required = true, Description = "The path of the transit file")]
+        [SubModelInformation(Required = true, Description = "The file location of the transit file")]
         public FileLocation TransitFile;
 
         public float Progress
