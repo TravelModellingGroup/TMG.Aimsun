@@ -29,37 +29,37 @@ namespace TMG.Aimsun.InputOutput
     {
         private const string ToolName = "InputOutput/ImportMatrixFromCSVThirdNormalized.py";
 
-        [SubModelInformation(Required = true, Description = "The network directory is located")]
+        [SubModelInformation(Required = true, Description = "The directory of the network")]
         public FileLocation NetworkDirectory;
 
-        [SubModelInformation(Required = true, Description = "The Aimsun toolbox directory is located")]
+        [SubModelInformation(Required = true, Description = "The directory of the Aimsun toolbox")]
         public FileLocation ToolboxDirectory;
 
-        [SubModelInformation(Required = true, Description = "The location of the matrix CSV File")]
+        [SubModelInformation(Required = true, Description = "The directory of the matrix CSV File")]
         public FileLocation MatrixCSV;
 
-        [SubModelInformation(Required = true, Description = "The location of the OD CSV file")]
+        [SubModelInformation(Required = true, Description = "The directory of the OD CSV file")]
         public FileLocation ODCSV;
 
-        [RunParameter("ThirdNormalized", true, "Is the Matrix third normalized default is true")]
+        [RunParameter("ThirdNormalized", true, "Boolean value to determine if the matrix is third normalized. Default value is true")]
         public bool ThirdNormalized;
 
-        [RunParameter("IncludesHeader", true, "Is the header included default is true")]
+        [RunParameter("IncludesHeader", true, "Boolean value whether to include a header. Default is true")]
         public bool IncludesHeader;
 
         [RunParameter("MatrixID", "testOD", "Matrix ID default is test OD")]
         public string MatrixID;
 
-        [RunParameter("CentroidConfiguration", "baseCentroidConfig", "base centroid")]
+        [RunParameter("CentroidConfiguration", "baseCentroidConfig", "String value to write type of centroid configuration")]
         public string CentroidConfiguration;
 
-        [RunParameter("VehicleType", "Car Class ", "vehcile type defualt is car")]
+        [RunParameter("VehicleType", "Car Class ", "String value to determine vehicle type. Default is Car Class")]
         public string VehicleType;
 
-        [RunParameter("InitialTime", "06:00:00:000", "Initial time")]
+        [RunParameter("InitialTime", "06:00:00:000", "String value of the Initial time")]
         public string InitialTime;
 
-        [RunParameter("DurationTime", "03:00:00:000", "Duration time")]
+        [RunParameter("DurationTime", "03:00:00:000", "String value of the Duration time")]
         public string DurationTime;
         public float Progress
         {

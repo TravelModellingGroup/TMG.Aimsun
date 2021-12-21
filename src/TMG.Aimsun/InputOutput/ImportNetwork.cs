@@ -29,10 +29,10 @@ namespace TMG.Aimsun.InputOutput
     {
         public const string ToolName = "inputOutput/importNetwork.py";
         
-        [SubModelInformation(Required = true, Description = "The network directory is located")]
+        [SubModelInformation(Required = true, Description = "The directory of the network")]
         public FileLocation NetworkDirectory;
 
-        [SubModelInformation(Required = true, Description = "The Aimsun toolbox directory is located ")]
+        [SubModelInformation(Required = true, Description = "The directory of the Aimsun toolbox")]
         public FileLocation ToolboxDirectory;
 
         public float Progress
@@ -56,7 +56,7 @@ namespace TMG.Aimsun.InputOutput
         {
             if (aimsunController == null)
             {
-                throw new XTMFRuntimeException(this, "this broke for some reason ");
+                throw new XTMFRuntimeException(this, "The directory of the Aimsun toolbox");
             }
             return aimsunController.Run(this, Path.Combine(ToolboxDirectory, ToolName), 
                 JsonParameterBuilder.BuildParameters(writer => 

@@ -35,9 +35,7 @@ from PyANGApp import *
 from PyANGBasic import *
 from PyANGKernel import *
 from PyANGConsole import *
-
 import time
-
 
 class AimSunBridge:
     """this class is the aimsun bridge we are building that is based off the Emme bridge"""
@@ -325,14 +323,12 @@ class AimSunBridge:
             console.close()
         return
 
-
 def main():
     """
     Initialize and run the class.
     """
     aimsunMain = AimSunBridge()
     aimsunMain.run()
-
 
 if __name__ == "__main__":
     main()
