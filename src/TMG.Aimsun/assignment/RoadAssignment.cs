@@ -42,10 +42,10 @@ namespace TMG.Aimsun.assignment
         public string TransitDemand;
 
         [RunParameter("StartTime", "360", "The start time in seconds")]
-        public string StartTime;
+        public int StartTime;
 
         [RunParameter("DurationTime", "180", "The duration of time in seconds")]
-        public string DurationTime;
+        public int DurationTime;
 
         public string Name { get; set; }
         public float Progress { get; set; }
@@ -67,13 +67,13 @@ namespace TMG.Aimsun.assignment
                     writer.WritePropertyName("ModelDirectory");
                     writer.WriteValue(NetworkDirectory.GetFilePath());
                     writer.WritePropertyName("autoDemand");
-                    writer.WriteValue(AutoDemand.ToString());
+                    writer.WriteValue(AutoDemand);
                     writer.WritePropertyName("transitDemand");
-                    writer.WriteValue(TransitDemand.ToString());
+                    writer.WriteValue(TransitDemand);
                     writer.WritePropertyName("Start");
-                    writer.WriteValue(StartTime.ToString());
+                    writer.WriteValue(StartTime);
                     writer.WritePropertyName("Duration");
-                    writer.WriteValue(DurationTime.ToString());
+                    writer.WriteValue(DurationTime);
                 }));
         }
     }
