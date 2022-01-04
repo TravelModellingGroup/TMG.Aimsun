@@ -76,7 +76,6 @@ namespace TMG.Aimsun.Tests
             string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "assignment\\transitAssignment.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
-                ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown"),
                 autoDemand = "testOD",
                 Start = 6.0 * 60.0,
                 Duration = 3.0 * 60.0,
