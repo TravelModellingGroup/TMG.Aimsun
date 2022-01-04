@@ -24,8 +24,56 @@ using System.IO;
 
 namespace TMG.Aimsun.assignment
 {
-    internal class TransitAssignment
+    [ModuleInformation(Description="Add a transit to the system")]
+    public class TransitAssignment : IAimsunTool
     {
+        public const string ToolName = "assignment/transitAssignment.py";
+
+        [SubModelInformation(Required = true, Description = "The directory of the Aimsun toolbox")]
+        public FileLocation ToolboxDirectory;
+
+        [RunParameter("AutoDemand", "testOD", "The name of the autoDemand")]
+        public string AutoDemand;
+
+        [RunParameter("TransitDemand", "transitOD", "The name of the transit demand")]
+        public string TransitDemand;
+
+        [RunParameter("StartTime", 360.0, "The start time in minutes")]
+        public float StartTime;
+
+        [RunParameter("DurationTime", 180.0, "The duration of time in minutes")]
+        public float DurationTime;
+
+        public string Name { get; set; }
+
+        public float Progress { get; set; }
+
+        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(120, 25, 100);
+
+        public bool RuntimeValidation(ref string error)
+        {
+            return true;
+        }
+
+        public bool Execute(ModellerController aimsunController)
+        {
+            if (aimsunController == null)
+            {
+                throw new XTMFRuntimeException(this, "AimsunController is not properly setup or initalized.");
+            }
+            return aimsunController.Run(this, Path.Combine(ToolboxDirectory, ToolName),
+                JsonParameterBuilder.BuildParameters(writer =>
+                {
+                    writer.WritePropertyName("autoDemand");
+                    writer.WriteValue(AutoDemand);
+                    writer.WritePropertyName("transitDemand");
+                    writer.WriteValue(TransitDemand);
+                    writer.WritePropertyName("Start");
+                    writer.WriteValue(StartTime);
+                    writer.WritePropertyName("Duration");
+                    writer.WriteValue(DurationTime);
+                }));
+        }
 
     }
 }
