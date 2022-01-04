@@ -41,10 +41,10 @@ namespace TMG.Aimsun.assignment
         [RunParameter("TransitDemand", "transitOD", "The name of the transit demand")]
         public string TransitDemand;
 
-        [RunParameter("StartTime", 360.0, "The start time in seconds")]
+        [RunParameter("StartTime", 360.0, "The start time in minutes")]
         public float StartTime;
 
-        [RunParameter("DurationTime", 180.0, "The duration of time in seconds")]
+        [RunParameter("DurationTime", 180.0, "The duration of time in minutes")]
         public float DurationTime;
 
         public string Name { get; set; }
