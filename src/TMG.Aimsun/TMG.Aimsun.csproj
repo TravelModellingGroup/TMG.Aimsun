@@ -49,6 +49,8 @@
   <ItemGroup>
     <Compile Include="AimsunController.cs" />
     <Compile Include="AimsunTool.cs" />
+    <Compile Include="assignment\RoadAssignment.cs" />
+    <Compile Include="assignment\TransitAssignment.cs" />
     <Compile Include="LoadAimsunController.cs" />
     <Compile Include="ExecuteToolsFromModellerResource.cs" />
     <Compile Include="IAimsunTool.cs" />
@@ -76,7 +78,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="assignment\" />
     <Folder Include="common\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

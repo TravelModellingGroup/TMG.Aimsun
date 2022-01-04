@@ -48,7 +48,6 @@ def _execute(inputModel, console, parameters):
     """
     model = inputModel
     catalog = model.getCatalog()
-    geomodel = model.getGeoModel()
     
     fileLocation = str(parameters["ODCSV"])
     thirdNormalized = bool(parameters["ThirdNormalized"])

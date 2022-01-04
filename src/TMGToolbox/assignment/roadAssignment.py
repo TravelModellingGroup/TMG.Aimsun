@@ -60,19 +60,16 @@ def run_xtmf(parameters, model, console):
     A general function called in all python modules called by bridge. Responsible
     for extracting data and running appropriate functions.
     """
-    outputNetworkFile = parameters["OutputNetworkFile"]
     # extract the parameters and save to dictionary
     xtmf_parameters = {
         "autoDemand": parameters["autoDemand"],
-        # placeholder default values
         "start": parameters["Start"],
         "duration": parameters["Duration"],
         "transitDemand": parameters["transitDemand"],
     }
-    _execute(outputNetworkFile, model, console, xtmf_parameters)
-
-
-def _execute(outputNetworkFile, inputModel, console, xtmf_parameters):
+    _execute(model, console, xtmf_parameters)
+    
+def _execute(inputModel, console, xtmf_parameters):
     """
     Main execute function to run the simulation
     """
@@ -90,12 +87,11 @@ def _execute(outputNetworkFile, inputModel, console, xtmf_parameters):
     print("Run road assignment")
     system.executeAction("execute", experiment, [], "static assignment")
     experiment.getStatsManager().createTrafficState()
-    print ('experiment ran')
+    print ('experiment ran successfully')
 
-    ## Save the Network
-    CM.save_network(outputNetworkFile, console, model,  trafficDemand, ptPlan, skimMatrices=None, 
-                 scenario=scenario, ptScenario=None, experiment=experiment, ptExperiment=None)
-
+    # Save the Network
+    #cm.save_network(outputnetworkfile, console, model,  trafficdemand, ptplan, skimmatrices=none, 
+    #             scenario=scenario, ptscenario=none, experiment=experiment, ptexperiment=none)
 
 def runFromConsole(inputArgs):
     """
@@ -124,8 +120,11 @@ def runFromConsole(inputArgs):
     else:
         console.getLog().addError("Cannot load the network")
         raise Exception("Cannot load network")
+
     # call the _execute() function
-    _execute(outputNetworkFile, model, console, xtmf_parameters)
+    _execute(model, console, xtmf_parameters)
+    #save the network
+    saveNetwork(console, model, outputNetworkFile)
 
 
 if __name__ == "__main__":
