@@ -58,18 +58,16 @@ def run_xtmf(parameters, model, console):
     A general function called in all python modules called by bridge. Responsible
     for extracting data and running appropriate functions.
     """
-    outputNetworkFile = parameters["OutputNetworkFile"]
     # extract the parameters and save to dictionary
     xtmf_parameters = {
         "autoDemand": parameters["autoDemand"],
-        # placeholder default values
         "start": parameters["Start"],
         "duration": parameters["Duration"],
         "transitDemand": parameters["transitDemand"],
     }
-    _execute(outputNetworkFile, model, console, xtmf_parameters)
+    _execute(model, console, xtmf_parameters)
 
-def _execute(outputNetworkFile, inputModel, console, xtmf_parameters):
+def _execute(inputModel, console, xtmf_parameters):
     """
     Main execute function to run the simulation
     """
@@ -84,12 +82,7 @@ def _execute(outputNetworkFile, inputModel, console, xtmf_parameters):
     ptExperiment = experiment_pt_scenario(system, cmd)
     # Generate PT Skim Matrices
     skimMatrices = get_pt_skim_matrices(model, ptExperiment)
-
-    # Save the Network
-    CM.save_network(outputNetworkFile, console, model,  trafficDemand, ptPlan, skimMatrices=skimMatrices, 
-                 scenario=None, ptScenario=ptScenario, experiment=None, ptExperiment=ptExperiment)
-
-
+    
 def runFromConsole(inputArgs):
     """
     This function takes commands from the terminal, creates a console and model to pass
@@ -101,7 +94,6 @@ def runFromConsole(inputArgs):
     # extract the parameters and save to dictionary
     xtmf_parameters = {
         "autoDemand": inputArgs[3],
-        # placeholder default values
         "start": float(inputArgs[4]),
         "duration": float(inputArgs[5]),
         "transitDemand": inputArgs[6],
@@ -118,8 +110,7 @@ def runFromConsole(inputArgs):
         console.getLog().addError("Cannot load the network")
         raise Exception("Cannot load network")
     # call the _execute() function
-    _execute(outputNetworkFile, model, console, xtmf_parameters)
-
+    _execute(model, console, xtmf_parameters)
 
 if __name__ == "__main__":
     # function to parse the command line arguments and run network script
