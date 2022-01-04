@@ -35,9 +35,6 @@ namespace TMG.Aimsun.InputOutput
         [SubModelInformation(Required = true, Description = "The directory of the Aimsun toolbox")]
         public FileLocation ToolboxDirectory;
 
-        [SubModelInformation(Required = true, Description = "The file location of the matrix CSV File")]
-        public FileLocation MatrixCSV;
-
         [SubModelInformation(Required = true, Description = "The file location of the OD CSV file")]
         public FileLocation ODCSV;
 
@@ -89,8 +86,6 @@ namespace TMG.Aimsun.InputOutput
                 {
                     writer.WritePropertyName("ModelDirectory");
                     writer.WriteValue(NetworkDirectory.GetFilePath());
-                    writer.WritePropertyName("MatrixCSV");
-                    writer.WriteValue(MatrixCSV.GetFilePath());
                     writer.WritePropertyName("ODCSV");
                     writer.WriteValue(ODCSV.GetFilePath());
                     writer.WritePropertyName("ThirdNormalized");

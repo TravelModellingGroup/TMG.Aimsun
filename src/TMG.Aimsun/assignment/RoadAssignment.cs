@@ -41,25 +41,28 @@ namespace TMG.Aimsun.assignment
         [RunParameter("TransitDemand", "transitOD", "The name of the transit demand")]
         public string TransitDemand;
 
-        [RunParameter("StartTime", "360", "The start time in seconds")]
-        public int StartTime;
+        [RunParameter("StartTime", 360.0, "The start time in seconds")]
+        public float StartTime;
 
-        [RunParameter("DurationTime", "180", "The duration of time in seconds")]
-        public int DurationTime;
+        [RunParameter("DurationTime", 180.0, "The duration of time in seconds")]
+        public float DurationTime;
 
         public string Name { get; set; }
+        
         public float Progress { get; set; }
+        
         public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(120, 25, 100);
+
         public bool RuntimeValidation(ref string error)
         {
             return true;
         }
-        
+
         public bool Execute(ModellerController aimsunController)
         {
             if (aimsunController == null)
             {
-                throw new XTMFRuntimeException(this, "The directory of the Aimsun toolbox");
+                throw new XTMFRuntimeException(this, "AimsunController is not properly setup or initalized.");
             }
             return aimsunController.Run(this, Path.Combine(ToolboxDirectory, ToolName),
                 JsonParameterBuilder.BuildParameters(writer =>
