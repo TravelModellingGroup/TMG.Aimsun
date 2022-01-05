@@ -509,30 +509,6 @@ def loadModel(filepath, console):
     geomodel = model.getGeoModel()
     return model, catalog, geomodel
 
-#def extract_network_packagefile():
-#    """
-#    a test function that is going to be migrated to common once resolved and 
-#    fully functional and working
-#    input the path to the network package
-#    """
-#    print ('this function ran')
-#    network_packgage_file = "C:\\Users\\sandhela\\source\\repos\\TravelModellingGroup\\TMG.Aimsun\\inputFiles\\Frabitztown.zip"
-#    archive = zipfile.ZipFile(network_packgage_file, 'r')
-#    #print (archive, dir(archive))
-#    #this could be used for error messaging list back all tools avaialble
-#    print ( archive.infolist() )
-#    return archive
-
-#def read_datafile(binary_file):
-#    """
-#    a test function which we will read the file inside the zip file of interet using the iotextwrapper
-#    """
-#    with io.TextIOWrapper(binary_file, encoding="utf-8") as f:
-#        lines = f.readlines()
-#        return lines
-
-
-
 def run_xtmf(parameters, model, console):
     """
     A general function called in all python modules called by bridge. Responsible

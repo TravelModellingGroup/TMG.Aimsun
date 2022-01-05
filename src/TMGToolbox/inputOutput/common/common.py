@@ -28,10 +28,6 @@ import shlex
 import zipfile
 import io
 
-
-def hello():
-    print ('this ran so this is accessible')
-
 def extract_network_packagefile():
     """
     Function that is going to be migrated to common once resolved and 

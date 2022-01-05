@@ -36,7 +36,6 @@ from PyANGBasic import *
 from PyANGKernel import *
 from PyANGConsole import *
 import time
-import pathlib
 
 class AimSunBridge:
     """this class is the aimsun bridge we are building that is based off the Emme bridge"""
