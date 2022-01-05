@@ -36,6 +36,7 @@ from PyANGBasic import *
 from PyANGKernel import *
 from PyANGConsole import *
 import time
+import pathlib
 
 class AimSunBridge:
     """this class is the aimsun bridge we are building that is based off the Emme bridge"""
@@ -151,6 +152,7 @@ class AimSunBridge:
             #check if the tool exists in the path if it doesn't output an error
             if not os.path.exists(moduleDict["toolPath"]):
                 raise Exception("Unable to find the tool '" + moduleDict["toolPath"] + "'.")
+
             # we need to append the Toolbox/InputPut folder path so all relative imports will work
             toolDirectory = os.path.dirname(moduleDict["toolPath"])
             sys.path.append(toolDirectory)

@@ -25,6 +25,9 @@ from PyANGBasic import *
 from PyANGKernel import *
 from PyANGConsole import *
 import shlex
+#import zipfile
+#import io
+from common import common
 
 # Function to read the base network file
 def readFile(filename):
@@ -399,8 +402,11 @@ def defineModes(filename, model):
     modes = []
     vehicleTypes = []
     # read the file
-    with open(filename, 'r') as f:
-        lines = f.readlines()
+    #with open(filename, 'r') as f:
+    #    lines = f.readlines()
+    #with io.TextIOWrapper(filename, encoding="utf-8") as f:
+    #    lines = f.readlines()
+    lines = common.read_datafile(filename)
     for line in lines:
         lineItems = shlex.split(line)
         if len(line)>0 and len(lineItems) >= 3 and line[0] == 'a':
@@ -503,27 +509,54 @@ def loadModel(filepath, console):
     geomodel = model.getGeoModel()
     return model, catalog, geomodel
 
+#def extract_network_packagefile():
+#    """
+#    a test function that is going to be migrated to common once resolved and 
+#    fully functional and working
+#    input the path to the network package
+#    """
+#    print ('this function ran')
+#    network_packgage_file = "C:\\Users\\sandhela\\source\\repos\\TravelModellingGroup\\TMG.Aimsun\\inputFiles\\Frabitztown.zip"
+#    archive = zipfile.ZipFile(network_packgage_file, 'r')
+#    #print (archive, dir(archive))
+#    #this could be used for error messaging list back all tools avaialble
+#    print ( archive.infolist() )
+#    return archive
+
+#def read_datafile(binary_file):
+#    """
+#    a test function which we will read the file inside the zip file of interet using the iotextwrapper
+#    """
+#    with io.TextIOWrapper(binary_file, encoding="utf-8") as f:
+#        lines = f.readlines()
+#        return lines
+
+
+
 def run_xtmf(parameters, model, console):
     """
     A general function called in all python modules called by bridge. Responsible
     for extracting data and running appropriate functions.
     """
     networkDirectory = parameters["ModelDirectory"]
-    _execute(networkDirectory, model, console)
+    network_data_file_object = common.extract_network_packagefile()
+    _execute(networkDirectory, model, console, network_data_file_object)
 
-def _execute(networkDirectory, inputModel, console):
+def _execute(networkDirectory, inputModel, console, network_data_file_object):
     """ 
     Main execute function to run the simulation 
     """
     overallStartTime = time.perf_counter()
     model = inputModel
-    catalog = model.getCatalog()
-    geomodel = model.getGeoModel()
 
     # Import the new network
     print("Import network")
     print("Define modes")
-    modes = defineModes(f"{networkDirectory}/modes.201", model)
+    #modes = defineModes(f"{networkDirectory}/modes.201", model)
+    modes201 = network_data_file_object.open("modes.201")
+    print (type(modes201))
+    modes = defineModes(modes201, model)
+
     # Cache the vehicle types
     allVehicles=[]
     sectionType = model.getType("GKVehicle")
