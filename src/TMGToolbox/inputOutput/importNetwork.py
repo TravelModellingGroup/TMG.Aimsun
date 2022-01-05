@@ -515,7 +515,8 @@ def run_xtmf(parameters, model, console):
     for extracting data and running appropriate functions.
     """
     networkDirectory = parameters["ModelDirectory"]
-    network_data_file_object = common.extract_network_packagefile()
+    networkPackageFile = parameters["NetworkPackageFile"]
+    network_data_file_object = common.extract_network_packagefile(networkPackageFile)
     _execute(networkDirectory, model, console, network_data_file_object)
 
 def _execute(networkDirectory, inputModel, console, network_data_file_object):

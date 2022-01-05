@@ -28,7 +28,7 @@ import shlex
 import zipfile
 import io
 
-def extract_network_packagefile():
+def extract_network_packagefile(network_package_file):
     """
     Function that is going to be migrated to common once resolved and 
     fully functional and working
@@ -36,8 +36,8 @@ def extract_network_packagefile():
     this reads the zipfile and turns it to a zipfile object and returns it
     """
     print ('this function ran')
-    network_packgage_file = "C:\\Users\\sandhela\\source\\repos\\TravelModellingGroup\\TMG.Aimsun\\inputFiles\\Frabitztown.zip"
-    zip_data_file = zipfile.ZipFile(network_packgage_file, 'r')
+    #network_packgage_file = "C:\\Users\\sandhela\\source\\repos\\TravelModellingGroup\\TMG.Aimsun\\inputFiles\\Frabitztown.zip"
+    zip_data_file = zipfile.ZipFile(network_package_file, 'r')
     #print (archive, dir(archive))
     #this could be used for error messaging list back all tools avaialble
     #print ( zip_data_file.infolist() )
