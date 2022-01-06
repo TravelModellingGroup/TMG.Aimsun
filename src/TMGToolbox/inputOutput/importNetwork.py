@@ -389,7 +389,7 @@ def buildCentroidConnections(model, listOfCentroidConnections):
         newCentroidConnection(model, fromNode, toNode, nodeType, centroidType, catalog)
 
 # Reads the modes file and defines all possible modes on the network
-def defineModes(filename, model):
+def defineModes(networkZipFileObject, filename, model):
     # Delete the default modes
     sectionType = model.getType("GKVehicle")
     for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
@@ -401,12 +401,10 @@ def defineModes(filename, model):
     # make list of nodes and vehicles created
     modes = []
     vehicleTypes = []
-    # read the file
-    #with open(filename, 'r') as f:
-    #    lines = f.readlines()
-    #with io.TextIOWrapper(filename, encoding="utf-8") as f:
-    #    lines = f.readlines()
-    lines = common.read_datafile(filename)
+
+    # read the file and return a list of lines
+    lines = common.read_datafile(networkZipFileObject, filename)
+    #further processing of data
     for line in lines:
         lineItems = shlex.split(line)
         if len(line)>0 and len(lineItems) >= 3 and line[0] == 'a':
@@ -514,12 +512,14 @@ def run_xtmf(parameters, model, console):
     A general function called in all python modules called by bridge. Responsible
     for extracting data and running appropriate functions.
     """
-    networkDirectory = parameters["ModelDirectory"]
-    networkPackageFile = parameters["NetworkPackageFile"]
-    network_data_file_object = common.extract_network_packagefile(networkPackageFile)
-    _execute(networkDirectory, model, console, network_data_file_object)
+    #networkDirectory = parameters["ModelDirectory"]
+    #we are passing in the zip file to the _execute function
+    networkDirectory = parameters["NetworkPackageFile"]
 
-def _execute(networkDirectory, inputModel, console, network_data_file_object):
+    #run the execute function
+    _execute(networkDirectory, model, console)
+
+def _execute(networkDirectory, inputModel, console):
     """ 
     Main execute function to run the simulation 
     """
@@ -529,10 +529,17 @@ def _execute(networkDirectory, inputModel, console, network_data_file_object):
     # Import the new network
     print("Import network")
     print("Define modes")
-    #modes = defineModes(f"{networkDirectory}/modes.201", model)
-    modes201 = network_data_file_object.open("modes.201")
-    print (type(modes201))
-    modes = defineModes(modes201, model)
+    
+    #ZipFile object of the network file do this once
+    networkZipFileObject = common.extract_network_packagefile(networkDirectory)
+
+    #pass in the zipfile object, filename and model to function
+    modes = defineModes(networkZipFileObject, "modes.201", model)
+
+
+    #### NOTE FROM HERE ALL CODE CRASHES AS IT NEEDS TO BE REFACTORED BUT defineModes() METHOD RUNS 
+    #### RUNS SUCCESSFULLY 
+
 
     # Cache the vehicle types
     allVehicles=[]

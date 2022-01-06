@@ -32,8 +32,9 @@ namespace TMG.Aimsun.Tests
             string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importNetwork.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
+                //note modeldirectory is going to be renamed and passing in zip file in next PR
                 ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown"),
-                NetworkPackageFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown")
+                NetworkPackageFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown.zip")
             });
             Helper.Modeller.Run(null, modulePath, jsonParameters);
         }

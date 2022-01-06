@@ -30,24 +30,27 @@ import io
 
 def extract_network_packagefile(network_package_file):
     """
-    Function that is going to be migrated to common once resolved and 
-    fully functional and working
-    input the path to the network package
-    this reads the zipfile and turns it to a zipfile object and returns it
+    Function which takes a zipped file in this case the networkpackage file and
+    returns a ZipFile object which can be further used 
+    input: string path to zip file
+    return: ZipFile object
     """
-    print ('this function ran')
-    #network_packgage_file = "C:\\Users\\sandhela\\source\\repos\\TravelModellingGroup\\TMG.Aimsun\\inputFiles\\Frabitztown.zip"
     zip_data_file = zipfile.ZipFile(network_package_file, 'r')
-    #print (archive, dir(archive))
-    #this could be used for error messaging list back all tools avaialble
-    #print ( zip_data_file.infolist() )
     return zip_data_file
 
-def read_datafile(binary_file):
+def read_datafile(networkZipFileObject, filename):
     """
-    a test function which we will read the file inside the zip file of interet using the iotextwrapper
-    this is to access the data so the various functions can then extract the data
+    Function takes ZipFileObject and filename to open the file and read the lines.
+    Returns a list of the extract data for further processing.
+    input: ZipFile object 
+    input2: string filename
+    return: a List of the data in string format 
     """
-    with io.TextIOWrapper(binary_file, encoding="utf-8") as f:
+    fileToOpen = networkZipFileObject.open(filename)
+    with io.TextIOWrapper(fileToOpen, encoding="utf-8") as f:
         lines = f.readlines()
         return lines
+
+
+#this could be used for error messaging list back all tools avaialble
+#print ( zip_data_file.infolist() )
