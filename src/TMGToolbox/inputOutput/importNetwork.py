@@ -25,8 +25,6 @@ from PyANGBasic import *
 from PyANGKernel import *
 from PyANGConsole import *
 import shlex
-#import zipfile
-#import io
 from common import common
 
 # Function to read the base network file
