@@ -50,7 +50,3 @@ def read_datafile(networkZipFileObject, filename):
     with io.TextIOWrapper(fileToOpen, encoding="utf-8") as f:
         lines = f.readlines()
         return lines
-
-
-#this could be used for error messaging list back all tools avaialble
-#print ( zip_data_file.infolist() )

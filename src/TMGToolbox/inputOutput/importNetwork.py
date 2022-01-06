@@ -30,15 +30,14 @@ import shlex
 from common import common
 
 # Function to read the base network file
-def readFile(filename):
+def readFile(networkZipFileObject, filename):
     lines = []
     nodes = []
     links = []
     centroids = []
     centroidSet = set()
     currentlyReading = 'nodes'
-    with open(filename, 'r') as f:
-        lines = f.readlines()
+    lines = common.read_datafile(networkZipFileObject, filename)
     for line in lines:
         # Check if the line isn't blank
         if len(line)!=0:
@@ -152,14 +151,13 @@ def addLinkCurvature(link, pointsToAdd):
     return link
 
 # Function to read the shapes.251 file and return the applicable links and curvature information
-def readShapesFile(model, filename, catalog):
+def readShapesFile(model, networkZipFileObject, filename, catalog):
     curves = []
     lines = []
     link = None
     curvaturePoints = []
     sectionType = model.getType("GKSection")
-    with open(filename, 'r') as f:
-        lines = f.readlines()
+    lines = common.read_datafile(networkZipFileObject, filename)
     for line in lines:
         if len(line)!=0:
             if line[0] == 'r':
@@ -176,16 +174,15 @@ def readShapesFile(model, filename, catalog):
     return curves
 
 # Function to add the curvature to all applicable links in the network
-def addLinkCurvatures(model, filename, catalog):
-    curves = readShapesFile(model, filename, catalog)
+def addLinkCurvatures(model, networkZipFileObject, filename, catalog):
+    curves = readShapesFile(model, networkZipFileObject, filename, catalog)
     for curve in curves:
         addLinkCurvature(curve[0], curve[1])
 
 # Function to read the turns.231
-def readTurnsFile(filename):
+def readTurnsFile(networkZipFileObject, filename):
     turns = []
-    with open(filename, "r") as f:
-        lines = f.readlines()
+    lines = common.read_datafile(networkZipFileObject, filename)
     for line in lines:
         if len(line)!=0:
             if line[0] == "a":
@@ -206,7 +203,7 @@ def createTurn(node, fromLink, toLink, model):
     node.addTurning(newTurn, True, False)
 
 # Function to create the turns from file
-def createTurnsFromFile(model, filename, listOfAllNodes, nodeConnections):
+def createTurnsFromFile(model, networkZipFileObject, filename, listOfAllNodes, nodeConnections):
     print("Build turns")
     # Copy the list of nodes
     nodes = listOfAllNodes.copy()
@@ -214,7 +211,7 @@ def createTurnsFromFile(model, filename, listOfAllNodes, nodeConnections):
     nodesWithDefinedTurns = set()
     # Try reading the turns from file
     try:
-        turns = readTurnsFile(filename)
+        turns = readTurnsFile(networkZipFileObject, filename)
         nodeType = model.getType("GKNode")
         linkType = model.getType("GKSection")
         catalog = model.getCatalog()
@@ -428,10 +425,9 @@ def defineModes(networkZipFileObject, filename, model):
     return modes, vehicleTypes
 
 # Method to read the functions.411 file
-def readFunctionsFile(filename):
+def readFunctionsFile(networkZipFileObject, filename):
     vdfNames = []
-    with open(filename, "r") as f:
-        lines = f.readlines()
+    lines = common.read_datafile(networkZipFileObject, filename)
     for line in lines:
         if len(line)!=0:
             if line[0] == "a":
@@ -514,12 +510,12 @@ def run_xtmf(parameters, model, console):
     """
     #networkDirectory = parameters["ModelDirectory"]
     #we are passing in the zip file to the _execute function
-    networkDirectory = parameters["NetworkPackageFile"]
+    networkPackage = parameters["NetworkPackageFile"]
 
     #run the execute function
-    _execute(networkDirectory, model, console)
+    _execute(networkPackage, model, console)
 
-def _execute(networkDirectory, inputModel, console):
+def _execute(networkPackage, inputModel, console):
     """ 
     Main execute function to run the simulation 
     """
@@ -531,15 +527,10 @@ def _execute(networkDirectory, inputModel, console):
     print("Define modes")
     
     #ZipFile object of the network file do this once
-    networkZipFileObject = common.extract_network_packagefile(networkDirectory)
-
-    #pass in the zipfile object, filename and model to function
+    networkZipFileObject = common.extract_network_packagefile(networkPackage)
+    
+    #get the modes
     modes = defineModes(networkZipFileObject, "modes.201", model)
-
-
-    #### NOTE FROM HERE ALL CODE CRASHES AS IT NEEDS TO BE REFACTORED BUT defineModes() METHOD RUNS 
-    #### RUNS SUCCESSFULLY 
-
 
     # Cache the vehicle types
     allVehicles=[]
@@ -548,10 +539,10 @@ def _execute(networkDirectory, inputModel, console):
         for vehicle in iter(types.values()):
             allVehicles.append(vehicle)
     print("Define road types")
-    roadTypeNames = readFunctionsFile(f"{networkDirectory}/functions.411")
+    roadTypeNames = readFunctionsFile(networkZipFileObject, "functions.411")
     roadTypes = addRoadTypes(model, roadTypeNames)
     print("Read base network data file")
-    links, nodes, centroids, centroidSet = readFile(f"{networkDirectory}/base.211")
+    links, nodes, centroids, centroidSet = readFile(networkZipFileObject, "base.211")
     layer = model.getGeoModel().findLayer("Network")
     nodeStartTime = time.perf_counter()
     print("Add nodes")
@@ -587,12 +578,13 @@ def _execute(networkDirectory, inputModel, console):
         if (counter % infoStepSize) == 0:
             print(f"{counter} links added")
     print("Add curvature to links")
-    addLinkCurvatures(model, f"{networkDirectory}/shapes.251", model.getCatalog())
+    networkZipFileObject
+    addLinkCurvatures(model, networkZipFileObject, "shapes.251", model.getCatalog())
     linkEndTime = time.perf_counter()
     print(f"Time to import links: {linkEndTime-linkStartTime}s")
     turnStartTime = time.perf_counter()
     # Build the turns (connections betweek links)
-    createTurnsFromFile(model, f"{networkDirectory}/turns.231", allNodes, nodeConnections)
+    createTurnsFromFile(model, networkZipFileObject, "turns.231", allNodes, nodeConnections)
     turnEndTime = time.perf_counter()
     print(f"Time to build turns: {turnEndTime-turnStartTime}s")
     # Add the centroids
