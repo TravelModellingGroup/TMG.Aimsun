@@ -25,6 +25,7 @@
     <Folder Include="assignment\" />
     <Folder Include="common\" />
     <Folder Include="inputOutput\" />
+    <Folder Include="inputOutput\common\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\aimsunBridge.py">
@@ -37,6 +38,9 @@
     <Compile Include="assignment\roadAssignment.py" />
     <Compile Include="assignment\__init__.py" />
     <Compile Include="common\utilities.py" />
+    <Compile Include="common\__init__.py" />
+    <Compile Include="inputOutput\common\common.py" />
+    <Compile Include="inputOutput\common\__init__.py" />
     <Compile Include="inputOutput\exportNetworkPackage.py" />
     <Compile Include="inputOutput\importNetwork.py" />
     <Compile Include="inputOutput\importPedestrians.py" />
