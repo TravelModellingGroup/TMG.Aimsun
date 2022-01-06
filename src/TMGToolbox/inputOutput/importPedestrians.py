@@ -25,6 +25,8 @@ from PyANGKernel import *
 from PyANGConsole import *
 from importNetwork import loadModel
 from importTransitNetwork import parseArguments, cacheAllOfTypeByExternalId, cacheNodeConnections
+from common import common
+
 
 def definePedestrianType(model):
     sectionType = model.getType("GKPedestrianType")

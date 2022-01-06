@@ -50,3 +50,39 @@ def read_datafile(networkZipFileObject, filename):
     with io.TextIOWrapper(fileToOpen, encoding="utf-8") as f:
         lines = f.readlines()
         return lines
+
+def loadModel(filepath, console):
+    """
+    Method responsible to get the aimsun model() object and load the network.
+    This method is only utilized and if a simulation is ran from the terminal
+    """
+    if console.open(filepath):
+        model = console.getModel()
+        print("Open network")
+    else:
+        console.getLog().addError("Cannot load the network")
+        print("Cannot load the network")
+        return -1
+    catalog = model.getCatalog()
+    geomodel = model.getGeoModel()
+    return model, catalog, geomodel
+
+def initializeNodeConnections(listOfNodes):
+    nodeConnections = dict()
+    for node in listOfNodes:
+        nodeConnections[node] = set()
+    return nodeConnections
+
+def createTurn(node, fromLink, toLink, model):
+    """
+    Function to create a turn
+    """
+    cmd = model.createNewCmd(model.getType( "GKTurning" ))
+    cmd.setTurning(fromLink, toLink)
+    model.getCommander().addCommand( cmd )
+    newTurn = cmd.createdObject()
+
+    newTurn.setExternalId(f"turn_{fromLink.getExternalId()}_{toLink.getExternalId()}")
+    newTurn.setNode(node)
+    # True for curve turning, false for sorting the turnings
+    node.addTurning(newTurn, True, False)

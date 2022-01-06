@@ -29,8 +29,8 @@ namespace TMG.Aimsun.InputOutput
     {
         private const string ToolName = "InputOutput/importTransitNetwork.py";
 
-        [SubModelInformation(Required = true, Description = "The directory of the network")]
-        public FileLocation NetworkDirectory;
+        [SubModelInformation(Required = true, Description = "The path to where the network package file (.nwp) is located")]
+        public FileLocation NetworkPackageFile;
 
         [SubModelInformation(Required = true, Description = "The directory of the Aimsun toolbox")]
         public FileLocation ToolboxDirectory;
@@ -61,8 +61,8 @@ namespace TMG.Aimsun.InputOutput
             return aimsunController.Run(this, Path.Combine(ToolboxDirectory, ToolName),
                 JsonParameterBuilder.BuildParameters(writer =>
                 {
-                    writer.WritePropertyName("ModelDirectory");
-                    writer.WriteValue(NetworkDirectory.GetFilePath());
+                    writer.WritePropertyName("NetworkPackageFile");
+                    writer.WriteValue(NetworkPackageFile.GetFilePath());
                 }));
         }
     }
