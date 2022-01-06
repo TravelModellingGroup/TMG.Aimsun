@@ -29,7 +29,7 @@ namespace TMG.Aimsun.InputOutput
     {
         public const string ToolName = "inputOutput/importNetwork.py";
         
-        [SubModelInformation(Required = true, Description = "The path to where the network package file (.nwp) is saved")]
+        [SubModelInformation(Required = true, Description = "The path to where the network package file (.nwp) is located")]
         public FileLocation NetworkPackageFile;
 
         [SubModelInformation(Required = true, Description = "The directory of the Aimsun toolbox")]

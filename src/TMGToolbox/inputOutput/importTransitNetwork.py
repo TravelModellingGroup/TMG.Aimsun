@@ -24,7 +24,7 @@ from PyANGBasic import *
 from PyANGKernel import *
 from PyANGConsole import *
 import shlex
-from importNetwork import loadModel, initializeNodeConnections, createTurn
+from common import common
 
 def parseArguments(argv):
     if len(argv) < 3:
@@ -45,7 +45,7 @@ def cacheAllOfTypeByExternalId(typeString, model, catalog):
     return cacheDict
 
 def cacheNodeConnections(listOfNodes, listOfSections):
-    nodeConnections = initializeNodeConnections(listOfNodes)
+    nodeConnections = common.initializeNodeConnections(listOfNodes)
     for section in listOfSections:
         fromNode = section.getOrigin()
         toNode = section.getDestination()
@@ -71,7 +71,7 @@ def turnCheck(fromSection, toSection, model):
         destination = turn.getDestination()
         if destination == toSection:
             return
-    createTurn(fromSection.getDestination(), fromSection, toSection, model)
+    common.createTurn(fromSection.getDestination(), fromSection, toSection, model)
 
 def addDummyLink(transitVehicle, node, nextLink, allVehicles, roadTypes, layer, catalog, model):
     # Check if the dummy link already exists
@@ -125,7 +125,7 @@ def addDummyLink(transitVehicle, node, nextLink, allVehicles, roadTypes, layer, 
     if len(bannedVehicles)>0:
         newLink.setNonAllowedVehicles(bannedVehicles)
     # Make the turning object to the first link in the transit line
-    newTurn = createTurn(node, newLink, nextLink, model)
+    newTurn = common.createTurn(node, newLink, nextLink, model)
     # add a transit stop
     busStop = GKSystem.getSystem().newObject("GKBusStop", model)
     catalog.add(busStop)
@@ -138,11 +138,10 @@ def addDummyLink(transitVehicle, node, nextLink, allVehicles, roadTypes, layer, 
     busStop.setLength(linkLength/2)
     return newLink, busStop
 
-def importTransitVehicles(filename, catalog, model):
+def importTransitVehicles(networkZipFileObject, filename, catalog, model):
     vehicles = []
     # read the file
-    with open(filename, 'r') as f:
-        lines = f.readlines()
+    lines = common.read_datafile(networkZipFileObject, filename)
     for line in lines:
         lineItems = shlex.split(line)
         if len(line)>0 and len(lineItems)>=12 and line[0]=='a':
@@ -170,7 +169,7 @@ def importTransitVehicles(filename, catalog, model):
     return vehicles
 
 # Function to read the transit.221 file and return the relevant information for the import to Aimsun
-def readTransitFile(filename):
+def readTransitFile(networkZipFileObject, filename):
     nodes = []
     stops = []
     lines = []
@@ -179,8 +178,8 @@ def readTransitFile(filename):
     lineInfo = None
     lineNodes = []
     lineStops = []
-    with open(filename, 'r') as f:
-        lines = f.readlines()
+
+    lines = common.read_datafile(networkZipFileObject, filename)
     for line in lines:
         if line[0] == 'c' or line[0] == 't':
             if currentlyReadingLine != None:
@@ -284,7 +283,7 @@ def addTransitLine(lineId, lineName, pathLinks, busStops, transitVehicle, allVeh
         fromLink = catalog.find(check[3])
         toLink = catalog.find(check[1])
         node = fromLink.getDestination()
-        createTurn(node, fromLink, toLink, model)
+        common.createTurn(node, fromLink, toLink, model)
         # update the check and the maximum tries counter
         check = ptLine.isCorrect()
         fixTries -= 1
@@ -319,11 +318,11 @@ def getPath(pathList, nodeConnections, catalog, model):
     return nodes, links
 
 # Function to create the transit lines from reading the file to adding to the network
-def importTransit(fileName, roadTypes, layer, nodeConnections, catalog, model):
+def importTransit(networkZipFileObject, fileName, roadTypes, layer, nodeConnections, catalog, model):
     # read the transit file
     print("Import transit network")
     print("Read transit file")
-    nodes, stops, lines = readTransitFile(fileName)
+    nodes, stops, lines = readTransitFile(networkZipFileObject, fileName)
     # Cache the vehicle types
     allVehicles=[]
     sectionType = model.getType("GKVehicle")
@@ -398,20 +397,24 @@ def run_xtmf(parameters, model, console):
      A general function called in all python modules called by bridge. Responsible
      for extracting data and running appropriate functions.
     """
-    networkDirectory = parameters["ModelDirectory"]
-    _execute(networkDirectory, model, console)
+    networkPackage = parameters["NetworkPackageFile"]
+    _execute(networkPackage, model, console)
 
 
-def _execute(networkDirectory, inputModel, console):
+def _execute(networkPackage, inputModel, console):
     """ 
     Main execute function to run the simulation 
     """
     overallStartTime = time.perf_counter()
     loadModelStartTime = time.perf_counter()
-    networkDir = networkDirectory
+    networkDir = networkPackage
     model = inputModel
     catalog = model.getCatalog()
     geomodel = model.getGeoModel()
+
+    #ZipFile object of the network file do this once
+    networkZipFileObject = common.extract_network_packagefile(networkPackage)
+    #lines = common.read_datafile(networkZipFileObject, filename)
 
     networkLayer = geomodel.findLayer("Network")
     nodes = cacheAllOfTypeByExternalId("GKNode", model, catalog)
@@ -420,10 +423,10 @@ def _execute(networkDirectory, inputModel, console):
     loadModelEndTime = time.perf_counter()
     print(f"Time to load model: {loadModelEndTime-loadModelStartTime}")
     transitStartTime = time.perf_counter()
-    transitVehicles = importTransitVehicles(networkDir + "/vehicles.202", catalog, model)
+    transitVehicles = importTransitVehicles(networkZipFileObject, "vehicles.202", catalog, model)
     allVehicles = cacheAllOfTypeByExternalId("GKVehicle", model, catalog)
     roadTypes = cacheAllOfTypeByExternalId("GKRoadType", model, catalog)
-    importTransit(networkDir+"/transit.221", roadTypes, networkLayer, nodeConnections, catalog, model)
+    importTransit(networkZipFileObject, "transit.221", roadTypes, networkLayer, nodeConnections, catalog, model)
     buildWalkingTransfers(catalog, geomodel, model)
     transitEndTime = time.perf_counter()
     print(f"Time to import transit: {transitEndTime-transitStartTime}")
@@ -454,7 +457,7 @@ def runFromConsole(inputArgs):
     networkDirectory = inputArgs[2]
     outputNetworkFile = inputArgs[3]
     # generate a model of the input network
-    model, catalog, geomodel = loadModel(Network, console)
+    model, catalog, geomodel = common.loadModel(Network, console)
     #run the _execute function
     _execute(networkDirectory, model, console)
     saveNetwork(console, model, outputNetworkFile)

@@ -71,12 +71,6 @@ def addNode(model, node):
     # For now ignoring the Data1, Data 2, Data 3, and Label columns
     return newNode
 
-def initializeNodeConnections(listOfNodes):
-    nodeConnections = dict()
-    for node in listOfNodes:
-        nodeConnections[node] = set()
-    return nodeConnections
-
 def getPointsFromNodes(fromNode, toNode):
     points = GKPoints()
     points.append(fromNode.getPosition())
@@ -188,20 +182,11 @@ def readTurnsFile(networkZipFileObject, filename):
                 turns.append(splitLine)
     return turns
 
-# Function to create a turn
-def createTurn(node, fromLink, toLink, model):
-    cmd = model.createNewCmd(model.getType( "GKTurning" ))
-    cmd.setTurning(fromLink, toLink)
-    model.getCommander().addCommand( cmd )
-    newTurn = cmd.createdObject()
 
-    newTurn.setExternalId(f"turn_{fromLink.getExternalId()}_{toLink.getExternalId()}")
-    newTurn.setNode(node)
-    # True for curve turning, false for sorting the turnings
-    node.addTurning(newTurn, True, False)
-
-# Function to create the turns from file
 def createTurnsFromFile(model, networkZipFileObject, filename, listOfAllNodes, nodeConnections):
+    """
+    Function to create the turns from file
+    """
     print("Build turns")
     # Copy the list of nodes
     nodes = listOfAllNodes.copy()
@@ -248,7 +233,7 @@ def createTurnsFromFile(model, networkZipFileObject, filename, listOfAllNodes, n
                             if testLinkId == toLinkId:
                                 toLink = link
                     if fromLink is not None and toLink is not None:
-                        createTurn(node, fromLink, toLink, model)
+                        common.createTurn(node, fromLink, toLink, model)
                         # Add node to the list of nodes with defined turns
                         nodesWithDefinedTurns.add(node)
                     else:
@@ -285,7 +270,7 @@ def buildTurnings(model, listOfNodes, nodeConnections):
                 linksIn.append(link)
         for entering in linksIn:
             for exiting in linksOut:
-                createTurn(node, entering, exiting, model)
+                common.createTurn(node, entering, exiting, model)
 
 # Function to add all visual objects to the gui network layer
 def drawLinksAndNodes(model, layer):
@@ -489,18 +474,6 @@ def deleteAllObjectConnections():
             cmd.init(object1, object2)
             model.getCommander().addCommand(cmd)
 
-def loadModel(filepath, console):
-    if console.open(filepath):
-        model = console.getModel()
-        print("Open network")
-    else:
-        console.getLog().addError("Cannot load the network")
-        print("Cannot load the network")
-        return -1
-    catalog = model.getCatalog()
-    geomodel = model.getGeoModel()
-    return model, catalog, geomodel
-
 def run_xtmf(parameters, model, console):
     """
     A general function called in all python modules called by bridge. Responsible
@@ -524,7 +497,7 @@ def _execute(networkPackage, inputModel, console):
     print("Import network")
     print("Define modes")
     
-    #ZipFile object of the network file do this once
+    # ZipFile object of the network file do this once
     networkZipFileObject = common.extract_network_packagefile(networkPackage)
     
     #get the modes
@@ -555,7 +528,7 @@ def _execute(networkPackage, inputModel, console):
         # output the progress of the import
         if (counter % infoStepSize) == 0:
             print(f"{counter} nodes added")
-    nodeConnections = initializeNodeConnections(allNodes)
+    nodeConnections = common.initializeNodeConnections(allNodes)
     nodeEndTime = time.perf_counter()
     print(f"Time to import nodes: {nodeEndTime-nodeStartTime}s")
     linkStartTime = time.perf_counter()
@@ -622,7 +595,7 @@ def runFromConsole(inputArgs):
     networkDirectory = inputArgs[2]
     outputNetworkFile = inputArgs[3]
     # generate a model of the input network
-    model, catalog, geomodel = loadModel(Network, console)
+    model, catalog, geomodel = common.loadModel(Network, console)
     _execute(networkDirectory, model, console) 
     saveNetwork(console, model, outputNetworkFile)
 
