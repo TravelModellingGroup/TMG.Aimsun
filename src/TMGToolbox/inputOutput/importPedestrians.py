@@ -214,7 +214,6 @@ def run_xtmf(parameters, model, console):
     A general function called in all python modules called by bridge. Responsible
     for extracting data and running appropriate functions.
     """
-    #networkPackage = parameters["NetworkPackageFile"]
     _execute(model, console)
 
 def _execute(inputModel, console):

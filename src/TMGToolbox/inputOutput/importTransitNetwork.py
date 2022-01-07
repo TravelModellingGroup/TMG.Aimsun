@@ -385,7 +385,6 @@ def _execute(networkPackage, inputModel, console):
 
     #ZipFile object of the network file do this once
     networkZipFileObject = common.extract_network_packagefile(networkPackage)
-    #lines = common.read_datafile(networkZipFileObject, filename)
 
     networkLayer = geomodel.findLayer("Network")
     nodes = common.cacheAllOfTypeByExternalId("GKNode", model, catalog)
