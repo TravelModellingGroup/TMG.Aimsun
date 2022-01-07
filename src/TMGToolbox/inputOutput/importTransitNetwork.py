@@ -139,59 +139,11 @@ def importTransitVehicles(networkZipFileObject, filename, catalog, model):
         folder.append(veh)
     return vehicles
 
-# Function to read the transit.221 file and return the relevant information for the import to Aimsun
-def readTransitFile(networkZipFileObject, filename):
-    nodes = []
-    stops = []
-    lines = []
-    transitLines = []
-    currentlyReadingLine = None
-    lineInfo = None
-    lineNodes = []
-    lineStops = []
-
-    lines = common.read_datafile(networkZipFileObject, filename)
-    for line in lines:
-        if line[0] == 'c' or line[0] == 't':
-            if currentlyReadingLine != None:
-                nodes.append(lineNodes)
-                stops.append(lineStops)
-                transitLines.append(lineInfo)
-            # Clear all the currently reading item
-            currentlyReadingLine = None
-            lineInfo = None
-            lineNodes = []
-            lineStops = []
-        elif line[0] == 'a':
-            # if there is a line that was being read add it
-            if currentlyReadingLine != None:
-                nodes.append(lineNodes)
-                stops.append(lineStops)
-                transitLines.append(lineInfo)
-            # set the new line details
-            lineInfo = shlex.split(line[1:])
-            currentlyReadingLine = lineInfo[0]
-            lineNodes = []
-            lineStops = []
-        # if not comment or heading read into current transit line
-        else:
-            pathDetails = shlex.split(line)
-            # TODO add error if path=yes
-            if pathDetails[0] != 'path=no':
-                lineNodes.append(pathDetails[0])
-                dwt = float(pathDetails[1][5:])
-                lineStops.append(dwt)
-    # if get to the end of the file add the last line that was read
-    if currentlyReadingLine != None:
-        nodes.append(lineNodes)
-        stops.append(lineStops)
-        transitLines.append(lineInfo)
-
-    return nodes, stops, transitLines
-
-# Function to create the bus stop objects in the Aimsun network
-# repeatNumber is the number of times that same busStop is in a line
 def addBusStop(fromNodeId, toNodeId, link, start, repeatNumber, catalog, model):
+    """
+    Function to create the bus stop objects in the Aimsun network
+    repeatNumber is the number of times that same busStop is in a line
+    """
     # Check if the stop already exists
     busStopType = model.getType("GKBusStop")
     if start is True:
@@ -223,8 +175,11 @@ def addBusStop(fromNodeId, toNodeId, link, start, repeatNumber, catalog, model):
     # TODO add a parameter to set the stop length and position
     return busStop
 
-# Function to build the transit lines Aimsun
+
 def addTransitLine(lineId, lineName, pathLinks, busStops, transitVehicle, allVehicles, roadTypes, layer, catalog, model):
+    """
+    Function to build the transit lines Aimsun
+    """
     cmd = model.createNewCmd( model.getType( "GKPublicLine" ) )
     cmd.setModel( model )
     model.getCommander().addCommand( cmd )
@@ -261,9 +216,11 @@ def addTransitLine(lineId, lineName, pathLinks, busStops, transitVehicle, allVeh
     if check[0] is False:
         print (f"Issue importing transit line {lineId} {lineName}")
 
-# Takes a path list as argument
-# Returns the nodes and links that make up the path
 def getPath(pathList, nodeConnections, catalog, model):
+    """
+    Takes a path list as argument
+    Returns the nodes and links that make up the path
+    """
     nodes = []
     links = []
     nodeType = model.getType("GKNode")
@@ -288,12 +245,14 @@ def getPath(pathList, nodeConnections, catalog, model):
         links.append(link)
     return nodes, links
 
-# Function to create the transit lines from reading the file to adding to the network
 def importTransit(networkZipFileObject, fileName, roadTypes, layer, nodeConnections, catalog, model):
+    """
+    Function to create the transit lines from reading the file to adding to the network
+    """
     # read the transit file
     print("Import transit network")
     print("Read transit file")
-    nodes, stops, lines = readTransitFile(networkZipFileObject, fileName)
+    nodes, stops, lines = common.readTransitFile(networkZipFileObject, fileName)
     # Cache the vehicle types
     allVehicles=[]
     sectionType = model.getType("GKVehicle")
@@ -370,7 +329,6 @@ def run_xtmf(parameters, model, console):
     """
     networkPackage = parameters["NetworkPackageFile"]
     _execute(networkPackage, model, console)
-
 
 def _execute(networkPackage, inputModel, console):
     """ 

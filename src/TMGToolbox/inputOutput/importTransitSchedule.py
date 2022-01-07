@@ -6,7 +6,7 @@ from PyANGKernel import *
 from PyANGConsole import *
 import shlex
 import csv
-from importTransitNetwork import readTransitFile
+from common import common
 
 def readServiceTables(fileLocation, header=True):
     serviceTables = []
@@ -35,18 +35,21 @@ def readServiceTables(fileLocation, header=True):
         serviceTables.append((transitLine, departures, arrivals))
     return serviceTables
 
-def buildTransitVehDict(model, transitFile):
+def buildTransitVehDict(networkZipFileObject, filename, model):
     transitVehDict = dict()
     vehType = model.getType("GKVehicle")
-    node, stops, lines = readTransitFile(transitFile)
+    node, stops, lines = common.readTransitFile(networkZipFileObject, filename)
     for i in range(len(lines)):
         lineId = lines[i][0]
         lineVehicle = model.getCatalog().findObjectByExternalId(f"transitVeh_{lines[i][2]}", vehType)
         transitVehDict[lineId] = lineVehicle
     return transitVehDict
 
-# Function uses the dummy link at the start of the transit line to find the transit vehicle
+
 def findTransitVehicle(transitLine, transitVehDict):
+    """
+    Function uses the dummy link at the start of the transit line to find the transit vehicle
+    """
     lineId = transitLine.getExternalId()
     transitVehicle = transitVehDict[lineId]
     return transitVehicle
@@ -118,13 +121,17 @@ def run_xtmf(parameters, model, console):
     """
     _execute(model, console, parameters)
 
-def _execute(inputModel, console, parameters):
+def _execute(model, console, parameters):
     """
     Main execute function to run the tool
     """
-    model = inputModel
-    transitFile = parameters["TransitFile"]
-    transitVehDict = buildTransitVehDict(model, transitFile)
+    networkPackage = parameters["NetworkPackageFile"]
+    # ZipFile object of the network file do this once
+    networkZipFileObject = common.extract_network_packagefile(networkPackage)
+    
+    # get the transitfile
+    transitVehDict = buildTransitVehDict(networkZipFileObject, "transit.221", model)
+    
     serviceTables = readServiceTables(parameters["ServiceTableCSV"])
     for serviceTable in serviceTables:
         addServiceToLine(model, serviceTable[0], serviceTable[1], serviceTable[2], transitVehDict)
@@ -141,20 +148,6 @@ def saveNetwork(console, model, outputNetworkFile):
     # Reset the Aimsun undo buffer
     model.getCommander().addCommand( None )
     print ("Network saved Successfully")
-
-def loadModel(filepath, console):
-    """
-    function to open the console and return a created model
-    object
-    """
-    if console.open(filepath):
-        model = console.getModel()
-        print("Open network")
-    else:
-        console.getLog().addError("Cannot load the network")
-        print("Cannot load the network")
-        return -1
-    return model
 
 def runFromConsole(inputArgs):
     """
@@ -175,7 +168,7 @@ def runFromConsole(inputArgs):
                     "ServiceTableCSV": inputArgs[2]
                  }
     # generate a model of the input network
-    model = loadModel(Network, console)
+    model, catalog, geomodel = common.loadModel(Network, console)
     #run the _execute function
     _execute(model, console, parameters)
     saveNetwork(console, model, outputNetworkFile)

@@ -115,3 +115,56 @@ def parseArguments(argv):
     networkDirectory = argv[2]
     outputNetworkFilename = argv[3]
     return inputModel, networkDirectory, outputNetworkFilename
+
+def readTransitFile(networkZipFileObject, filename):
+    """
+    Function to read the transit.221 file and return the 
+    relevant information for the import to Aimsun
+    """
+    nodes = []
+    stops = []
+    lines = []
+    transitLines = []
+    currentlyReadingLine = None
+    lineInfo = None
+    lineNodes = []
+    lineStops = []
+
+    lines = read_datafile(networkZipFileObject, filename)
+    for line in lines:
+        if line[0] == 'c' or line[0] == 't':
+            if currentlyReadingLine != None:
+                nodes.append(lineNodes)
+                stops.append(lineStops)
+                transitLines.append(lineInfo)
+            # Clear all the currently reading item
+            currentlyReadingLine = None
+            lineInfo = None
+            lineNodes = []
+            lineStops = []
+        elif line[0] == 'a':
+            # if there is a line that was being read add it
+            if currentlyReadingLine != None:
+                nodes.append(lineNodes)
+                stops.append(lineStops)
+                transitLines.append(lineInfo)
+            # set the new line details
+            lineInfo = shlex.split(line[1:])
+            currentlyReadingLine = lineInfo[0]
+            lineNodes = []
+            lineStops = []
+        # if not comment or heading read into current transit line
+        else:
+            pathDetails = shlex.split(line)
+            # TODO add error if path=yes
+            if pathDetails[0] != 'path=no':
+                lineNodes.append(pathDetails[0])
+                dwt = float(pathDetails[1][5:])
+                lineStops.append(dwt)
+    # if get to the end of the file add the last line that was read
+    if currentlyReadingLine != None:
+        nodes.append(lineNodes)
+        stops.append(lineStops)
+        transitLines.append(lineInfo)
+
+    return nodes, stops, transitLines
