@@ -29,9 +29,6 @@ namespace TMG.Aimsun.InputOutput
     {
         private const string ToolName = "InputOutput/ImportMatrixFromCSVThirdNormalized.py";
 
-        [SubModelInformation(Required = true, Description = "The directory of the network")]
-        public FileLocation NetworkDirectory;
-
         [SubModelInformation(Required = true, Description = "The directory of the Aimsun toolbox")]
         public FileLocation ToolboxDirectory;
 
@@ -84,8 +81,6 @@ namespace TMG.Aimsun.InputOutput
             return aimsunController.Run(this, Path.Combine(ToolboxDirectory, ToolName),
                 JsonParameterBuilder.BuildParameters(writer =>
                 {
-                    writer.WritePropertyName("ModelDirectory");
-                    writer.WriteValue(NetworkDirectory.GetFilePath());
                     writer.WritePropertyName("ODCSV");
                     writer.WriteValue(ODCSV.GetFilePath());
                     writer.WritePropertyName("ThirdNormalized");
