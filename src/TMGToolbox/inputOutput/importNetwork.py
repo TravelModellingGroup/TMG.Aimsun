@@ -479,7 +479,6 @@ def run_xtmf(parameters, model, console):
     A general function called in all python modules called by bridge. Responsible
     for extracting data and running appropriate functions.
     """
-    #networkDirectory = parameters["ModelDirectory"]
     #we are passing in the zip file to the _execute function
     networkPackage = parameters["NetworkPackageFile"]
 
@@ -592,11 +591,11 @@ def runFromConsole(inputArgs):
     # Start a console
     console = ANGConsole()
     Network = inputArgs[1]
-    networkDirectory = inputArgs[2]
+    networkPackageFile = inputArgs[2]
     outputNetworkFile = inputArgs[3]
     # generate a model of the input network
     model, catalog, geomodel = common.loadModel(Network, console)
-    _execute(networkDirectory, model, console) 
+    _execute(networkPackageFile, model, console) 
     saveNetwork(console, model, outputNetworkFile)
 
 if __name__ == "__main__":

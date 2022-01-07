@@ -26,35 +26,6 @@ from PyANGConsole import *
 import shlex
 from common import common
 
-def parseArguments(argv):
-    if len(argv) < 3:
-        print("Incorrect Number of Arguments")
-        print("Arguments: -script script.py blankAimsunProjectFile.ang networkDirectory outputNetworkFile.ang")
-    inputModel = argv[1]
-    networkDirectory = argv[2]
-    outputNetworkFilename = argv[3]
-    return inputModel, networkDirectory, outputNetworkFilename
-
-def cacheAllOfTypeByExternalId(typeString, model, catalog):
-    cacheDict = dict()
-    typeObject = model.getType(typeString)
-    objects = catalog.getObjectsByType(typeObject)
-    for o in iter(objects.values()):
-        externalId = o.getExternalId()
-        cacheDict[externalId] = o
-    return cacheDict
-
-def cacheNodeConnections(listOfNodes, listOfSections):
-    nodeConnections = common.initializeNodeConnections(listOfNodes)
-    for section in listOfSections:
-        fromNode = section.getOrigin()
-        toNode = section.getDestination()
-        if fromNode is not None:
-            nodeConnections[fromNode].add(section)
-        if toNode is not None:
-            nodeConnections[toNode].add(section)
-    return nodeConnections
-
 def addAllowedVehicle(section, vehicle):
     if section.canUseVehicle(vehicle) is False:
         bannedVehicles = []
@@ -417,15 +388,15 @@ def _execute(networkPackage, inputModel, console):
     #lines = common.read_datafile(networkZipFileObject, filename)
 
     networkLayer = geomodel.findLayer("Network")
-    nodes = cacheAllOfTypeByExternalId("GKNode", model, catalog)
-    sections = cacheAllOfTypeByExternalId("GKSection", model, catalog)
-    nodeConnections = cacheNodeConnections(nodes.values(), sections.values())
+    nodes = common.cacheAllOfTypeByExternalId("GKNode", model, catalog)
+    sections = common.cacheAllOfTypeByExternalId("GKSection", model, catalog)
+    nodeConnections = common.cacheNodeConnections(nodes.values(), sections.values())
     loadModelEndTime = time.perf_counter()
     print(f"Time to load model: {loadModelEndTime-loadModelStartTime}")
     transitStartTime = time.perf_counter()
     transitVehicles = importTransitVehicles(networkZipFileObject, "vehicles.202", catalog, model)
-    allVehicles = cacheAllOfTypeByExternalId("GKVehicle", model, catalog)
-    roadTypes = cacheAllOfTypeByExternalId("GKRoadType", model, catalog)
+    allVehicles = common.cacheAllOfTypeByExternalId("GKVehicle", model, catalog)
+    roadTypes = common.cacheAllOfTypeByExternalId("GKRoadType", model, catalog)
     importTransit(networkZipFileObject, "transit.221", roadTypes, networkLayer, nodeConnections, catalog, model)
     buildWalkingTransfers(catalog, geomodel, model)
     transitEndTime = time.perf_counter()
@@ -454,12 +425,12 @@ def runFromConsole(inputArgs):
     # Start a console
     console = ANGConsole()
     Network = inputArgs[1]
-    networkDirectory = inputArgs[2]
+    networkPackageFile = inputArgs[2]
     outputNetworkFile = inputArgs[3]
     # generate a model of the input network
     model, catalog, geomodel = common.loadModel(Network, console)
     #run the _execute function
-    _execute(networkDirectory, model, console)
+    _execute(networkPackageFile, model, console)
     saveNetwork(console, model, outputNetworkFile)
 
 if __name__ == "__main__":
