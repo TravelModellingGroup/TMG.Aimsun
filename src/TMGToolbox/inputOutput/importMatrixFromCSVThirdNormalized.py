@@ -33,6 +33,7 @@ import warnings as _warn
 import traceback as _tb
 import subprocess as _sp
 from datetime import time
+from common import common
 
 
 def run_xtmf(parameters, model, console):
@@ -42,23 +43,10 @@ def run_xtmf(parameters, model, console):
     """
     _execute(model, console, parameters)
 
-def _execute(inputModel, console, parameters):
-    """ 
-    Main execute function to run the simulation.
+def find_centroid_configuration(model, catalog, console, centroidConfigurationId, matrixId):
     """
-    model = inputModel
-    catalog = model.getCatalog()
-    
-    fileLocation = str(parameters["ODCSV"])
-    thirdNormalized = bool(parameters["ThirdNormalized"])
-    header = bool(parameters["IncludesHeader"])
-    matrixId = str(parameters["MatrixID"])
-    centroidConfigurationId = str(parameters["CentroidConfiguration"])
-    vehicleEID = str(parameters["VehicleType"])
-    initialTime = str(parameters["InitialTime"])
-    durationTime = str(parameters["DurationTime"])
-
-    #find the centroid configuration
+    Function to find the centroid configuration
+    """
     sectionType = model.getType("GKCentroidConfiguration")
     centroidConfiguration = catalog.findObjectByExternalId(centroidConfigurationId, sectionType)
     if centroidConfiguration is None:
@@ -71,8 +59,14 @@ def _execute(inputModel, console, parameters):
             model.getCommander().addCommand(cmd)
             model.getCommander().addCommand(None)
 
+    return centroidConfiguration
+
+def build_matrix(model, catalog, console, vehicleEID, matrixId, centroidConfiguration, initialTime, durationTime):
+    """
+    function to build and create a new matrix
+    """
     # Create new matrix
-    # set the type of OD matrix if is transit or no
+    # set the type of OD matrix if is transit or not
     matrix = None
     if vehicleEID == 'transit':
         matrix = GKSystem.getSystem().newObject("GKPedestrianODMatrix", model)
@@ -108,6 +102,12 @@ def _execute(inputModel, console, parameters):
     durationTime = durationTime.split(":")
     matrix.setDuration(GKTimeDuration(int(durationTime[0]), int(durationTime[1]), int(durationTime[2])))
     
+    return matrix
+
+def extract_OD_Data(fileLocation, model, catalog, console, header, thirdNormalized, vehicleEID, matrix):
+    """
+    Function to extract the data from the OD csv file 
+    """
     #read file and import
     with open(fileLocation) as csvfile:
         reader = csv.reader(csvfile)
@@ -140,12 +140,38 @@ def _execute(inputModel, console, parameters):
             else:
                 raise Exception("Functionality has not been implemented yet")
 
+def _execute(model, console, parameters):
+    """ 
+    Main execute function to run the simulation.
+    """
+    catalog = model.getCatalog()
+
+    #extract the json parameters
+    fileLocation = str(parameters["ODCSV"])
+    thirdNormalized = bool(parameters["ThirdNormalized"])
+    header = bool(parameters["IncludesHeader"])
+    matrixId = str(parameters["MatrixID"])
+    centroidConfigurationId = str(parameters["CentroidConfiguration"])
+    vehicleEID = str(parameters["VehicleType"])
+    initialTime = str(parameters["InitialTime"])
+    durationTime = str(parameters["DurationTime"])
+    
+    # find the centroid configuration
+    centroidConfiguration = find_centroid_configuration(model, catalog, console, centroidConfigurationId, matrixId)
+
+    # Create new matrix
+    matrix = build_matrix(model, catalog, console, vehicleEID, matrixId, centroidConfiguration, initialTime, durationTime)
+
+    # extract data from the OD Data csv file read file and import
+    extract_OD_Data(fileLocation, model, catalog, console, header, thirdNormalized, vehicleEID, matrix)
+    
     # Save add the matrix to the network file
     folderName = "GKCentroidConfiguration::matrices"
     folder = model.getCreateRootFolder().findFolder( folderName )
     if folder is None:
         folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
     folder.append(matrix)
+
     return console
 
 def saveNetwork(console, model, outputNetworkFile):
@@ -200,15 +226,9 @@ def runFromConsole(argv):
 
     # Start a console
     console = ANGConsole()
-    model = None
-    # Load a network
-    if console.open(argv[1]): 
-        model = console.getModel()
-        print("open network")
-    else:
-        console.getLog().addError("Cannot load the network")
-        raise Exception("cannot load network")
-
+    # load a network
+    model, catalog, geomodel = common.loadModel(Network, console)
+    
     #call the _execute function with parameters
     _execute(model, console, xtmf_parameters)
     saveNetwork(console, model, outputNetworkFile)
