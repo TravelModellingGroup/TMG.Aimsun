@@ -29,12 +29,8 @@ namespace TMG.Aimsun.InputOutput
     {
         public const string ToolName = "inputOutput/importPedestrians.py";
 
-        [SubModelInformation(Required = true, Description = "The directory of the network")]
-        public FileLocation NetworkDirectory;
-
         [SubModelInformation(Required = true, Description = "The directory of the Aimsun toolbox")]
         public FileLocation ToolboxDirectory;
-
         public float Progress
         {
             get;
@@ -63,8 +59,6 @@ namespace TMG.Aimsun.InputOutput
             return aimsunController.Run(this, Path.Combine(ToolboxDirectory, ToolName),
                 JsonParameterBuilder.BuildParameters(writer =>
                 {
-                    writer.WritePropertyName("ModelDirectory");
-                    writer.WriteValue(NetworkDirectory.GetFilePath());
                 }));
         }
     }

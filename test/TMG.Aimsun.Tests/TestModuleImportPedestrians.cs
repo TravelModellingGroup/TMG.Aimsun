@@ -35,7 +35,6 @@ namespace TMG.Aimsun.Tests
             string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importPedestrians.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
-                ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown")
             });
             Helper.Modeller.Run(null, modulePath, jsonParameters);
         }
@@ -49,7 +48,6 @@ namespace TMG.Aimsun.Tests
             string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importPedestrians.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
-                ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown")
             });
             Helper.Modeller.Run(null, modulePath, jsonParameters);
 

@@ -23,10 +23,7 @@ import time
 from PyANGBasic import *
 from PyANGKernel import *
 from PyANGConsole import *
-from importNetwork import loadModel
-from importTransitNetwork import parseArguments, cacheAllOfTypeByExternalId, cacheNodeConnections
 from common import common
-
 
 def definePedestrianType(model):
     sectionType = model.getType("GKPedestrianType")
@@ -217,10 +214,9 @@ def run_xtmf(parameters, model, console):
     A general function called in all python modules called by bridge. Responsible
     for extracting data and running appropriate functions.
     """
-    networkDirectory = parameters["ModelDirectory"]
-    _execute(networkDirectory, model, console)
+    _execute(model, console)
 
-def _execute(networkDirectory, inputModel, console):
+def _execute(inputModel, console):
     """ 
     Main execute function to run the simulation 
     """
@@ -231,9 +227,9 @@ def _execute(networkDirectory, inputModel, console):
     catalog = model.getCatalog()
     geomodel = model.getGeoModel()
     
-    nodes = cacheAllOfTypeByExternalId("GKNode", model, catalog)
-    sections = cacheAllOfTypeByExternalId("GKSection", model, catalog)
-    nodeConnections = cacheNodeConnections(nodes.values(), sections.values())
+    nodes = common.cacheAllOfTypeByExternalId("GKNode", model, catalog)
+    sections = common.cacheAllOfTypeByExternalId("GKSection", model, catalog)
+    nodeConnections = common.cacheNodeConnections(nodes.values(), sections.values())
     loadModelEndTime = time.perf_counter()
     print(f"Time to load model: {loadModelEndTime-loadModelStartTime}")
     pedStartTime = time.perf_counter()
@@ -267,12 +263,11 @@ def runFromConsole(inputArgs):
     # Start a console
     console = ANGConsole()
     Network = inputArgs[1]
-    networkDirectory = inputArgs[2]
-    outputNetworkFile = inputArgs[3]
+    outputNetworkFile = inputArgs[2]
     # generate a model of the input network
-    model, catalog, geomodel = loadModel(Network, console)
+    model, catalog, geomodel = common.loadModel(Network, console)
     #run the _execute function
-    _execute(networkDirectory, model, console)
+    _execute(model, console)
     saveNetwork(console, model, outputNetworkFile)
 
 if __name__ == "__main__":

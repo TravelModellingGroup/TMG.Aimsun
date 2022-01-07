@@ -86,3 +86,32 @@ def createTurn(node, fromLink, toLink, model):
     newTurn.setNode(node)
     # True for curve turning, false for sorting the turnings
     node.addTurning(newTurn, True, False)
+
+def cacheAllOfTypeByExternalId(typeString, model, catalog):
+    cacheDict = dict()
+    typeObject = model.getType(typeString)
+    objects = catalog.getObjectsByType(typeObject)
+    for o in iter(objects.values()):
+        externalId = o.getExternalId()
+        cacheDict[externalId] = o
+    return cacheDict
+
+def cacheNodeConnections(listOfNodes, listOfSections):
+    nodeConnections = initializeNodeConnections(listOfNodes)
+    for section in listOfSections:
+        fromNode = section.getOrigin()
+        toNode = section.getDestination()
+        if fromNode is not None:
+            nodeConnections[fromNode].add(section)
+        if toNode is not None:
+            nodeConnections[toNode].add(section)
+    return nodeConnections
+
+def parseArguments(argv):
+    if len(argv) < 3:
+        print("Incorrect Number of Arguments")
+        print("Arguments: -script script.py blankAimsunProjectFile.ang networkDirectory outputNetworkFile.ang")
+    inputModel = argv[1]
+    networkDirectory = argv[2]
+    outputNetworkFilename = argv[3]
+    return inputModel, networkDirectory, outputNetworkFilename
