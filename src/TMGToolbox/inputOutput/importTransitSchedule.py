@@ -35,10 +35,10 @@ def readServiceTables(fileLocation, header=True):
         serviceTables.append((transitLine, departures, arrivals))
     return serviceTables
 
-def buildTransitVehDict(networkZipFileObject, filename, model):
+def buildTransitVehDict(networkZipFileObject, model):
     transitVehDict = dict()
     vehType = model.getType("GKVehicle")
-    node, stops, lines = common.readTransitFile(networkZipFileObject, filename)
+    node, stops, lines = common.getTransitNodesStopsAndLinesFromNWP(networkZipFileObject)
     for i in range(len(lines)):
         lineId = lines[i][0]
         lineVehicle = model.getCatalog().findObjectByExternalId(f"transitVeh_{lines[i][2]}", vehType)
@@ -130,7 +130,7 @@ def _execute(model, console, parameters):
     networkZipFileObject = common.extract_network_packagefile(networkPackage)
     
     # get the transitfile
-    transitVehDict = buildTransitVehDict(networkZipFileObject, "transit.221", model)
+    transitVehDict = buildTransitVehDict(networkZipFileObject, model)
     
     serviceTables = readServiceTables(parameters["ServiceTableCSV"])
     for serviceTable in serviceTables:

@@ -252,7 +252,7 @@ def importTransit(networkZipFileObject, fileName, roadTypes, layer, nodeConnecti
     # read the transit file
     print("Import transit network")
     print("Read transit file")
-    nodes, stops, lines = common.readTransitFile(networkZipFileObject, fileName)
+    nodes, stops, lines = common.getTransitNodesStopsAndLinesFromNWP(networkZipFileObject)
     # Cache the vehicle types
     allVehicles=[]
     sectionType = model.getType("GKVehicle")

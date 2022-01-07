@@ -116,7 +116,7 @@ def parseArguments(argv):
     outputNetworkFilename = argv[3]
     return inputModel, networkDirectory, outputNetworkFilename
 
-def readTransitFile(networkZipFileObject, filename):
+def getTransitNodesStopsAndLinesFromNWP(networkZipFileObject):
     """
     Function to read the transit.221 file and return the 
     relevant information for the import to Aimsun
@@ -130,7 +130,7 @@ def readTransitFile(networkZipFileObject, filename):
     lineNodes = []
     lineStops = []
 
-    lines = read_datafile(networkZipFileObject, filename)
+    lines = read_datafile(networkZipFileObject, "transit.221")
     for line in lines:
         if line[0] == 'c' or line[0] == 't':
             if currentlyReadingLine != None:
