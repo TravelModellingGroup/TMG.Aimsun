@@ -29,17 +29,14 @@ namespace TMG.Aimsun.InputOutput
     {
         private const string ToolName = "InputOutput/importTransitSchedule.py";
 
-        [SubModelInformation(Required = true, Description = "The directory of the network")]
-        public FileLocation NetworkDirectory;
+        [SubModelInformation(Required = true, Description = "The path to where the network package file (.nwp) is located")]
+        public FileLocation NetworkPackageFile;
 
         [SubModelInformation(Required = true, Description = "The directory of the Aimsun toolbox")]
         public FileLocation ToolboxDirectory;
 
-        [SubModelInformation(Required = true, Description = "The file location of the service table csv file")]
+        [SubModelInformation(Required = true, Description = "The path where the service table (.csv) file is located")]
         public FileLocation ServiceTableCSV;
-
-        [SubModelInformation(Required = true, Description = "The file location of the transit file")]
-        public FileLocation TransitFile;
 
         public float Progress
         {
@@ -67,12 +64,10 @@ namespace TMG.Aimsun.InputOutput
             return aimsunController.Run(this, Path.Combine(ToolboxDirectory, ToolName),
                 JsonParameterBuilder.BuildParameters(writer =>
                 {
-                    writer.WritePropertyName("ModelDirectory");
-                    writer.WriteValue(NetworkDirectory.GetFilePath());
+                    writer.WritePropertyName("NetworkPackageFile");
+                    writer.WriteValue(NetworkPackageFile.GetFilePath());
                     writer.WritePropertyName("ServiceTableCSV");
                     writer.WriteValue(ServiceTableCSV.GetFilePath());
-                    writer.WritePropertyName("TransitFile");
-                    writer.WriteValue(TransitFile.GetFilePath());
                 }));
         }
     }
