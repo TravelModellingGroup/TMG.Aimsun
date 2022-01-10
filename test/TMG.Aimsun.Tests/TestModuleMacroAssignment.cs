@@ -1,7 +1,7 @@
 ﻿/*
     Copyright 2021 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
-    This file is part of XTMF.
+    This file is part of TMGToolbox for Aimsun.
 
     XTMF is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
