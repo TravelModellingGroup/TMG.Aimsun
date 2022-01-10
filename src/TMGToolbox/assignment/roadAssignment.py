@@ -1,3 +1,21 @@
+"""
+    Copyright 2022 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+"""
 
 from PyANGBasic import *
 from PyANGKernel import *
@@ -9,9 +27,7 @@ from PyMacroAdjustmentPlugin import *
 from PyMacroPTPlugin import *
 from PyFrankWolfePlugin import *
 import sys
-import os
 import commonModule as CM
-
 
 
 def create_scenario(model, trafficDemand, ptPlan):
@@ -88,11 +104,7 @@ def _execute(inputModel, console, xtmf_parameters):
     system.executeAction("execute", experiment, [], "static assignment")
     experiment.getStatsManager().createTrafficState()
     print ('experiment ran successfully')
-
-    # Save the Network
-    #cm.save_network(outputnetworkfile, console, model,  trafficdemand, ptplan, skimmatrices=none, 
-    #             scenario=scenario, ptscenario=none, experiment=experiment, ptexperiment=none)
-
+    
 def runFromConsole(inputArgs):
     """
     This function takes commands from the terminal, creates a console and model to pass
@@ -122,10 +134,7 @@ def runFromConsole(inputArgs):
         raise Exception("Cannot load network")
 
     # call the _execute() function
-    _execute(model, console, xtmf_parameters)
-    #save the network
-    saveNetwork(console, model, outputNetworkFile)
-
+    _execute(model, console, xtmf_parameters) 
 
 if __name__ == "__main__":
     # function to parse the command line arguments and run network script

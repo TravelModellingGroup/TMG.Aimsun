@@ -57,10 +57,9 @@ namespace TMG.Aimsun.Tests
             string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "assignment\\roadAssignment.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
-                ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown"),
                 autoDemand = "testOD",
-                Start = 360.0, //6.0 * 60.0,
-                Duration = 180.0, //3.0 * 60.0,
+                Start = 360.0,
+                Duration = 180.0,
                 transitDemand = "transitOD"
             });
             Helper.Modeller.Run(null, modulePath, jsonParameters);

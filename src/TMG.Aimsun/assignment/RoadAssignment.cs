@@ -29,9 +29,6 @@ namespace TMG.Aimsun.assignment
     {
         public const string ToolName = "assignment/roadAssignment.py";
 
-        [SubModelInformation(Required = true, Description = "The directory of the network")]
-        public FileLocation NetworkDirectory;
-
         [SubModelInformation(Required = true, Description = "The directory of the Aimsun toolbox")]
         public FileLocation ToolboxDirectory;
 
@@ -67,8 +64,6 @@ namespace TMG.Aimsun.assignment
             return aimsunController.Run(this, Path.Combine(ToolboxDirectory, ToolName),
                 JsonParameterBuilder.BuildParameters(writer =>
                 {
-                    writer.WritePropertyName("ModelDirectory");
-                    writer.WriteValue(NetworkDirectory.GetFilePath());
                     writer.WritePropertyName("autoDemand");
                     writer.WriteValue(AutoDemand);
                     writer.WritePropertyName("transitDemand");
