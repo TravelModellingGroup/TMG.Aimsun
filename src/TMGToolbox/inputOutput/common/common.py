@@ -38,7 +38,7 @@ def extract_network_packagefile(network_package_file):
     zip_data_file = zipfile.ZipFile(network_package_file, 'r')
     return zip_data_file
 
-def check_if_file_exits(networkZipFileObject, filename):
+def verify_file_exits(networkZipFileObject, filename):
     """
     Function which checks if the file exists in the nwp package file and returns
     the boolean value. True if the file exists otherwise False

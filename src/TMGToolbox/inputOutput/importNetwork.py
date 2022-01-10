@@ -194,7 +194,7 @@ def createTurnsFromFile(model, networkZipFileObject, filename, listOfAllNodes, n
     nodesWithDefinedTurns = set()
 
     #check if the file exist in the bol
-    file_bool_value = common.check_if_file_exits( networkZipFileObject, filename )
+    file_bool_value = common.verify_file_exits(networkZipFileObject, filename)
     if file_bool_value == True:
         turns = readTurnsFile(networkZipFileObject, filename)
         nodeType = model.getType("GKNode")
