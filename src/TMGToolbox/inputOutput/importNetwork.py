@@ -193,9 +193,8 @@ def createTurnsFromFile(model, networkZipFileObject, filename, listOfAllNodes, n
     # Make a set for tracking nodes with defined turns
     nodesWithDefinedTurns = set()
 
-    #check if the file exist in the bol
-    file_bool_value = common.verify_file_exits(networkZipFileObject, filename)
-    if file_bool_value == True:
+    #check if the file exists
+    if common.verify_file_exits(networkZipFileObject, filename):
         turns = readTurnsFile(networkZipFileObject, filename)
         nodeType = model.getType("GKNode")
         linkType = model.getType("GKSection")
