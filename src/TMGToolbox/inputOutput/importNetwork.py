@@ -176,17 +176,12 @@ def readTurnsFile(networkZipFileObject, filename):
     turns = []
     lines = common.read_datafile(networkZipFileObject, filename)
     #iterate and extract data if data exists and file successfully detected
-    if lines != False:
-        for line in lines:
-            if len(line)!=0:
-                if line[0] == "a":
-                    splitLine = line.split()
-                    turns.append(splitLine)
-        return turns
-    else:
-        #this will return the boolean False
-        return lines
-
+    for line in lines:
+        if len(line)!=0:
+            if line[0] == "a":
+                splitLine = line.split()
+                turns.append(splitLine)
+    return turns
 
 def createTurnsFromFile(model, networkZipFileObject, filename, listOfAllNodes, nodeConnections):
     """
