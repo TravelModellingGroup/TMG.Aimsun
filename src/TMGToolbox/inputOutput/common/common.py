@@ -1,20 +1,20 @@
 """
     Copyright 2022 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
-    This file is part of XTMF.
+    This file is part of TMGToolbox for Aimsun.
 
-    XTMF is free software: you can redistribute it and/or modify
+    TMGToolbox for Aimsun is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    XTMF is distributed in the hope that it will be useful,
+    TMGToolbox for Aimsun is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+    along with TMGToolbox for Aimsun.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 # Load in the required libraries
@@ -38,6 +38,17 @@ def extract_network_packagefile(network_package_file):
     zip_data_file = zipfile.ZipFile(network_package_file, 'r')
     return zip_data_file
 
+def verify_file_exits(networkZipFileObject, filename):
+    """
+    Function which checks if the file exists in the nwp package file and returns
+    the boolean value. True if the file exists otherwise False
+    input: ZipFile object
+    input2: string Filename
+    ouptut: boolean of True if exists False otherwise
+    """
+    # check if file exists in the zip file
+    return filename in networkZipFileObject.namelist()
+
 def read_datafile(networkZipFileObject, filename):
     """
     Function takes ZipFileObject and filename to open the file and read the lines.
@@ -46,6 +57,7 @@ def read_datafile(networkZipFileObject, filename):
     input2: string filename
     return: a List of the data in string format 
     """
+    #open the file 
     fileToOpen = networkZipFileObject.open(filename)
     with io.TextIOWrapper(fileToOpen, encoding="utf-8") as f:
         lines = f.readlines()
