@@ -1,20 +1,20 @@
 """
     Copyright 2021 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
-    This file is part of XTMF.
+    This file is part of TMGToolbox for Aimsun.
 
-    XTMF is free software: you can redistribute it and/or modify
+    TMGToolbox for Aimsun is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    XTMF is distributed in the hope that it will be useful,
+    TMGToolbox for Aimsun is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+    along with TMGToolbox for Aimsun.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 # Load in the required libraries
@@ -175,12 +175,17 @@ def addLinkCurvatures(model, networkZipFileObject, filename, catalog):
 def readTurnsFile(networkZipFileObject, filename):
     turns = []
     lines = common.read_datafile(networkZipFileObject, filename)
-    for line in lines:
-        if len(line)!=0:
-            if line[0] == "a":
-                splitLine = line.split()
-                turns.append(splitLine)
-    return turns
+    #iterate and extract data if data exists and file successfully detected
+    if lines != False:
+        for line in lines:
+            if len(line)!=0:
+                if line[0] == "a":
+                    splitLine = line.split()
+                    turns.append(splitLine)
+        return turns
+    else:
+        #this will return the boolean False
+        return lines
 
 
 def createTurnsFromFile(model, networkZipFileObject, filename, listOfAllNodes, nodeConnections):
@@ -192,8 +197,10 @@ def createTurnsFromFile(model, networkZipFileObject, filename, listOfAllNodes, n
     nodes = listOfAllNodes.copy()
     # Make a set for tracking nodes with defined turns
     nodesWithDefinedTurns = set()
-    # Try reading the turns from file
-    try:
+
+    #check if the file exist in the bol
+    file_bool_value = common.check_if_file_exits( networkZipFileObject, filename )
+    if file_bool_value == True:
         turns = readTurnsFile(networkZipFileObject, filename)
         nodeType = model.getType("GKNode")
         linkType = model.getType("GKSection")
@@ -246,7 +253,7 @@ def createTurnsFromFile(model, networkZipFileObject, filename, listOfAllNodes, n
         for node in nodesWithDefinedTurns:
             nodes.remove(node)
         buildTurnings(model, nodes, nodeConnections)
-    except FileNotFoundError:
+    else:
         # If the turns.231 file is not found build in all possible turns
         print("Turns file not found. Build all possible turns")
         buildTurnings(model, nodes, nodeConnections)
