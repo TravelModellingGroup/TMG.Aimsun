@@ -47,8 +47,7 @@ def check_if_file_exits(networkZipFileObject, filename):
     ouptut: boolean of True if exists False otherwise
     """
     # check if file exists in the zip file
-    bool_value = filename in networkZipFileObject.namelist()
-    return bool_value
+    return filename in networkZipFileObject.namelist()
 
 def read_datafile(networkZipFileObject, filename):
     """
