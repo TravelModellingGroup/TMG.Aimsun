@@ -29,9 +29,6 @@ namespace TMG.Aimsun.assignment
     {
         public const string ToolName = "assignment/roadAssignment.py";
 
-        [SubModelInformation(Required = true, Description = "The directory of the Aimsun toolbox")]
-        public FileLocation ToolboxDirectory;
-
         [RunParameter("AutoDemand", "testOD", "The name of the autoDemand")]
         public string AutoDemand;
 
@@ -61,7 +58,7 @@ namespace TMG.Aimsun.assignment
             {
                 throw new XTMFRuntimeException(this, "AimsunController is not properly setup or initalized.");
             }
-            return aimsunController.Run(this, Path.Combine(ToolboxDirectory, ToolName),
+            return aimsunController.Run(this, ToolName,
                 JsonParameterBuilder.BuildParameters(writer =>
                 {
                     writer.WritePropertyName("autoDemand");

@@ -28,9 +28,6 @@ namespace TMG.Aimsun.InputOutput
     public class ImportPedestrian: IAimsunTool
     {
         public const string ToolName = "inputOutput/importPedestrians.py";
-
-        [SubModelInformation(Required = true, Description = "The directory of the Aimsun toolbox")]
-        public FileLocation ToolboxDirectory;
         public float Progress
         {
             get;
@@ -56,7 +53,7 @@ namespace TMG.Aimsun.InputOutput
             {
                 throw new XTMFRuntimeException(this, "The directory of the Aimsun toolbox");
             }
-            return aimsunController.Run(this, Path.Combine(ToolboxDirectory, ToolName),
+            return aimsunController.Run(this, ToolName,
                 JsonParameterBuilder.BuildParameters(writer =>
                 {
                 }));
