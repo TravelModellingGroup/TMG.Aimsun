@@ -25,7 +25,7 @@ namespace TMG.Aimsun
     [ModuleInformation(Description = "The aimsun tool to run it takes an aimsun and a list of all the arguments you need to run it.")]
     public class AimSunTool : IAimsunTool
     {
-        [RunParameter("Tool Arguments", "", "The arguments of the Aimsun tool you want to run")]
+        [RunParameter("Tool Arguments", "", "The file path to the Aimsun tool.")]
         public string ToolArguments;
 
         [RunParameter("Tool Name", "", "The namespace of the Aimsun tool you want to run")]

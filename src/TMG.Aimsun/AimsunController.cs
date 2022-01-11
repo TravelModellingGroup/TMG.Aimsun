@@ -323,7 +323,8 @@ namespace TMG.Aimsun
         /// <exception cref="XTMFRuntimeException"></exception>
         public bool Run(IModule caller, string macroName, string jsonParameters)
         {
-            //check if the toolbox directory is passed in otherwise use the default parameter
+            //checks to see if the macroName is a full file path. If it is not, then
+            //it appends the default toolbox directory
             if (!Path.IsPathRooted(macroName))
             {
                 macroName = Path.Combine(ToolboxDirectory, macroName);
