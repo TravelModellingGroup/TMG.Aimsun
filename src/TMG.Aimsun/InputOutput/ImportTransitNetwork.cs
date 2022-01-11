@@ -32,9 +32,6 @@ namespace TMG.Aimsun.InputOutput
         [SubModelInformation(Required = true, Description = "The path to where the network package file (.nwp) is located")]
         public FileLocation NetworkPackageFile;
 
-        [SubModelInformation(Required = true, Description = "The directory of the Aimsun toolbox")]
-        public FileLocation ToolboxDirectory;
-
         public float Progress
         {
             get;
@@ -58,7 +55,7 @@ namespace TMG.Aimsun.InputOutput
             {
                 throw new XTMFRuntimeException(this, "AimsunController is not properly setup or initalized.");
             }
-            return aimsunController.Run(this, Path.Combine(ToolboxDirectory, ToolName),
+            return aimsunController.Run(this, ToolName,
                 JsonParameterBuilder.BuildParameters(writer =>
                 {
                     writer.WritePropertyName("NetworkPackageFile");

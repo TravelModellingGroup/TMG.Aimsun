@@ -114,6 +114,11 @@ namespace TMG.Aimsun
         }
 
         /// <summary>
+        /// Default location for the Aimsun scripts. 
+        /// </summary>
+        public string ToolboxDirectory { get; private set; }
+
+        /// <summary>
         /// Method which opens the pipe.
         /// </summary>
         /// <param name="module">The calling module. Used for reporting errors for XTMF.</param>
@@ -121,8 +126,9 @@ namespace TMG.Aimsun
         /// <param name="pipeName">Name of pipe. If running in debug mode, pipe name is called DebugAimsun otherwise name is random number.</param>
         /// <param name="aimsunPath">Path to aconsole.exe</param>
         /// <exception cref="XTMFRuntimeException"></exception>
-        public ModellerController(IModule module, string projectFile, string pipeName, string aimsunPath)
+        public ModellerController(IModule module, string projectFile, string pipeName, string aimsunPath, string toolboxDirectory="")
         {
+            ToolboxDirectory = toolboxDirectory;
             //check if file path or ang file exists
             if (!projectFile.EndsWith(".ang") | !File.Exists(projectFile))
             {
@@ -317,6 +323,11 @@ namespace TMG.Aimsun
         /// <exception cref="XTMFRuntimeException"></exception>
         public bool Run(IModule caller, string macroName, string jsonParameters)
         {
+            //check if the toolbox directory is passed in otherwise use the default parameter
+            if (!Path.IsPathRooted(macroName))
+            {
+                macroName = Path.Combine(ToolboxDirectory, macroName);
+            }
             lock (this)
             {
                 try

@@ -29,9 +29,6 @@ namespace TMG.Aimsun.InputOutput
     {
         private const string ToolName = "InputOutput/ImportMatrixFromCSVThirdNormalized.py";
 
-        [SubModelInformation(Required = true, Description = "The directory of the Aimsun toolbox")]
-        public FileLocation ToolboxDirectory;
-
         [SubModelInformation(Required = true, Description = "The file location of the OD CSV file")]
         public FileLocation ODCSV;
 
@@ -78,7 +75,7 @@ namespace TMG.Aimsun.InputOutput
             {
                 throw new XTMFRuntimeException(this, "AimsunController is not properly setup or initalized.");
             }
-            return aimsunController.Run(this, Path.Combine(ToolboxDirectory, ToolName),
+            return aimsunController.Run(this, ToolName,
                 JsonParameterBuilder.BuildParameters(writer =>
                 {
                     writer.WritePropertyName("ODCSV");

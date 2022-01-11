@@ -35,6 +35,9 @@ namespace TMG.Aimsun
         [SubModelInformation(Required = true, Description = "The path where the starting ang file is located")]
         public FileLocation ProjectFile;
 
+        [SubModelInformation(Required = true, Description = "The default directory of the Aimsun toolbox")]
+        public FileLocation ToolboxDefaultDirectory;
+
         //dont need this
         public bool Loaded => Data != null;
         public void LoadData()
@@ -47,7 +50,7 @@ namespace TMG.Aimsun
                     {
                         GC.ReRegisterForFinalize(this);
                         string pipeName = Guid.NewGuid().ToString();
-                        Data = new ModellerController(this, ProjectFile, pipeName, AimsunPath);
+                        Data = new ModellerController(this, ProjectFile, pipeName, AimsunPath, ToolboxDefaultDirectory);
                     }
                 }
             }
