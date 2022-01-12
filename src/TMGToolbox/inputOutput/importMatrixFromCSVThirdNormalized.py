@@ -33,7 +33,7 @@ import warnings as _warn
 import traceback as _tb
 import subprocess as _sp
 from datetime import time
-from common import common
+from common.common import loadModel
 
 
 def run_xtmf(parameters, model, console):
@@ -227,7 +227,7 @@ def runFromConsole(argv):
     # Start a console
     console = ANGConsole()
     # load a network
-    model, catalog, geomodel = common.loadModel(Network, console)
+    model, catalog, geomodel = loadModel(Network, console)
     
     #call the _execute function with parameters
     _execute(model, console, xtmf_parameters)

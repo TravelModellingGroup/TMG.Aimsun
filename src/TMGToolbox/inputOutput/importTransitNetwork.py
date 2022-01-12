@@ -24,7 +24,8 @@ from PyANGBasic import *
 from PyANGKernel import *
 from PyANGConsole import *
 import shlex
-from common import common
+from common.common import read_datafile, extract_network_packagefile, createTurn, loadModel, getTransitNodesStopsAndLinesFromNWP, cacheAllOfTypeByExternalId, cacheNodeConnections
+
 
 def addAllowedVehicle(section, vehicle):
     if section.canUseVehicle(vehicle) is False:
@@ -42,7 +43,7 @@ def turnCheck(fromSection, toSection, model):
         destination = turn.getDestination()
         if destination == toSection:
             return
-    common.createTurn(fromSection.getDestination(), fromSection, toSection, model)
+    createTurn(fromSection.getDestination(), fromSection, toSection, model)
 
 def addDummyLink(transitVehicle, node, nextLink, allVehicles, roadTypes, layer, catalog, model):
     # Check if the dummy link already exists
@@ -96,7 +97,7 @@ def addDummyLink(transitVehicle, node, nextLink, allVehicles, roadTypes, layer, 
     if len(bannedVehicles)>0:
         newLink.setNonAllowedVehicles(bannedVehicles)
     # Make the turning object to the first link in the transit line
-    newTurn = common.createTurn(node, newLink, nextLink, model)
+    newTurn = createTurn(node, newLink, nextLink, model)
     # add a transit stop
     busStop = GKSystem.getSystem().newObject("GKBusStop", model)
     catalog.add(busStop)
@@ -112,7 +113,8 @@ def addDummyLink(transitVehicle, node, nextLink, allVehicles, roadTypes, layer, 
 def importTransitVehicles(networkZipFileObject, filename, catalog, model):
     vehicles = []
     # read the file
-    lines = common.read_datafile(networkZipFileObject, filename)
+    lines = read_datafile(networkZipFileObject, filename)
+    next(lines)
     for line in lines:
         lineItems = shlex.split(line)
         if len(line)>0 and len(lineItems)>=12 and line[0]=='a':
@@ -209,7 +211,7 @@ def addTransitLine(lineId, lineName, pathLinks, busStops, transitVehicle, allVeh
         fromLink = catalog.find(check[3])
         toLink = catalog.find(check[1])
         node = fromLink.getDestination()
-        common.createTurn(node, fromLink, toLink, model)
+        createTurn(node, fromLink, toLink, model)
         # update the check and the maximum tries counter
         check = ptLine.isCorrect()
         fixTries -= 1
@@ -252,7 +254,7 @@ def importTransit(networkZipFileObject, fileName, roadTypes, layer, nodeConnecti
     # read the transit file
     print("Import transit network")
     print("Read transit file")
-    nodes, stops, lines = common.getTransitNodesStopsAndLinesFromNWP(networkZipFileObject)
+    nodes, stops, lines = getTransitNodesStopsAndLinesFromNWP(networkZipFileObject)
     # Cache the vehicle types
     allVehicles=[]
     sectionType = model.getType("GKVehicle")
@@ -342,18 +344,18 @@ def _execute(networkPackage, inputModel, console):
     geomodel = model.getGeoModel()
 
     #ZipFile object of the network file do this once
-    networkZipFileObject = common.extract_network_packagefile(networkPackage)
+    networkZipFileObject = extract_network_packagefile(networkPackage)
 
     networkLayer = geomodel.findLayer("Network")
-    nodes = common.cacheAllOfTypeByExternalId("GKNode", model, catalog)
-    sections = common.cacheAllOfTypeByExternalId("GKSection", model, catalog)
-    nodeConnections = common.cacheNodeConnections(nodes.values(), sections.values())
+    nodes = cacheAllOfTypeByExternalId("GKNode", model, catalog)
+    sections = cacheAllOfTypeByExternalId("GKSection", model, catalog)
+    nodeConnections = cacheNodeConnections(nodes.values(), sections.values())
     loadModelEndTime = time.perf_counter()
     print(f"Time to load model: {loadModelEndTime-loadModelStartTime}")
     transitStartTime = time.perf_counter()
     transitVehicles = importTransitVehicles(networkZipFileObject, "vehicles.202", catalog, model)
-    allVehicles = common.cacheAllOfTypeByExternalId("GKVehicle", model, catalog)
-    roadTypes = common.cacheAllOfTypeByExternalId("GKRoadType", model, catalog)
+    allVehicles = cacheAllOfTypeByExternalId("GKVehicle", model, catalog)
+    roadTypes = cacheAllOfTypeByExternalId("GKRoadType", model, catalog)
     importTransit(networkZipFileObject, "transit.221", roadTypes, networkLayer, nodeConnections, catalog, model)
     buildWalkingTransfers(catalog, geomodel, model)
     transitEndTime = time.perf_counter()
@@ -385,7 +387,7 @@ def runFromConsole(inputArgs):
     networkPackageFile = inputArgs[2]
     outputNetworkFile = inputArgs[3]
     # generate a model of the input network
-    model, catalog, geomodel = common.loadModel(Network, console)
+    model, catalog, geomodel = loadModel(Network, console)
     #run the _execute function
     _execute(networkPackageFile, model, console)
     saveNetwork(console, model, outputNetworkFile)
