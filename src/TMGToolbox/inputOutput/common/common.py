@@ -63,6 +63,19 @@ def read_datafile(networkZipFileObject, filename):
         lines = f.readlines()
         return lines
 
+def read_datafile_generator(networkZipFileObject, filename):
+    """
+    Generator function takes ZipFileObject and filename to open the file and read the lines.
+    Returns a list of the extract data for further processing.
+    input: ZipFile object 
+    input2: string filename
+    return: a generator object 
+    """
+    #open the file 
+    fileToOpen = networkZipFileObject.open(filename)
+    for f in io.TextIOWrapper(fileToOpen, encoding="utf-8"):
+        yield f
+
 def loadModel(filepath, console):
     """
     Method responsible to get the aimsun model() object and load the network.

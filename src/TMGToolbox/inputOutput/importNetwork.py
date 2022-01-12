@@ -26,6 +26,7 @@ from PyANGKernel import *
 from PyANGConsole import *
 import shlex
 from common import common
+from common.common import read_datafile, read_datafile_generator
 
 # Function to read the base network file
 def readFile(networkZipFileObject, filename):
@@ -35,7 +36,10 @@ def readFile(networkZipFileObject, filename):
     centroids = []
     centroidSet = set()
     currentlyReading = 'nodes'
-    lines = common.read_datafile(networkZipFileObject, filename)
+    #return a generator object of the data files
+    lines = read_datafile_generator(networkZipFileObject, filename)
+    print (type(lines))
+    next(lines)
     for line in lines:
         # Check if the line isn't blank
         if len(line)!=0:
@@ -149,7 +153,7 @@ def readShapesFile(model, networkZipFileObject, filename, catalog):
     link = None
     curvaturePoints = []
     sectionType = model.getType("GKSection")
-    lines = common.read_datafile(networkZipFileObject, filename)
+    lines = read_datafile(networkZipFileObject, filename)
     for line in lines:
         if len(line)!=0:
             if line[0] == 'r':
@@ -174,7 +178,7 @@ def addLinkCurvatures(model, networkZipFileObject, filename, catalog):
 # Function to read the turns.231
 def readTurnsFile(networkZipFileObject, filename):
     turns = []
-    lines = common.read_datafile(networkZipFileObject, filename)
+    lines = read_datafile(networkZipFileObject, filename)
     #iterate and extract data if data exists and file successfully detected
     for line in lines:
         if len(line)!=0:
@@ -384,7 +388,7 @@ def defineModes(networkZipFileObject, filename, model):
     vehicleTypes = []
 
     # read the file and return a list of lines
-    lines = common.read_datafile(networkZipFileObject, filename)
+    lines = read_datafile(networkZipFileObject, filename)
     #further processing of data
     for line in lines:
         lineItems = shlex.split(line)
@@ -411,7 +415,7 @@ def defineModes(networkZipFileObject, filename, model):
 # Method to read the functions.411 file
 def readFunctionsFile(networkZipFileObject, filename):
     vdfNames = []
-    lines = common.read_datafile(networkZipFileObject, filename)
+    lines = read_datafile(networkZipFileObject, filename)
     for line in lines:
         if len(line)!=0:
             if line[0] == "a":
