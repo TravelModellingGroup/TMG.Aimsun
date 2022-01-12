@@ -51,20 +51,6 @@ def verify_file_exits(networkZipFileObject, filename):
 
 def read_datafile(networkZipFileObject, filename):
     """
-    Function takes ZipFileObject and filename to open the file and read the lines.
-    Returns a list of the extract data for further processing.
-    input: ZipFile object 
-    input2: string filename
-    return: a List of the data in string format 
-    """
-    #open the file 
-    fileToOpen = networkZipFileObject.open(filename)
-    with io.TextIOWrapper(fileToOpen, encoding="utf-8") as f:
-        lines = f.readlines()
-        return lines
-
-def read_datafile_generator(networkZipFileObject, filename):
-    """
     Generator function takes ZipFileObject and filename to open the file and read the lines.
     Returns a list of the extract data for further processing.
     input: ZipFile object 
@@ -156,6 +142,7 @@ def getTransitNodesStopsAndLinesFromNWP(networkZipFileObject):
     lineStops = []
 
     lines = read_datafile(networkZipFileObject, "transit.221")
+    next(lines)
     for line in lines:
         if line[0] == 'c' or line[0] == 't':
             if currentlyReadingLine != None:
@@ -191,5 +178,4 @@ def getTransitNodesStopsAndLinesFromNWP(networkZipFileObject):
         nodes.append(lineNodes)
         stops.append(lineStops)
         transitLines.append(lineInfo)
-
     return nodes, stops, transitLines

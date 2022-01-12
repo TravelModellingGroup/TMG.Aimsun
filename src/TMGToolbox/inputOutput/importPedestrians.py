@@ -23,7 +23,8 @@ import time
 from PyANGBasic import *
 from PyANGKernel import *
 from PyANGConsole import *
-from common import common
+from common.common import loadModel, cacheAllOfTypeByExternalId, cacheNodeConnections
+
 
 def definePedestrianType(model):
     sectionType = model.getType("GKPedestrianType")
@@ -227,9 +228,9 @@ def _execute(inputModel, console):
     catalog = model.getCatalog()
     geomodel = model.getGeoModel()
     
-    nodes = common.cacheAllOfTypeByExternalId("GKNode", model, catalog)
-    sections = common.cacheAllOfTypeByExternalId("GKSection", model, catalog)
-    nodeConnections = common.cacheNodeConnections(nodes.values(), sections.values())
+    nodes = cacheAllOfTypeByExternalId("GKNode", model, catalog)
+    sections = cacheAllOfTypeByExternalId("GKSection", model, catalog)
+    nodeConnections = cacheNodeConnections(nodes.values(), sections.values())
     loadModelEndTime = time.perf_counter()
     print(f"Time to load model: {loadModelEndTime-loadModelStartTime}")
     pedStartTime = time.perf_counter()
@@ -265,7 +266,7 @@ def runFromConsole(inputArgs):
     Network = inputArgs[1]
     outputNetworkFile = inputArgs[2]
     # generate a model of the input network
-    model, catalog, geomodel = common.loadModel(Network, console)
+    model, catalog, geomodel = loadModel(Network, console)
     #run the _execute function
     _execute(model, console)
     saveNetwork(console, model, outputNetworkFile)

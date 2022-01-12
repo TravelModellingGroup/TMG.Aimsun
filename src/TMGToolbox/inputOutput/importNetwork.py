@@ -19,14 +19,12 @@
 
 # Load in the required libraries
 import sys
-import os
 import time
 from PyANGBasic import *
 from PyANGKernel import *
 from PyANGConsole import *
 import shlex
-from common import common
-from common.common import read_datafile, read_datafile_generator
+from common.common import read_datafile, verify_file_exits, extract_network_packagefile, initializeNodeConnections, createTurn, loadModel
 
 # Function to read the base network file
 def readFile(networkZipFileObject, filename):
@@ -37,8 +35,7 @@ def readFile(networkZipFileObject, filename):
     centroidSet = set()
     currentlyReading = 'nodes'
     #return a generator object of the data files
-    lines = read_datafile_generator(networkZipFileObject, filename)
-    print (type(lines))
+    lines = read_datafile(networkZipFileObject, filename)
     next(lines)
     for line in lines:
         # Check if the line isn't blank
@@ -154,6 +151,7 @@ def readShapesFile(model, networkZipFileObject, filename, catalog):
     curvaturePoints = []
     sectionType = model.getType("GKSection")
     lines = read_datafile(networkZipFileObject, filename)
+    next(lines)
     for line in lines:
         if len(line)!=0:
             if line[0] == 'r':
@@ -180,6 +178,7 @@ def readTurnsFile(networkZipFileObject, filename):
     turns = []
     lines = read_datafile(networkZipFileObject, filename)
     #iterate and extract data if data exists and file successfully detected
+    next(lines)
     for line in lines:
         if len(line)!=0:
             if line[0] == "a":
@@ -198,7 +197,7 @@ def createTurnsFromFile(model, networkZipFileObject, filename, listOfAllNodes, n
     nodesWithDefinedTurns = set()
 
     #check if the file exists
-    if common.verify_file_exits(networkZipFileObject, filename):
+    if verify_file_exits(networkZipFileObject, filename):
         turns = readTurnsFile(networkZipFileObject, filename)
         nodeType = model.getType("GKNode")
         linkType = model.getType("GKSection")
@@ -238,7 +237,7 @@ def createTurnsFromFile(model, networkZipFileObject, filename, listOfAllNodes, n
                             if testLinkId == toLinkId:
                                 toLink = link
                     if fromLink is not None and toLink is not None:
-                        common.createTurn(node, fromLink, toLink, model)
+                        createTurn(node, fromLink, toLink, model)
                         # Add node to the list of nodes with defined turns
                         nodesWithDefinedTurns.add(node)
                     else:
@@ -275,7 +274,7 @@ def buildTurnings(model, listOfNodes, nodeConnections):
                 linksIn.append(link)
         for entering in linksIn:
             for exiting in linksOut:
-                common.createTurn(node, entering, exiting, model)
+                createTurn(node, entering, exiting, model)
 
 # Function to add all visual objects to the gui network layer
 def drawLinksAndNodes(model, layer):
@@ -502,7 +501,7 @@ def _execute(networkPackage, inputModel, console):
     print("Define modes")
     
     # ZipFile object of the network file do this once
-    networkZipFileObject = common.extract_network_packagefile(networkPackage)
+    networkZipFileObject = extract_network_packagefile(networkPackage)
     
     #get the modes
     modes = defineModes(networkZipFileObject, "modes.201", model)
@@ -532,7 +531,7 @@ def _execute(networkPackage, inputModel, console):
         # output the progress of the import
         if (counter % infoStepSize) == 0:
             print(f"{counter} nodes added")
-    nodeConnections = common.initializeNodeConnections(allNodes)
+    nodeConnections = initializeNodeConnections(allNodes)
     nodeEndTime = time.perf_counter()
     print(f"Time to import nodes: {nodeEndTime-nodeStartTime}s")
     linkStartTime = time.perf_counter()
@@ -599,7 +598,7 @@ def runFromConsole(inputArgs):
     networkPackageFile = inputArgs[2]
     outputNetworkFile = inputArgs[3]
     # generate a model of the input network
-    model, catalog, geomodel = common.loadModel(Network, console)
+    model, catalog, geomodel = loadModel(Network, console)
     _execute(networkPackageFile, model, console) 
     saveNetwork(console, model, outputNetworkFile)
 

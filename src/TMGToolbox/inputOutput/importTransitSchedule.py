@@ -23,11 +23,15 @@ import datetime
 from PyANGBasic import *
 from PyANGKernel import *
 from PyANGConsole import *
-import shlex
 import csv
-from common import common
+from common.common import extract_network_packagefile, getTransitNodesStopsAndLinesFromNWP, loadModel
+
 
 def readServiceTables(fileLocation, header=True):
+    """Read and parse the ServiceTableCV csv file
+    input: the servicetable csv file
+    output: servicetables list
+    """
     serviceTables = []
     transitLine = None
     departures = []
@@ -57,7 +61,7 @@ def readServiceTables(fileLocation, header=True):
 def buildTransitVehDict(networkZipFileObject, model):
     transitVehDict = dict()
     vehType = model.getType("GKVehicle")
-    node, stops, lines = common.getTransitNodesStopsAndLinesFromNWP(networkZipFileObject)
+    node, stops, lines = getTransitNodesStopsAndLinesFromNWP(networkZipFileObject)
     for i in range(len(lines)):
         lineId = lines[i][0]
         lineVehicle = model.getCatalog().findObjectByExternalId(f"transitVeh_{lines[i][2]}", vehType)
@@ -146,7 +150,7 @@ def _execute(model, console, parameters):
     """
     networkPackage = parameters["NetworkPackageFile"]
     # ZipFile object of the network file do this once
-    networkZipFileObject = common.extract_network_packagefile(networkPackage)
+    networkZipFileObject = extract_network_packagefile(networkPackage)
     
     # get the transitfile
     transitVehDict = buildTransitVehDict(networkZipFileObject, model)
@@ -187,7 +191,7 @@ def runFromConsole(inputArgs):
                     "ServiceTableCSV": inputArgs[2]
                  }
     # generate a model of the input network
-    model, catalog, geomodel = common.loadModel(Network, console)
+    model, catalog, geomodel = loadModel(Network, console)
     #run the _execute function
     _execute(model, console, parameters)
     saveNetwork(console, model, outputNetworkFile)
