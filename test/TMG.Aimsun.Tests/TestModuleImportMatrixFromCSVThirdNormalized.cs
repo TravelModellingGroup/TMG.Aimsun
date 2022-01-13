@@ -61,9 +61,9 @@ namespace TMG.Aimsun.Tests
                 ODCSV = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frabitztownOd2.csv"),
                 ThirdNormalized = true,
                 IncludesHeader = true,
-                MatrixID = "testOD",
-                CentroidConfiguration = "baseCentroidConfig",
-                VehicleType = "Car Class ",
+                MatrixID = "transitOD",
+                CentroidConfiguration = "ped_baseCentroidConfig",
+                VehicleType = "transit",
                 InitialTime = "06:00:00:000",
                 DurationTime = "03:00:00:000"
             });
@@ -104,14 +104,12 @@ namespace TMG.Aimsun.Tests
             string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importMatrixFromCSVThirdNormalized.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
-                ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown"),
-                MatrixCSV = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frabitztownMatrixList.csv"),
                 ODCSV = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frabitztownOd2.csv"),
                 ThirdNormalized = true,
                 IncludesHeader = true,
-                MatrixID = "testOD",
-                CentroidConfiguration = "baseCentroidConfig",
-                VehicleType = "Car Class ",
+                MatrixID = "transitOD",
+                CentroidConfiguration = "ped_baseCentroidConfig",
+                VehicleType = "transit",
                 InitialTime = "06:00:00:000",
                 DurationTime = "03:00:00:000"
             });

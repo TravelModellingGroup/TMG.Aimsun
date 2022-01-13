@@ -82,5 +82,89 @@ namespace TMG.Aimsun.Tests
             });
             Helper.Modeller.Run(null, modulePath, jsonParameters);
         }
+        [TestMethod]
+        public  void TestEntireSystem()
+        {
+            //UnitTest to test the entire system and run a pipeline of all the tools starting with a blank
+            //network to start with
+
+            //importNetwork
+            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importNetwork.py");
+            string jsonParameters = JsonConvert.SerializeObject(new
+            {
+                NetworkPackageFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown.nwp")
+            });
+            Helper.Modeller.Run(null, modulePath, jsonParameters);
+            //importpedestrian
+            string modulePath2 = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importPedestrians.py");
+            string jsonParameters2 = JsonConvert.SerializeObject(new
+            {
+            });
+            Helper.Modeller.Run(null, modulePath2, jsonParameters2);
+            //transitnetwork
+            string modulePath3 = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importTransitNetwork.py");
+            string jsonParameters3 = JsonConvert.SerializeObject(new
+            {
+                NetworkPackageFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown.nwp")
+            });
+            Helper.Modeller.Run(null, modulePath3, jsonParameters3);
+            //transitschedule
+            string modulePath4 = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importTransitSchedule.py");
+            string jsonParameters4 = JsonConvert.SerializeObject(new
+            {
+                NetworkPackageFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown.nwp"),
+                ServiceTableCSV = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frab_service_table.csv")
+            });
+            Helper.Modeller.Run(null, modulePath4, jsonParameters4);
+            //importmatrixthirdnormalized
+            string modulePath5 = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importMatrixFromCSVThirdNormalized.py");
+            string jsonParameters5 = JsonConvert.SerializeObject(new
+            {
+                MatrixCSV = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frabitztownMatrixList.csv"),
+                ODCSV = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frabitztownOd.csv"),
+                ThirdNormalized = true,
+                IncludesHeader = true,
+                MatrixID = "testOD",
+                CentroidConfiguration = "baseCentroidConfig",
+                VehicleType = "Car Class ",
+                InitialTime = "06:00:00:000",
+                DurationTime = "03:00:00:000"
+            });
+            Helper.Modeller.Run(null, modulePath5, jsonParameters5);
+            //importmatrixthirdnormalized tranistod run 
+            string modulePath6 = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importMatrixFromCSVThirdNormalized.py");
+            string jsonParameters6 = JsonConvert.SerializeObject(new
+            {
+                ODCSV = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frabitztownOd2.csv"),
+                ThirdNormalized = true,
+                IncludesHeader = true,
+                MatrixID = "transitOD",
+                CentroidConfiguration = "ped_baseCentroidConfig",
+                VehicleType = "transit",
+                InitialTime = "06:00:00:000",
+                DurationTime = "03:00:00:000"
+            });
+            Helper.Modeller.Run(null, modulePath6, jsonParameters6);
+            //run roadassingment 
+            string modulePath7 = Path.Combine(Helper.TestConfiguration.ModulePath, "assignment\\roadAssignment.py");
+            string jsonParameters7 = JsonConvert.SerializeObject(new
+            {
+                autoDemand = "testOD",
+                Start = 360.0,
+                Duration = 180.0,
+                transitDemand = "transitOD"
+            });
+            Helper.Modeller.Run(null, modulePath7, jsonParameters7);
+            //transit assignment 
+            string modulePath8 = Path.Combine(Helper.TestConfiguration.ModulePath, "assignment\\transitAssignment.py");
+            string jsonParameters8 = JsonConvert.SerializeObject(new
+            {
+                autoDemand = "testOD",
+                Start = 6.0 * 60.0,
+                Duration = 3.0 * 60.0,
+                transitDemand = "transitOD"
+            });
+            Helper.Modeller.Run(null, modulePath8, jsonParameters8);
+        }
     }
 }
