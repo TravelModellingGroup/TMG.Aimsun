@@ -84,19 +84,36 @@ namespace TMG.Aimsun.Tests
             });
             Helper.Modeller.Run(null, modulePath, jsonParameters);
         }
+
         [TestMethod]
         public void TestToolPipeline()
         {
-            Utility.ImportNetwork(Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown.nwp"),
-                                  Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importNetwork.py"));
-            Utility.TestImportPedestrians();
-            Utility.ImportNetwork(Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown.nwp"),
-                                  Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importTransitNetwork.py"));
-            Utility.TestImportTransitSchedule(Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown.nwp"),
-                                    Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frab_service_table.csv"));
-            Utility.TestImportMatrixFromCSVThirdNormalizedTestOD("testOD", "Car Class ");
-            Utility.TestImportMatrixFromCSVThirdNormalizedTestOD("transitOD", "transit");
+            string networkPath = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp");
+            Utility.RunImportNetworkTool(networkPath, Helper.BuildModulePath("inputOutput\\importNetwork.py"));
+            Utility.RunImportPedestriansTool();
+            Utility.RunImportNetworkTool(networkPath, Helper.BuildModulePath("inputOutput\\importTransitNetwork.py"));
+            Utility.RunImportTransitScheduleTool(networkPath, Helper.BuildFilePath("inputFiles\\frab_service_table.csv"));
+            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownMatrixList.csv"), 
+                                                              Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
+                                                              true, true, "testOD", "baseCentroidConfig", 
+                                                              "Car Class ", "06:00:00:000", "03:00:00:000");
+            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownMatrixList.csv"),
+                                                              Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
+                                                              true, true, "transitOD", "ped_baseCentroidConfig",
+                                                              "transit", "06:00:00:000", "03:00:00:000");
+            Utility.RunRoadAssignmentTool("testOD", 360.0, 180.0, "transitOD");
 
+
+
+        }
+
+        [TestMethod]
+        public void checkandswitchnetwor()
+        {
+
+            //change the network
+            //string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetworkWithTransit.ang");
+            //Helper.Modeller.SwitchModel(null, newNetwork);
         }
     }
 }

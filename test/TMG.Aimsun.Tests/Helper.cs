@@ -69,6 +69,31 @@ namespace TMG.Aimsun.Tests
         /// </summary>
         public static TestConfiguration TestConfiguration { get; set; }
 
+        /// <summary>
+        /// Method to build the path to the module
+        /// </summary>
+        /// <param name="userModulePath"> string of the name of the tool</param>
+        /// <returns>string of the tool</returns>
+        
+        public static string BuildModulePath (string userModulePath)
+        {
+            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, userModulePath);
+            return modulePath;
+        }
+        /// <summary>
+        /// Method to build string path to the network package .nwp file
+        /// </summary>
+        /// <param name="userNetworkPath">string of the name of the network package</param>
+        /// <returns>string of the path of networkpackage</returns>
+        public static string BuildFilePath (string userNetworkPath)
+        {
+            string networkPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, userNetworkPath);
+            return networkPath;
+        }
+
+        /// <summary>
+        /// Method to initalize the modeller and run the Aimsun controller
+        /// </summary>
         internal static void InitializeAimsun()
         {
             //Method to read the configuration file, parse and extract the data and run the modeller
