@@ -85,68 +85,18 @@ namespace TMG.Aimsun.Tests
             Helper.Modeller.Run(null, modulePath, jsonParameters);
         }
         [TestMethod]
-        public void TestEntireSystem()
+        public void TestToolPipeline()
         {
-            //UnitTest to test the entire system and run a pipeline of all the tools starting with a blank
+            Utility.ImportNetwork(Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown.nwp"),
+                                  Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importNetwork.py"));
+            Utility.TestImportPedestrians();
+            Utility.ImportNetwork(Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown.nwp"),
+                                  Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importTransitNetwork.py"));
+            Utility.TestImportTransitSchedule(Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown.nwp"),
+                                    Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frab_service_table.csv"));
+            Utility.TestImportMatrixFromCSVThirdNormalizedTestOD("testOD", "Car Class ");
+            Utility.TestImportMatrixFromCSVThirdNormalizedTestOD("transitOD", "transit");
 
-            //the json parameters to pass to all the tools 
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-                NetworkPackageFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown.nwp"),
-                ServiceTableCSV = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frab_service_table.csv"),
-                MatrixCSV = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frabitztownMatrixList.csv"),
-                ODCSV = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frabitztownOd.csv"),
-                ThirdNormalized = true,
-                IncludesHeader = true,
-                MatrixID = "testOD",
-                CentroidConfiguration = "baseCentroidConfig",
-                VehicleType = "Car Class ",
-                InitialTime = "06:00:00:000",
-                DurationTime = "03:00:00:000",
-                autoDemand = "testOD",
-                Start = 360.0,
-                Duration = 180.0,
-                transitDemand = "transitOD"
-
-            });
-            //the json parameter to pass specificlly to the second instance of importmatrix when it builds the 
-            //transit section
-            string jsonParameters2 = JsonConvert.SerializeObject(new 
-            {
-                ODCSV = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frabitztownOd2.csv"),
-                ThirdNormalized = true,
-                IncludesHeader = true,
-                MatrixID = "transitOD",
-                CentroidConfiguration = "ped_baseCentroidConfig",
-                VehicleType = "transit",
-                InitialTime = "06:00:00:000",
-                DurationTime = "03:00:00:000"
-            });
-
-            //List of all the tools in the sequential order in which we wish to run them.
-            List<string> TitleArray = new List<string>{ "inputOutput\\importNetwork.py", "inputOutput\\importPedestrians.py", 
-                                                        "inputOutput\\importTransitNetwork.py", "inputOutput\\importTransitSchedule.py",
-                                                        "inputOutput\\importMatrixFromCSVThirdNormalized.py", 
-                                                        "inputOutput\\importMatrixFromCSVThirdNormalized.py",
-                                                        "assignment\\roadAssignment.py", "assignment\\transitAssignment.py"};
-            
-            //counter to keep track in case specific json paramters need to be passed 
-            int counter = 0;
-            //iterate over each string in the titlearray generate a modulepath and run the tool with the 
-            //json parameters of interest and incrase counter
-            foreach (string title in TitleArray)
-            {
-                counter+=1;
-                string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, title);
-                if (counter == 6)
-                {
-                    Helper.Modeller.Run(null, modulePath, jsonParameters2);
-                }
-                else
-                {
-                    Helper.Modeller.Run(null, modulePath, jsonParameters);
-                }
-            }
         }
     }
 }
