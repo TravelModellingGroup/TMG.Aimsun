@@ -19,7 +19,6 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
-using System.IO;
 
 namespace TMG.Aimsun.Tests
 {
@@ -29,27 +28,32 @@ namespace TMG.Aimsun.Tests
         [TestMethod]
         public void ImportNetwork()
         {
-            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importNetwork.py");
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-                NetworkPackageFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown.nwp")
-            });
-            Helper.Modeller.Run(null, modulePath, jsonParameters);
+            string networkPath = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp");
+            string modulePath = Helper.BuildModulePath("inputOutput\\importNetwork.py");
+            Utility.RunImportNetworkTool(networkPath, modulePath);
         }
 
         [TestMethod]
         public void TestSaveNetwork()
         {
-            //testing that we will save the network only if the save signal is sent
-            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importNetwork.py");
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-                NetworkPackageFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown.nwp")
+            string networkPath = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp");
+            string modulePath = Helper.BuildModulePath("inputOutput\\importNetwork.py");
+            Utility.RunImportNetworkTool(networkPath, modulePath);
 
-            });
-            Helper.Modeller.Run(null, modulePath, jsonParameters);
             //build an output file location of where to save the file
-            string outputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\test3\\FrabitztownNetwork.ang");
+            string outputPath = Helper.BuildFilePath("aimsunFiles\\test3\\FrabitztownNetwork.ang");
+            Helper.Modeller.SaveNetworkModel(null, outputPath);
+        }
+
+        [TestMethod]
+        public void TestSaveNetworkWithInvalidPath()
+        {
+            string networkPath = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp");
+            string modulePath = Helper.BuildModulePath("inputOutput\\importNetwork.py");
+            Utility.RunImportNetworkTool(networkPath, modulePath);
+
+            //build an output file location of where to save the file
+            string outputPath = Helper.BuildFilePath("aimsunFiles\\test3\\BadPath.ang");
             Helper.Modeller.SaveNetworkModel(null, outputPath);
         }
     }

@@ -71,6 +71,7 @@
     <Compile Include="TestModuleImportTransitSchedule.cs" />
     <Compile Include="TestModuleImportMatrixFromCSVThirdNormalized.cs" />
     <Compile Include="TestModuleMacroAssignment.cs" />
+    <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

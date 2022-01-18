@@ -19,7 +19,6 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
-using System.IO;
 
 namespace TMG.Aimsun.Tests
 {
@@ -30,31 +29,27 @@ namespace TMG.Aimsun.Tests
         public void TestImportTransitNetwork()
         {
             //change the network
-            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetwork.ang");
+            string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetwork.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
-            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importTransitNetwork.py");
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-                NetworkPackageFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown.nwp")
-            });
-            Helper.Modeller.Run(null, modulePath, jsonParameters);
+
+            string networkPath = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp");
+            string modulePath = Helper.BuildModulePath("inputOutput\\importTransitNetwork.py");
+            Utility.RunImportNetworkTool(networkPath, modulePath);
         }
 
         [TestMethod]
         public void TestSaveImportTransitNetwork()
         {
             //change the network
-            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetwork.ang");
+            string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetwork.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
-            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importTransitNetwork.py");
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-                NetworkPackageFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown.nwp")
-            });
-            Helper.Modeller.Run(null, modulePath, jsonParameters);
+
+            string networkPath = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp");
+            string modulePath = Helper.BuildModulePath("inputOutput\\importTransitNetwork.py");
+            Utility.RunImportNetworkTool(networkPath, modulePath);
 
             //build an output file location of where to save the file
-            string outputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\test3\\FrabitztownNetworkWithTransit.ang");
+            string outputPath = Helper.BuildFilePath("aimsunFiles\\test3\\FrabitztownNetworkWithTransit.ang");
             Helper.Modeller.SaveNetworkModel(null, outputPath);
         }
     }

@@ -18,7 +18,6 @@
 */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
 using System.IO;
 
 namespace TMG.Aimsun.Tests
@@ -27,42 +26,13 @@ namespace TMG.Aimsun.Tests
     public class TestModuleMacroAssignment
     {
         [TestMethod]
-        public void RunMacroAssignment()
-        {
-            //change the network
-            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetworkWithOd2.ang");
-            Helper.Modeller.SwitchModel(null, newNetwork);
-
-            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "assignment\\macroAssignment.py");
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-                OutputNetworkFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\output\\FrabitztownNetworkWithAssign.ang"),
-                ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown"),
-                ToolboxInputOutputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "src\\TMGToolbox\\assignment"),
-                autoDemand = "testOD",
-                Start = 6.0 * 60.0,
-                Duration = 3.0 * 60.0,
-                transitDemand = "transitOD"
-            });
-            Helper.Modeller.Run(null, modulePath, jsonParameters);
-        }
-
-        [TestMethod]
         public void RunRoadAssignment()
         {
             //change the network
             string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetworkWithOd2.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
 
-            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "assignment\\roadAssignment.py");
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-                autoDemand = "testOD",
-                Start = 360.0,
-                Duration = 180.0,
-                transitDemand = "transitOD"
-            });
-            Helper.Modeller.Run(null, modulePath, jsonParameters);
+            Utility.RunAssignmentTool("assignment\\roadAssignment.py", "testOD", 360.0, 180.0, "transitOD");
         }
 
         [TestMethod]
@@ -72,15 +42,29 @@ namespace TMG.Aimsun.Tests
             string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetworkWithOd2.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
 
-            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "assignment\\transitAssignment.py");
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-                autoDemand = "testOD",
-                Start = 6.0 * 60.0,
-                Duration = 3.0 * 60.0,
-                transitDemand = "transitOD"
-            });
-            Helper.Modeller.Run(null, modulePath, jsonParameters);
+            Utility.RunAssignmentTool("assignment\\transitAssignment.py", "testOD", 360.0, 180.0, "transitOD");
+
+            string modulePath = Helper.BuildModulePath("assignment\\transitAssignment.py");
+        }
+
+        [TestMethod]
+        public void TestToolPipeline()
+        {
+            string networkPath = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp");
+            Utility.RunImportNetworkTool(networkPath, Helper.BuildModulePath("inputOutput\\importNetwork.py"));
+            Utility.RunImportPedestriansTool();
+            Utility.RunImportNetworkTool(networkPath, Helper.BuildModulePath("inputOutput\\importTransitNetwork.py"));
+            Utility.RunImportTransitScheduleTool(networkPath, Helper.BuildFilePath("inputFiles\\frab_service_table.csv"));
+            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownMatrixList.csv"), 
+                                                              Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
+                                                              true, true, "testOD", "baseCentroidConfig", 
+                                                              "Car Class ", "06:00:00:000", "03:00:00:000");
+            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownMatrixList.csv"),
+                                                              Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
+                                                              true, true, "transitOD", "ped_baseCentroidConfig",
+                                                              "transit", "06:00:00:000", "03:00:00:000");
+            Utility.RunAssignmentTool("assignment\\roadAssignment.py", "testOD", 360.0, 180.0, "transitOD");
+            Utility.RunAssignmentTool("assignment\\transitAssignment.py", "testOD", 360.0, 180.0, "transitOD");
         }
     }
 }

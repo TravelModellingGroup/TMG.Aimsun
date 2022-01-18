@@ -24,29 +24,37 @@ using System.IO;
 namespace TMG.Aimsun.Tests
 {
     [TestClass]
-    public class TestModuleImportPedestrians
+    public class TestModuleImportTransitNetwork
     {
         [TestMethod]
-        public void TestImportPedestrians()
+        public void TestImportTransitNetwork()
         {
             //change the network
-            string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetworkWithTransit.ang");
+            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetwork.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
-
-            Utility.RunImportPedestriansTool();
+            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importTransitNetwork.py");
+            string jsonParameters = JsonConvert.SerializeObject(new
+            {
+                NetworkPackageFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown.nwp")
+            });
+            Helper.Modeller.Run(null, modulePath, jsonParameters);
         }
 
         [TestMethod]
-        public void TestSaveImportPedestrians()
+        public void TestSaveImportTransitNetwork()
         {
             //change the network
-            string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetworkWithTransit.ang");
+            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetwork.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
-
-            Utility.RunImportPedestriansTool();
+            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importTransitNetwork.py");
+            string jsonParameters = JsonConvert.SerializeObject(new
+            {
+                NetworkPackageFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown.nwp")
+            });
+            Helper.Modeller.Run(null, modulePath, jsonParameters);
 
             //build an output file location of where to save the file
-            string outputPath = Helper.BuildFilePath("aimsunFiles\\test3\\FrabitztownNetworkWithPedestrians.ang");
+            string outputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\test3\\FrabitztownNetworkWithTransit.ang");
             Helper.Modeller.SaveNetworkModel(null, outputPath);
         }
     }
