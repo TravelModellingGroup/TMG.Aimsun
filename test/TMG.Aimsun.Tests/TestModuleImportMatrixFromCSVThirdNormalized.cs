@@ -33,20 +33,10 @@ namespace TMG.Aimsun.Tests
             string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetworkWithTransitSchedule.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
 
-            string modulePath = Helper.BuildModulePath("inputOutput\\importMatrixFromCSVThirdNormalized.py");
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-                MatrixCSV = Helper.BuildFilePath("inputFiles\\frabitztownMatrixList.csv"),
-                ODCSV = Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
-                ThirdNormalized = true,
-                IncludesHeader = true,
-                MatrixID = "testOD",
-                CentroidConfiguration = "baseCentroidConfig",
-                VehicleType = "Car Class ",
-                InitialTime = "06:00:00:000",
-                DurationTime = "03:00:00:000"
-            });
-            Helper.Modeller.Run(null, modulePath, jsonParameters);
+            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownMatrixList.csv"),
+                                                              Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
+                                                              true, true, "testOD", "baseCentroidConfig",
+                                                              "Car Class ", "06:00:00:000", "03:00:00:000");
         }
 
         [TestMethod]
@@ -57,19 +47,10 @@ namespace TMG.Aimsun.Tests
             string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetworkWithOd.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
 
-            string modulePath = Helper.BuildModulePath("inputOutput\\importMatrixFromCSVThirdNormalized.py");
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-                ODCSV = Helper.BuildFilePath("inputFiles\\frabitztownOd2.csv"),
-                ThirdNormalized = true,
-                IncludesHeader = true,
-                MatrixID = "transitOD",
-                CentroidConfiguration = "ped_baseCentroidConfig",
-                VehicleType = "transit",
-                InitialTime = "06:00:00:000",
-                DurationTime = "03:00:00:000"
-            });
-            Helper.Modeller.Run(null, modulePath, jsonParameters);
+            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownMatrixList.csv"),
+                                                              Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
+                                                              true, true, "transitOD", "ped_baseCentroidConfig",
+                                                              "transit", "06:00:00:000", "03:00:00:000");
         }
 
         [TestMethod]
@@ -79,19 +60,10 @@ namespace TMG.Aimsun.Tests
             string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetworkWithTransitSchedule.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
 
-            string modulePath = Helper.BuildModulePath("inputOutput\\importMatrixFromCSVThirdNormalized.py");
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-                ODCSV = Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
-                ThirdNormalized = true,
-                IncludesHeader = true,
-                MatrixID = "testOD",
-                CentroidConfiguration = "baseCentroidConfig",
-                VehicleType = "Car Class ",
-                InitialTime = "06:00:00:000",
-                DurationTime = "03:00:00:000"
-            });
-            Helper.Modeller.Run(null, modulePath, jsonParameters);
+            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownMatrixList.csv"),
+                                                              Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
+                                                              true, true, "testOD", "baseCentroidConfig",
+                                                              "Car Class ", "06:00:00:000", "03:00:00:000");
 
             //build an output file location of where to save the file
             string outputPath = Helper.BuildFilePath("aimsunFiles\\test3\\FrabitztownNetworkWithOd.ang");
@@ -106,19 +78,10 @@ namespace TMG.Aimsun.Tests
             string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetworkWithOd.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
 
-            string modulePath = Helper.BuildModulePath("inputOutput\\importMatrixFromCSVThirdNormalized.py");
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-                ODCSV = Helper.BuildFilePath("inputFiles\\frabitztownOd2.csv"),
-                ThirdNormalized = true,
-                IncludesHeader = true,
-                MatrixID = "transitOD",
-                CentroidConfiguration = "ped_baseCentroidConfig",
-                VehicleType = "transit",
-                InitialTime = "06:00:00:000",
-                DurationTime = "03:00:00:000"
-            });
-            Helper.Modeller.Run(null, modulePath, jsonParameters);
+            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownMatrixList.csv"),
+                                                              Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
+                                                              true, true, "transitOD", "ped_baseCentroidConfig",
+                                                              "transit", "06:00:00:000", "03:00:00:000");
 
             //build an output file location of where to save the file
             string outputPath = Helper.BuildFilePath("aimsunFiles\\test3\\FrabitztownNetworkWithOd2.ang");

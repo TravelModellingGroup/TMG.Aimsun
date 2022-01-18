@@ -33,11 +33,7 @@ namespace TMG.Aimsun.Tests
             string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetworkWithTransit.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
 
-            string modulePath = Helper.BuildModulePath("inputOutput\\importPedestrians.py");
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-            });
-            Helper.Modeller.Run(null, modulePath, jsonParameters);
+            Utility.RunImportPedestriansTool();
         }
 
         [TestMethod]
@@ -47,14 +43,9 @@ namespace TMG.Aimsun.Tests
             string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetworkWithTransit.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
 
-            string modulePath = Helper.BuildModulePath("inputOutput\\importPedestrians.py");
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-            });
-            Helper.Modeller.Run(null, modulePath, jsonParameters);
+            Utility.RunImportPedestriansTool();
 
             //build an output file location of where to save the file
-
             string outputPath = Helper.BuildFilePath("aimsunFiles\\test3\\FrabitztownNetworkWithPedestrians.ang");
             Helper.Modeller.SaveNetworkModel(null, outputPath);
         }

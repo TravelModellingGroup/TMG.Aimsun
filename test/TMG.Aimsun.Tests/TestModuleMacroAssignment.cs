@@ -26,28 +26,6 @@ namespace TMG.Aimsun.Tests
     [TestClass]
     public class TestModuleMacroAssignment
     {
-
-        [TestMethod]
-        public void RunMacroAssignment()
-        {
-            //change the network
-            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetworkWithOd2.ang");
-            Helper.Modeller.SwitchModel(null, newNetwork);
-
-            string modulePath = Helper.BuildModulePath("assignment\\macroAssignment.py");
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-                OutputNetworkFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\output\\FrabitztownNetworkWithAssign.ang"),
-                ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown"),
-                ToolboxInputOutputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "src\\TMGToolbox\\assignment"),
-                autoDemand = "testOD",
-                Start = 6.0 * 60.0,
-                Duration = 3.0 * 60.0,
-                transitDemand = "transitOD"
-            });
-            Helper.Modeller.Run(null, modulePath, jsonParameters);
-        }
-
         [TestMethod]
         public void RunRoadAssignment()
         {
@@ -55,15 +33,7 @@ namespace TMG.Aimsun.Tests
             string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetworkWithOd2.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
 
-            string modulePath = Helper.BuildModulePath("assignment\\roadAssignment.py");
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-                autoDemand = "testOD",
-                Start = 360.0,
-                Duration = 180.0,
-                transitDemand = "transitOD"
-            });
-            Helper.Modeller.Run(null, modulePath, jsonParameters);
+            Utility.RunAssignmentTool("assignment\\roadAssignment.py", "testOD", 360.0, 180.0, "transitOD");
         }
 
         [TestMethod]
@@ -73,15 +43,9 @@ namespace TMG.Aimsun.Tests
             string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetworkWithOd2.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
 
+            Utility.RunAssignmentTool("assignment\\transitAssignment.py", "testOD", 360.0, 180.0, "transitOD");
+
             string modulePath = Helper.BuildModulePath("assignment\\transitAssignment.py");
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-                autoDemand = "testOD",
-                Start = 360.0,
-                Duration = 180.0,
-                transitDemand = "transitOD"
-            });
-            Helper.Modeller.Run(null, modulePath, jsonParameters);
         }
 
         [TestMethod]

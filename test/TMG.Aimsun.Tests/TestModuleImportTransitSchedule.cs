@@ -19,7 +19,6 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
-using System.IO;
 
 namespace TMG.Aimsun.Tests
 {
@@ -34,13 +33,8 @@ namespace TMG.Aimsun.Tests
             string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetworkWithPedestrians.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
 
-            string modulePath = Helper.BuildModulePath("inputOutput\\importTransitSchedule.py");
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-                NetworkPackageFile = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp"),
-                ServiceTableCSV = Helper.BuildFilePath("inputFiles\\frab_service_table.csv")
-            });
-            Helper.Modeller.Run(null, modulePath, jsonParameters);
+            string networkPath = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp");
+            Utility.RunImportTransitScheduleTool(networkPath, Helper.BuildFilePath("inputFiles\\frab_service_table.csv"));
         }
 
         [TestMethod]
@@ -50,13 +44,8 @@ namespace TMG.Aimsun.Tests
             string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetworkWithPedestrians.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
 
-            string modulePath = Helper.BuildModulePath("inputOutput\\importTransitSchedule.py");
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-                NetworkPackageFile = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp"),
-                ServiceTableCSV = Helper.BuildFilePath("inputFiles\\frab_service_table.csv")
-            });
-            Helper.Modeller.Run(null, modulePath, jsonParameters);
+            string networkPath = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp");
+            Utility.RunImportTransitScheduleTool(networkPath, Helper.BuildFilePath("inputFiles\\frab_service_table.csv"));
 
             //build an output file location of where to save the file
             string outputPath = Helper.BuildFilePath("aimsunFiles\\test3\\FrabitztownNetworkWithTransitSchedule.ang");

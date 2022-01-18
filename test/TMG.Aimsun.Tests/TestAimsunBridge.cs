@@ -39,48 +39,5 @@ namespace TMG.Aimsun.Tests
             //initialize the Aimsun module
             Helper.InitializeAimsun();
         }
-
-        [TestMethod]
-        public void ConstructAimsunBridge()
-        {
-            string modulePath = Helper.BuildModulePath("inputOutput\\importNetwork.py");
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-                NetworkPackageFile = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp")
-            });
-            Helper.Modeller.Run(null, modulePath, jsonParameters);
-        }
-
-        [TestMethod]
-        public void TestSaveNetwork()
-        {
-            //testing that we will save the network only if the save signal is sent
-            string modulePath = Helper.BuildModulePath("inputOutput\\importNetwork.py");
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-                NetworkPackageFile = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp")
-            });
-            Helper.Modeller.Run(null, modulePath, jsonParameters);
-
-            //build an output file location of where to save the file
-            string outputPath = Helper.BuildFilePath("aimsunFiles\\test2\\FrabitztownNetwork.ang");
-            Helper.Modeller.SaveNetworkModel(null, outputPath);
-        }
-
-        [TestMethod]
-        public void TestSaveNetworkWithInvalidPath()
-        {
-            //testing that we will save the network only if the save signal is sent
-            string modulePath = Helper.BuildModulePath("inputOutput\\importNetwork.py");
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-                NetworkPackageFile = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp")
-            });
-            Helper.Modeller.Run(null, modulePath, jsonParameters);
-
-            //build an output file location of where to save the file
-            string outputPath = Helper.BuildFilePath("aimsunFiles\\test3\\BadPath.ang");
-            Helper.Modeller.SaveNetworkModel(null, outputPath);
-        }
     }
 }

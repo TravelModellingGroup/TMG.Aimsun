@@ -19,7 +19,6 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
-using System.IO;
 
 namespace TMG.Aimsun.Tests
 {
@@ -33,12 +32,9 @@ namespace TMG.Aimsun.Tests
             string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetwork.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
 
+            string networkPath = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp");
             string modulePath = Helper.BuildModulePath("inputOutput\\importTransitNetwork.py");
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-                NetworkPackageFile = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp")
-            });
-            Helper.Modeller.Run(null, modulePath, jsonParameters);
+            Utility.RunImportNetworkTool(networkPath, modulePath);
         }
 
         [TestMethod]
@@ -48,12 +44,9 @@ namespace TMG.Aimsun.Tests
             string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetwork.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
 
+            string networkPath = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp");
             string modulePath = Helper.BuildModulePath("inputOutput\\importTransitNetwork.py");
-            string jsonParameters = JsonConvert.SerializeObject(new
-            {
-                NetworkPackageFile = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp")
-            });
-            Helper.Modeller.Run(null, modulePath, jsonParameters);
+            Utility.RunImportNetworkTool(networkPath, modulePath);
 
             //build an output file location of where to save the file
             string outputPath = Helper.BuildFilePath("aimsunFiles\\test3\\FrabitztownNetworkWithTransit.ang");
