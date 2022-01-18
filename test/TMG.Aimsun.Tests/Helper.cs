@@ -74,7 +74,6 @@ namespace TMG.Aimsun.Tests
         /// </summary>
         /// <param name="userModulePath"> string of the name of the tool</param>
         /// <returns>string of the tool</returns>
-        
         public static string BuildModulePath (string userModulePath)
         {
             string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, userModulePath);
