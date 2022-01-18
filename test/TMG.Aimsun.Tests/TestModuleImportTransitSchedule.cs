@@ -30,13 +30,15 @@ namespace TMG.Aimsun.Tests
         public void TestImportTransitSchedule()
         {
             //change the network
-            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetworkWithPedestrians.ang");
+
+            string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetworkWithPedestrians.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
-            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importTransitSchedule.py");
+
+            string modulePath = Helper.BuildModulePath("inputOutput\\importTransitSchedule.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
-                NetworkPackageFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown.nwp"),
-                ServiceTableCSV = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frab_service_table.csv")
+                NetworkPackageFile = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp"),
+                ServiceTableCSV = Helper.BuildFilePath("inputFiles\\frab_service_table.csv")
             });
             Helper.Modeller.Run(null, modulePath, jsonParameters);
         }
@@ -45,18 +47,19 @@ namespace TMG.Aimsun.Tests
         public void TestSaveImportTransitSchedule()
         {
             //change the network
-            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetworkWithPedestrians.ang");
+            string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetworkWithPedestrians.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
-            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importTransitSchedule.py");
+
+            string modulePath = Helper.BuildModulePath("inputOutput\\importTransitSchedule.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
-                NetworkPackageFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown.nwp"),
-                ServiceTableCSV = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\frab_service_table.csv")
+                NetworkPackageFile = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp"),
+                ServiceTableCSV = Helper.BuildFilePath("inputFiles\\frab_service_table.csv")
             });
             Helper.Modeller.Run(null, modulePath, jsonParameters);
 
             //build an output file location of where to save the file
-            string outputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\test3\\FrabitztownNetworkWithTransitSchedule.ang");
+            string outputPath = Helper.BuildFilePath("aimsunFiles\\test3\\FrabitztownNetworkWithTransitSchedule.ang");
             Helper.Modeller.SaveNetworkModel(null, outputPath);
         }
     }

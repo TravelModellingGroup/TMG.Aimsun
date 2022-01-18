@@ -33,7 +33,7 @@ namespace TMG.Aimsun.Tests
         }
 
         /// <summary>
-        /// Run the ImportTransitScheduleTool
+        /// Run the ImportTransitScheduleTool to create a transit schedule
         /// </summary>
         /// <param name="nwpFile">Path to network nwp package file as a string</param>
         /// <param name="serviceTablePath">Path to csv serviceTable csv file as a string</param>
@@ -48,6 +48,18 @@ namespace TMG.Aimsun.Tests
             Helper.Modeller.Run(null, modulePath, jsonParameters);
         }
 
+        /// <summary>
+        /// Method to run the importmatrix tool which imports various matrixes 
+        /// </summary>
+        /// <param name="matrixCSV">path to location of matrix csv file as a string</param>
+        /// <param name="odCSV">path to location of OD csv file as a string</param>
+        /// <param name="thirdNormalized">boolean value </param>
+        /// <param name="includeHeader">boolean value if headers are to be included</param>
+        /// <param name="matrixID">string name of the matrix to be used as an ID</param>
+        /// <param name="centroidconfig">string name of the centroid configuration to be used as an ID</param>
+        /// <param name="vehicleType">string type of vehicle to use eg car, bus, etc....</param>
+        /// <param name="initialTime">string of initial time in minutes</param>
+        /// <param name="durationTime">string of duration in minutes</param>
         public static void RunImportMatrixFromCSVThirdNormalizedTool(string matrixCSV, string odCSV, bool thirdNormalized, bool includeHeader,
                                                                        string matrixID, string centroidconfig, string vehicleType,
                                                                        string initialTime, string durationTime)
@@ -68,10 +80,19 @@ namespace TMG.Aimsun.Tests
             Helper.Modeller.Run(null, modulePath, jsonParameters);
         }
 
-        public static void RunRoadAssignmentTool(string autodemand, double starttime, 
+        /// <summary>
+        /// Method to run the Road Assignment tool and generate the roads in the model
+        /// </summary>
+        /// <param name="toolPath">string path of which assignment tool to run</param>
+        /// <param name="autodemand">string name of autodemand</param>
+        /// <param name="starttime">double start time in minutes </param>
+        /// <param name="durationtime">double duration time in minutes</param>
+        /// <param name="transitdemand">string name of transit demand</param>
+        public static void RunAssignmentTool(string toolPath, string autodemand, double starttime, 
                                                     double durationtime, string transitdemand)
         {
-            string modulePath = Helper.BuildModulePath("assignment\\roadAssignment.py");
+            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, toolPath);
+            //string modulePath = Helper.BuildModulePath("assignment\\roadAssignment.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
                 autoDemand = autodemand,
@@ -81,7 +102,5 @@ namespace TMG.Aimsun.Tests
             });
             Helper.Modeller.Run(null, modulePath, jsonParameters);
         }
-
-
     }
 }

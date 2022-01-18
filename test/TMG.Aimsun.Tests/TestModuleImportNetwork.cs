@@ -29,10 +29,10 @@ namespace TMG.Aimsun.Tests
         [TestMethod]
         public void ImportNetwork()
         {
-            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importNetwork.py");
+            string modulePath = Helper.BuildModulePath("inputOutput\\importNetwork.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
-                NetworkPackageFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown.nwp")
+                NetworkPackageFile = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp")
             });
             Helper.Modeller.Run(null, modulePath, jsonParameters);
         }
@@ -40,16 +40,16 @@ namespace TMG.Aimsun.Tests
         [TestMethod]
         public void TestSaveNetwork()
         {
-            //testing that we will save the network only if the save signal is sent
-            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importNetwork.py");
+            string modulePath = Helper.BuildModulePath("inputOutput\\importNetwork.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
-                NetworkPackageFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown.nwp")
+                NetworkPackageFile = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp")
 
             });
             Helper.Modeller.Run(null, modulePath, jsonParameters);
+
             //build an output file location of where to save the file
-            string outputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\test3\\FrabitztownNetwork.ang");
+            string outputPath = Helper.BuildFilePath("aimsunFiles\\test3\\FrabitztownNetwork.ang");
             Helper.Modeller.SaveNetworkModel(null, outputPath);
         }
     }

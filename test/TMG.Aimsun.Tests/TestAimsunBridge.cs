@@ -43,12 +43,10 @@ namespace TMG.Aimsun.Tests
         [TestMethod]
         public void ConstructAimsunBridge()
         {
-            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importNetwork.py");
+            string modulePath = Helper.BuildModulePath("inputOutput\\importNetwork.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
-                OutputNetworkFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\output\\FrabitztownNetwork.ang"),
-                ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown"),
-                ToolboxInputOutputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "src\\TMGToolbox\\inputOutput")
+                NetworkPackageFile = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp")
             });
             Helper.Modeller.Run(null, modulePath, jsonParameters);
         }
@@ -57,16 +55,15 @@ namespace TMG.Aimsun.Tests
         public void TestSaveNetwork()
         {
             //testing that we will save the network only if the save signal is sent
-            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importNetwork.py");
+            string modulePath = Helper.BuildModulePath("inputOutput\\importNetwork.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
-                OutputNetworkFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\output\\FrabitztownNetwork.ang"),
-                ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown"),
-                ToolboxInputOutputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "src\\TMGToolbox\\inputOutput")
+                NetworkPackageFile = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp")
             });
             Helper.Modeller.Run(null, modulePath, jsonParameters);
+
             //build an output file location of where to save the file
-            string outputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\test2\\FrabitztownNetwork.ang");
+            string outputPath = Helper.BuildFilePath("aimsunFiles\\test2\\FrabitztownNetwork.ang");
             Helper.Modeller.SaveNetworkModel(null, outputPath);
         }
 
@@ -74,16 +71,15 @@ namespace TMG.Aimsun.Tests
         public void TestSaveNetworkWithInvalidPath()
         {
             //testing that we will save the network only if the save signal is sent
-            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importNetwork.py");
+            string modulePath = Helper.BuildModulePath("inputOutput\\importNetwork.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
-                OutputNetworkFile = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\output\\FrabitztownNetwork.ang"),
-                ModelDirectory = Path.Combine(Helper.TestConfiguration.NetworkFolder, "inputFiles\\Frabitztown"),
-                ToolboxInputOutputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "src\\TMGToolbox\\inputOutput")
+                NetworkPackageFile = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp")
             });
             Helper.Modeller.Run(null, modulePath, jsonParameters);
+
             //build an output file location of where to save the file
-            string outputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\test3\\BadPath.ang");
+            string outputPath = Helper.BuildFilePath("aimsunFiles\\test3\\BadPath.ang");
             Helper.Modeller.SaveNetworkModel(null, outputPath);
         }
     }

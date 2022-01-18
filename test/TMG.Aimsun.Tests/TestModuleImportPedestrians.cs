@@ -30,9 +30,10 @@ namespace TMG.Aimsun.Tests
         public void TestImportPedestrians()
         {
             //change the network
-            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetworkWithTransit.ang");
+            string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetworkWithTransit.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
-            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importPedestrians.py");
+
+            string modulePath = Helper.BuildModulePath("inputOutput\\importPedestrians.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
             });
@@ -43,16 +44,18 @@ namespace TMG.Aimsun.Tests
         public void TestSaveImportPedestrians()
         {
             //change the network
-            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetworkWithTransit.ang");
+            string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetworkWithTransit.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
-            string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, "inputOutput\\importPedestrians.py");
+
+            string modulePath = Helper.BuildModulePath("inputOutput\\importPedestrians.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
             });
             Helper.Modeller.Run(null, modulePath, jsonParameters);
 
             //build an output file location of where to save the file
-            string outputPath = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\test3\\FrabitztownNetworkWithPedestrians.ang");
+
+            string outputPath = Helper.BuildFilePath("aimsunFiles\\test3\\FrabitztownNetworkWithPedestrians.ang");
             Helper.Modeller.SaveNetworkModel(null, outputPath);
         }
     }
