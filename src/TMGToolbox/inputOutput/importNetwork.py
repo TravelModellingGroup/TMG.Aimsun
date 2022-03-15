@@ -478,6 +478,33 @@ def deleteAllObjectConnections():
             cmd.init(object1, object2)
             model.getCommander().addCommand(cmd)
 
+def addTransitUser(model):
+    """
+    Method to add a transit user vehicle, user class and transit type
+    to the transit network
+    """
+    # make list of nodes and vehicles created
+    modes = []
+    vehicleTypes = []
+    # Create a mode object
+    newMode = GKSystem.getSystem().newObject("GKTransportationMode", model)
+    newMode.setName("Transit")
+    newMode.getExternalId() ## setExternalId(lineItems[1])
+    print (newMode.getExternalId())
+    modes.append(newMode)
+    # Create a vehicle type
+    newVeh = GKSystem.getSystem().newObject("GKVehicle", model)
+    newVeh.setName("Transit Users")
+    newVeh.setTransportationMode(newMode)
+    vehicleTypes.append(newVeh)
+    # add transit user to the vehicle folder
+    folderName = "GKModel::vehicles"
+    folder = model.getCreateRootFolder().findFolder( folderName )
+    if folder is None:
+        folder = GKSystem.getSystem().createFolder( model.getCreateRootFolder(), folderName )
+    for veh in vehicleTypes:
+        folder.append(veh)
+
 def run_xtmf(parameters, model, console):
     """
     A general function called in all python modules called by bridge. Responsible
@@ -505,6 +532,9 @@ def _execute(networkPackage, inputModel, console):
     
     #get the modes
     modes = defineModes(networkZipFileObject, "modes.201", model)
+
+    #add transit user to the vehicle class
+    addTransitUser(model)
 
     # Cache the vehicle types
     allVehicles=[]
@@ -557,7 +587,7 @@ def _execute(networkPackage, inputModel, console):
     linkEndTime = time.perf_counter()
     print(f"Time to import links: {linkEndTime-linkStartTime}s")
     turnStartTime = time.perf_counter()
-    # Build the turns (connections betweek links)
+    # Build the turns (connections between links)
     createTurnsFromFile(model, networkZipFileObject, "turns.231", allNodes, nodeConnections)
     turnEndTime = time.perf_counter()
     print(f"Time to build turns: {turnEndTime-turnStartTime}s")
