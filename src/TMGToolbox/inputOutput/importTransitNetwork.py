@@ -367,7 +367,7 @@ def createTransitCentroidConnections(centroidConfiguration, nodeConnections, mod
         # Get all nearby stops
         nearbyStops = findNearbyStops(centroid, nodeConnections, model)
         # If no stops found get the closest stop
-        if if len(nearbyStops) == 0:
+        if len(nearbyStops) == 0:
             nearbyStops = [geomodel.findClosestObject(centroid.getPosition(), sectionType)]
         # If no stops found move to the next centroid
         if nearbyStops is not None:

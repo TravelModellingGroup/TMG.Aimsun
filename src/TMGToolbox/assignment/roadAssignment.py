@@ -32,7 +32,7 @@ import commonModule as CM
 
 def create_scenario(model, trafficDemand, ptPlan):
     """
-    Function to create the scenario
+    Function to create the static road assignmment scenario
     """
     cmd = model.createNewCmd(model.getType("MacroScenario"))
     model.getCommander().addCommand(cmd)
@@ -52,23 +52,26 @@ def create_scenario(model, trafficDemand, ptPlan):
 
     return (scenario, PathAssignment)
 
-
 def create_experiment_for_scenario(model, scenario, PathAssignment):
     """
     Function to create the experiment
     """
-    experiment = GKSystem.getSystem().newObject("MacroExperiment", model)
-    experiment.setEngine("FrankWolfe")
-    params = experiment.createParameters()
+    #create a new experiment
+    macroExperimentCmd = model.createNewCmd(model.getType("MacroExperiment"))
+    macroExperimentCmd.setScenario(scenario)
+    macroExperimentCmd.setEngine("FrankWolfe")
+    model.getCommander().addCommand(macroExperimentCmd)
+    experiment = macroExperimentCmd.createdObject()
+    params = experiment.getParameters()
     params.setMaxIterations(50)
     params.setMaxRelativeGap(0.001)
     params.setFrankWolfeMethod(CFrankWolfeParams.eNormal)
+    #attach the experiment to the scenario
     experiment.setParameters(params)
-
     model.getCatalog().add(experiment)
     experiment.setScenario(scenario)
     experiment.setOutputPathAssignment(PathAssignment)
-
+    
     return experiment
 
 def run_xtmf(parameters, model, console):
@@ -99,8 +102,8 @@ def _execute(inputModel, console, xtmf_parameters):
     scenario, pathAssignment = create_scenario(model, trafficDemand, ptPlan)
     # generate the experiment
     experiment = create_experiment_for_scenario(model, scenario, pathAssignment)
-    # Execute the scenario for road assignment
-    print("Run road assignment")
+    # Execute the experiment for road assignment
+    print("Run road assignment experiment")
     system.executeAction("execute", experiment, [], "static assignment")
     experiment.getStatsManager().createTrafficState()
     print ('experiment ran successfully')
