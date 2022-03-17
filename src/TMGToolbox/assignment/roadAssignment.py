@@ -57,11 +57,11 @@ def create_experiment_for_scenario(model, scenario, PathAssignment):
     Function to create the experiment
     """
     #create a new experiment
-    cmd2 = model.createNewCmd(model.getType("MacroExperiment"))
-    cmd2.setScenario(scenario)
-    cmd2.setEngine("FrankWolfe")
-    model.getCommander().addCommand(cmd2)
-    experiment = cmd2.createdObject()
+    macroExperimentCmd = model.createNewCmd(model.getType("MacroExperiment"))
+    macroExperimentCmd.setScenario(scenario)
+    macroExperimentCmd.setEngine("FrankWolfe")
+    model.getCommander().addCommand(macroExperimentCmd)
+    experiment = macroExperimentCmd.createdObject()
     params = experiment.getParameters()
     params.setMaxIterations(50)
     params.setMaxRelativeGap(0.001)
