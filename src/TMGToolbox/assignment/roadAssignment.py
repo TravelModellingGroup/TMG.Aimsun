@@ -59,22 +59,22 @@ def create_experiment_for_scenario(model, scenario, PathAssignment):
     # check a scenario actually exists
     if scenario is not None:
         #create a new experiment
-        cmd2 = model.createNewCmd( model.getType( "MacroExperiment" ))
-        cmd2.setScenario( scenario )
-        cmd2.setEngine( "FrankWolfe" )
-        model.getCommander().addCommand( cmd2 )
+        cmd2 = model.createNewCmd( model.getType("MacroExperiment"d))
+        cmd2.setScenario(scenario)
+        cmd2.setEngine("FrankWolfe")
+        model.getCommander().addCommand(cmd2)
         experiment = cmd2.createdObject()
         params = experiment.getParameters()
-        params.setMaxIterations ( 50 )
-        params.setMaxRelativeGap ( 0.001 )
-        params.setFrankWolfeMethod ( CFrankWolfeParams.eNormal )
+        params.setMaxIterations (50)
+        params.setMaxRelativeGap (0.001)
+        params.setFrankWolfeMethod (CFrankWolfeParams.eNormal)
         #attach the experiment to the scenario
         experiment.setParameters(params)
         model.getCatalog().add(experiment)
         experiment.setScenario(scenario)
         experiment.setOutputPathAssignment(PathAssignment)
 
-    return experiment
+        return experiment
 
 def run_xtmf(parameters, model, console):
     """
