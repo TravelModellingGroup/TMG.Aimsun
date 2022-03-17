@@ -58,37 +58,16 @@ namespace TMG.Aimsun.Tests
             
             Utility.RunImportPedestriansTool();
             Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\333.ang"));
-            //Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownMatrixList.csv"), 
-            //                                                  Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
-            //                                                  true, true, "testOD", "baseCentroidConfig", 
-            //                                                  "Car Class ", "06:00:00:000", "03:00:00:000");
-            //Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownMatrixList.csv"),
-            //                                                  Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
-            //                                                  true, true, "transitOD", "ped_baseCentroidConfig",
-            //                                                  "transit", "06:00:00:000", "03:00:00:000");
-            //Utility.RunAssignmentTool("assignment\\roadAssignment.py", "testOD", 360.0, 180.0, "transitOD");
-            //Utility.RunAssignmentTool("assignment\\transitAssignment.py", "testOD", 360.0, 180.0, "transitOD");
-        }
-
-        [TestMethod]
-        public void TestToolPipeline2()
-        {
-            string networkPath = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp");
-
-            string newNetwork = Helper.BuildFilePath("aimsunFiles\\Transit2.ang");
-            Helper.Modeller.SwitchModel(null, newNetwork);
-
-            Utility.RunImportTransitScheduleTool(networkPath, Helper.BuildFilePath("inputFiles\\frab_service_table.csv"));
-
             Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownMatrixList.csv"),
                                                               Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
                                                               true, true, "testOD", "baseCentroidConfig",
                                                               "Car Class ", "06:00:00:000", "03:00:00:000");
             Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownMatrixList.csv"),
                                                               Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
-                                                              true, true, "transitOD", "baseCentroidConfig",
-                                                              "Transit Users", "06:00:00:000", "03:00:00:000");
-            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\333.ang"));
+                                                              true, true, "transitOD", "ped_baseCentroidConfig",
+                                                              "transit", "06:00:00:000", "03:00:00:000");
+            Utility.RunAssignmentTool("assignment\\roadAssignment.py", "testOD", 360.0, 180.0, "transitOD");
+            Utility.RunAssignmentTool("assignment\\transitAssignment.py", "testOD", 360.0, 180.0, "transitOD");
         }
     }
 }
