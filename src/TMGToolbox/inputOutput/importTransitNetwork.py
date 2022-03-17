@@ -325,6 +325,9 @@ def buildWalkingTransfers(catalog, geomodel, model):
         addWalkingTimes(stop, geomodel, 200.0, 10, busStopType, model)
 
 def findNearbySections(centroid, nodeConnections, model):
+    """
+    function to find nearby sections
+    """
     nearbySections = []
     nodeType = model.getType("GKNode")
     sectionType = model.getType("GKSection")
