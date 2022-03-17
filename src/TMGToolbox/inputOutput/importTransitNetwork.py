@@ -350,12 +350,11 @@ def findNearbyStops(centroid, nodeConnections, model):
     """
     nearbyStops = []
     nearbySections = findNearbySections(centroid, nodeConnections, model)
-    if nearbySections is not None:
-        for section in nearbySections:
-            potentialStops = section.getTopObjects()
-            if potentialStops is not None:
-                for stop in potentialStops:
-                    nearbyStops.append(stop)
+    for section in nearbySections:
+        potentialStops = section.getTopObjects()
+        if potentialStops is not None:
+            for stop in potentialStops:
+                nearbyStops.append(stop)
     return nearbyStops
 
 def createTransitCentroidConnections(centroidConfiguration, nodeConnections, model, catalog, geomodel):
@@ -368,7 +367,7 @@ def createTransitCentroidConnections(centroidConfiguration, nodeConnections, mod
         # Get all nearby stops
         nearbyStops = findNearbyStops(centroid, nodeConnections, model)
         # If no stops found get the closest stop
-        if nearbyStops is None:
+        if if len(nearbyStops) == 0:
             nearbyStops = [geomodel.findClosestObject(centroid.getPosition(), sectionType)]
         # If no stops found move to the next centroid
         if nearbyStops is not None:
