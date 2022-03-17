@@ -57,8 +57,8 @@ def create_experiment_for_scenario(model, scenario, PathAssignment):
     Function to create the experiment
     """
     # check a scenario actually exists
-    if scenario != None:
-        #create a new macroexperiment
+    if scenario is not None:
+        #create a new experiment
         cmd2 = model.createNewCmd( model.getType( "MacroExperiment" ))
         cmd2.setScenario( scenario )
         cmd2.setEngine( "FrankWolfe" )
