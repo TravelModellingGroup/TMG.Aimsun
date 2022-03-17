@@ -54,8 +54,5 @@
     <InterpreterReference Include="Global|PythonCore|3.7" />
     <InterpreterReference Include="Global|VisualStudio|Aimsun Next 20" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="inputOutput\sometest.cs" />
-  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>

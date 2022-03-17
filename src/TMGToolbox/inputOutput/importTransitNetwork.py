@@ -326,7 +326,7 @@ def buildWalkingTransfers(catalog, geomodel, model):
 
 def findNearbySections(centroid, nodeConnections, model):
     """
-    function to find nearby sections
+    function to find nearby sections around a centroid
     """
     nearbySections = []
     nodeType = model.getType("GKNode")
