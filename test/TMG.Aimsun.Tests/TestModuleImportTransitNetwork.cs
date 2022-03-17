@@ -49,8 +49,7 @@ namespace TMG.Aimsun.Tests
             Utility.RunImportNetworkTool(networkPath, modulePath);
 
             //build an output file location of where to save the file
-            string outputPath = Helper.BuildFilePath("aimsunFiles\\test3\\FrabitztownNetworkWithTransit.ang");
-            Helper.Modeller.SaveNetworkModel(null, outputPath);
+            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\Transit2.ang"));
         }
     }
 }

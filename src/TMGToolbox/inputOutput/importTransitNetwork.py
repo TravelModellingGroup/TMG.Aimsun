@@ -324,6 +324,70 @@ def buildWalkingTransfers(catalog, geomodel, model):
     for stop in iter(busStops.values()):
         addWalkingTimes(stop, geomodel, 200.0, 10, busStopType, model)
 
+def findNearbySections(centroid, nodeConnections, model):
+    nearbySections = []
+    nodeType = model.getType("GKNode")
+    sectionType = model.getType("GKSection")
+    # Get the nodes connected to the centroid
+    centroidConnections = centroid.getConnections()
+    for centroidConnection in iter(centroidConnections):
+        node = centroidConnection.getConnectionObject()
+        if node.getType() == nodeType:
+            # Get the links from/to the nodes
+            linkConnections = nodeConnections[node]
+            for link in linkConnections:
+                if link.getType() == sectionType:
+                    nearbySections.append(link)
+    if len(nearbySections) == 0:
+        nearbySections = None
+    return nearbySections
+
+def findNearbyStops(centroid, nodeConnections, model):
+    """
+    Method takes a centroid as argument and returns a list of nearby transit stops
+    Nearby bus stops are stops on any link to or from a node on a centroid connector
+    """
+    nearbyStops = []
+    nearbySections = findNearbySections(centroid, nodeConnections, model)
+    if nearbySections is not None:
+        for section in nearbySections:
+            potentialStops = section.getTopObjects()
+            if potentialStops is not None:
+                for stop in potentialStops:
+                    nearbyStops.append(stop)
+    # If no stops found make output none
+    if len(nearbyStops) == 0:
+        nearbyStops = None
+    return nearbyStops
+
+def createTransitCentroidConnections(centroidConfiguration, nodeConnections, model, catalog, geomodel):
+    """
+    function to connect the transit stops to the centroids
+    """
+    centroids = centroidConfiguration.getCentroids()
+    sectionType = model.getType("GKBusStop")
+    for centroid in centroids:
+        # Get all nearby stops
+        nearbyStops = findNearbyStops(centroid, nodeConnections, model)
+        # If no stops found get the closest stop
+        if nearbyStops is None:
+            nearbyStops = [geomodel.findClosestObject(centroid.getPosition(), sectionType)]
+        # If no stops found move to the next centroid
+        if nearbyStops is not None:
+            # Connect the nearby transit stops to the centroids
+            for stop in nearbyStops:
+                # TODO change to newCmd for centroid connection causes crash
+                entranceConnection = GKSystem.getSystem().newObject("GKCenConnection", model)
+                entranceConnection.setOwner(centroid)
+                entranceConnection.setConnectionObject(stop)
+                entranceConnection.setConnectionType(1) # from connection
+                centroid.addConnection(entranceConnection)
+                exitConnection = GKSystem.getSystem().newObject("GKCenConnection", model)
+                exitConnection.setOwner(centroid)
+                exitConnection.setConnectionObject(stop)
+                exitConnection.setConnectionType(2) # to connection
+                centroid.addConnection(exitConnection)
+
 def run_xtmf(parameters, model, console):
     """
      A general function called in all python modules called by bridge. Responsible
@@ -360,6 +424,8 @@ def _execute(networkPackage, inputModel, console):
     buildWalkingTransfers(catalog, geomodel, model)
     transitEndTime = time.perf_counter()
     print(f"Time to import transit: {transitEndTime-transitStartTime}")
+    centroidConfig = catalog.findObjectByExternalId("baseCentroidConfig", model.getType("GKCentroidConfiguration"))
+    createTransitCentroidConnections(centroidConfig, nodeConnections, model, catalog, geomodel)
     overallEndTime = time.perf_counter()
     print(f"Overall runtime: {overallEndTime-overallStartTime}")
     return console
