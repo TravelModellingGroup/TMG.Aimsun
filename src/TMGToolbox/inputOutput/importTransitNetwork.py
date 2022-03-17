@@ -341,8 +341,6 @@ def findNearbySections(centroid, nodeConnections, model):
             for link in linkConnections:
                 if link.getType() == sectionType:
                     nearbySections.append(link)
-    if len(nearbySections) == 0:
-        nearbySections = []
     return nearbySections
 
 def findNearbyStops(centroid, nodeConnections, model):
@@ -358,9 +356,6 @@ def findNearbyStops(centroid, nodeConnections, model):
             if potentialStops is not None:
                 for stop in potentialStops:
                     nearbyStops.append(stop)
-    # If no stops found make output none
-    if len(nearbyStops) == 0:
-        nearbyStops = []
     return nearbyStops
 
 def createTransitCentroidConnections(centroidConfiguration, nodeConnections, model, catalog, geomodel):
