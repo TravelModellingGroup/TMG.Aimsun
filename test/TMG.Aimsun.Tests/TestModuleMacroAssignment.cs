@@ -52,12 +52,15 @@ namespace TMG.Aimsun.Tests
         {
             string networkPath = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp");
             Utility.RunImportNetworkTool(networkPath, Helper.BuildModulePath("inputOutput\\importNetwork.py"));
-            Utility.RunImportPedestriansTool();
+            
             Utility.RunImportNetworkTool(networkPath, Helper.BuildModulePath("inputOutput\\importTransitNetwork.py"));
             Utility.RunImportTransitScheduleTool(networkPath, Helper.BuildFilePath("inputFiles\\frab_service_table.csv"));
-            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownMatrixList.csv"), 
+            
+            Utility.RunImportPedestriansTool();
+            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\333.ang"));
+            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownMatrixList.csv"),
                                                               Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
-                                                              true, true, "testOD", "baseCentroidConfig", 
+                                                              true, true, "testOD", "baseCentroidConfig",
                                                               "Car Class ", "06:00:00:000", "03:00:00:000");
             Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownMatrixList.csv"),
                                                               Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
