@@ -67,7 +67,7 @@ def create_experiment_for_scenario(model, scenario, PathAssignment):
         params = experiment.getParameters()
         params.setMaxIterations(50)
         params.setMaxRelativeGap(0.001)
-        params.setFrankWolfeMethod (CFrankWolfeParams.eNormal)
+        params.setFrankWolfeMethod(CFrankWolfeParams.eNormal)
         #attach the experiment to the scenario
         experiment.setParameters(params)
         model.getCatalog().add(experiment)
