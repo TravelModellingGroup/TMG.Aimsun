@@ -51,9 +51,11 @@ namespace TMG.Aimsun.Tests
         {
             string networkPath = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp");
             Utility.RunImportNetworkTool(networkPath, Helper.BuildModulePath("inputOutput\\importNetwork.py"));
-            
             Utility.RunImportNetworkTool(networkPath, Helper.BuildModulePath("inputOutput\\importTransitNetwork.py"));
+            
+            //run the remaining tools
             Utility.RunImportTransitScheduleTool(networkPath, Helper.BuildFilePath("inputFiles\\frab_service_table.csv"));
+        
             Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownMatrixList.csv"),
                                                               Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
                                                               true, true, "testOD", "baseCentroidConfig",
@@ -63,11 +65,11 @@ namespace TMG.Aimsun.Tests
                                                               true, true, "transitOD", "baseCentroidConfig",
                                                               "Transit Users", "06:00:00:000", "03:00:00:000");
             Utility.RunAssignmentTool("assignment\\roadAssignment.py", "testOD", 360.0, 180.0, "transitOD");
+            // if we don't do this here we won't get out transit matrices
             Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\road.ang"));
-            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\road.ang");
-            Helper.Modeller.SwitchModel(null, newNetwork);
+            Helper.Modeller.SwitchModel(null, Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\road.ang"));
             Utility.RunAssignmentTool("assignment\\transitAssignment.py", "testOD", 360.0, 180.0, "transitOD");
-            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\transitassignment.ang"));
+            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\road.ang"));
         }
     }
 }

@@ -61,7 +61,7 @@ def create_transit_experiment(model, ptScenario):
     experiment_id = experiment.getId()
     print(f"Create experiment: ", experiment_id)
    
-    return (experiment)
+    return experiment
 
 def run_xtmf(parameters, model, console):
     """
@@ -89,10 +89,10 @@ def _execute(inputModel, console, xtmf_parameters):
     ptPlan = CM.create_PublicTransit_plan(model)
     # create a macro transit scenario
     ptScenario = build_transit_scenario(model, system, trafficDemand, ptPlan)
-    experiment = create_transit_experiment(model, ptScenario)
-    system.executeAction('execute', experiment, [], "")
+    trans_experiment = create_transit_experiment(model, ptScenario)
+    system.executeAction('execute', trans_experiment, [], "")
     # extract the road assignment skim matrices
-    res = experiment.getOutputData().getSkimMatrices()
+    res = trans_experiment.getOutputData().getSkimMatrices()
     print('transit assignment successfully completed')
 
 def runFromConsole(inputArgs):

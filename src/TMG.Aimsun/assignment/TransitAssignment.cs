@@ -41,6 +41,9 @@ namespace TMG.Aimsun.assignment
         [RunParameter("DurationTime", 180.0, "The duration of time in minutes")]
         public float DurationTime;
 
+        [SubModelInformation(Required = true, Description = "The path to where the road assignment ang file is located")]
+        public FileLocation RoadAssignmentAngFile;
+
         public string Name { get; set; }
 
         public float Progress { get; set; }
