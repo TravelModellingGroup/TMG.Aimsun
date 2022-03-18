@@ -61,7 +61,7 @@ def create_transit_experiment(model, ptScenario):
     experiment_id = experiment.getId()
     print(f"Create experiment: ", experiment_id)
    
-    return (experiment)
+    return experiment
 
 def run_xtmf(parameters, model, console):
     """
