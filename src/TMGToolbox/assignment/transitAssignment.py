@@ -29,9 +29,10 @@ from PyFrankWolfePlugin import *
 import sys
 import commonModule as CM
 
-def pt_scenario(model, system, trafficDemand, ptPlan):
+
+def build_transit_scenario(model, system, trafficDemand, ptPlan):
     """
-    Function to create a PT Scenario
+    Function to create a static transit assignment scenario
     """
     cmd = model.createNewCmd(model.getType("MacroPTScenario"))
     model.getCommander().addCommand(cmd)
@@ -39,37 +40,28 @@ def pt_scenario(model, system, trafficDemand, ptPlan):
     ptScenario.setDemand(trafficDemand)
     ptScenario.setPublicLinePlan(ptPlan)
     ptOutputData = ptScenario.getOutputData()
-    ptOutputData.setGenerateSkims(True)
+    ptOutputData.setGenerateSkims(1)
     ptScenario.setOutputData(ptOutputData)
     print(f"Create transit scenario {ptScenario.getId()}")
 
-    cmd = model.createNewCmd(model.getType("MacroPTExperiment"))
-    cmd.setScenario(ptScenario)
-    cmd.setEngine("PTFrequencyBased")
-    cmd.setAlgorithm("AllOrNothing")
-    model.getCommander().addCommand(cmd)
-    return (ptScenario, cmd)
+    return (ptScenario)
 
-def experiment_pt_scenario(system, cmd):
+def create_transit_experiment(model, ptScenario):
     """
-    Build experiment for pt scenario and run transit assignment
+    Function to create a transit experiment. The experiment we create here
+    is the PTFrequencyBased  experiment using the all or nothing algorithm
     """
-    ptExperiment = cmd.createdObject()
-    # Execute the scenarios
-    print("Run transit assignment")
-    system.executeAction("execute", ptExperiment, [], "transit assignment")
-    return ptExperiment
-
-def get_pt_skim_matrices(model, ptExperiment):
-    """
-    Generate PT Skim Matrices
-    """
-    skimMatrices = ptExperiment.getOutputData().getSkimMatrices()
-    contConfType = model.getType("GKPedestrianCentroidConfiguration")
-    ptCentroidConf = model.getCatalog().findObjectByExternalId(
-        "ped_baseCentroidConfig", contConfType
-    )
-    return skimMatrices
+    cmd2 = model.createNewCmd(model.getType("MacroPTExperiment"))
+    cmd2.setScenario(ptScenario)
+    cmd2.setEngine("PTFrequencyBased")
+    cmd2.setAlgorithm("AllOrNothing")
+    model.getCommander().addCommand(cmd2)
+    experiment = cmd2.createdObject()
+    #get the experiment id
+    experiment_id = experiment.getId()
+    print(f"Create experiment: ", experiment_id)
+   
+    return (experiment)
 
 def run_xtmf(parameters, model, console):
     """
@@ -95,12 +87,14 @@ def _execute(inputModel, console, xtmf_parameters):
     trafficDemand = CM.create_schedule_demand_item(model, system, xtmf_parameters)
     # create a PT Plan
     ptPlan = CM.create_PublicTransit_plan(model)
-    # create a PT scenario
-    ptScenario, cmd = pt_scenario(model, system, trafficDemand, ptPlan)
-    ptExperiment = experiment_pt_scenario(system, cmd)
-    # Generate PT Skim Matrices
-    skimMatrices = get_pt_skim_matrices(model, ptExperiment)
-    
+    # create a macro transit scenario
+    ptScenario = build_transit_scenario(model, system, trafficDemand, ptPlan)
+    experiment = create_transit_experiment(model, ptScenario)
+    system.executeAction('execute', experiment, [], "")
+    # extract the road assignment skim matrices
+    res = experiment.getOutputData().getSkimMatrices()
+    print('transit assignment successfully completed')
+
 def runFromConsole(inputArgs):
     """
     This function takes commands from the terminal, creates a console and model to pass

@@ -39,12 +39,11 @@ namespace TMG.Aimsun.Tests
         public void RunTransitAssignment()
         {
             //change the network
-            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetworkWithOd2.ang");
+            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\roadAssignment.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
 
             Utility.RunAssignmentTool("assignment\\transitAssignment.py", "testOD", 360.0, 180.0, "transitOD");
-
-            string modulePath = Helper.BuildModulePath("assignment\\transitAssignment.py");
+            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\transitassignment4.ang"));
         }
 
         [TestMethod]
@@ -64,9 +63,11 @@ namespace TMG.Aimsun.Tests
                                                               true, true, "transitOD", "baseCentroidConfig",
                                                               "Transit Users", "06:00:00:000", "03:00:00:000");
             Utility.RunAssignmentTool("assignment\\roadAssignment.py", "testOD", 360.0, 180.0, "transitOD");
-            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\roadassignment.ang"));
-            //Utility.RunAssignmentTool("assignment\\transitAssignment.py", "testOD", 360.0, 180.0, "transitOD");
-
+            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\road.ang"));
+            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\road.ang");
+            Helper.Modeller.SwitchModel(null, newNetwork);
+            Utility.RunAssignmentTool("assignment\\transitAssignment.py", "testOD", 360.0, 180.0, "transitOD");
+            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\transitassignment.ang"));
         }
     }
 }
