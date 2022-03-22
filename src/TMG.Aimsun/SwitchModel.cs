@@ -25,9 +25,9 @@ using XTMF;
 namespace TMG.Aimsun
 {
     /// <summary>
-    /// Module to save the Aimsun Network.
+    /// Module to Switch between different saved aimsun networks.
     /// </summary>
-    [ModuleInformation(Description = "Switch the ang network file and open a new ang file")]
+    [ModuleInformation(Description = "Switch between different saved networks. Opens a new ang file and reloads model and console")]
     public class SwitchModel : IAimsunTool
     {
         [SubModelInformation(Required = true, Description = "The path to where the road assignment ang file is located")]

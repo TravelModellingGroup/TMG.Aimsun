@@ -40,6 +40,7 @@ namespace TMG.Aimsun.assignment
 
         [RunParameter("DurationTime", 180.0, "The duration of time in minutes")]
         public float DurationTime;
+
         public string Name { get; set; }
         
         public float Progress { get; set; }
