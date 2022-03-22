@@ -68,9 +68,8 @@ namespace TMG.Aimsun.Tests
         }
 
         /// <summary>
-        /// Method to run the importmatrix tool which imports various matrixes 
+        /// Method to run the ImportMatrixThirdCSVNormalized tool which imports the OD (Origin-Destination) matrices 
         /// </summary>
-        /// <param name="matrixCSV">path to location of matrix csv file as a string</param>
         /// <param name="odCSV">path to location of OD csv file as a string</param>
         /// <param name="thirdNormalized">boolean value </param>
         /// <param name="includeHeader">boolean value if headers are to be included</param>
@@ -79,14 +78,13 @@ namespace TMG.Aimsun.Tests
         /// <param name="vehicleType">string type of vehicle to use eg car, bus, etc....</param>
         /// <param name="initialTime">string of initial time in minutes</param>
         /// <param name="durationTime">string of duration in minutes</param>
-        public static void RunImportMatrixFromCSVThirdNormalizedTool(string matrixCSV, string odCSV, bool thirdNormalized, bool includeHeader,
+        public static void RunImportMatrixFromCSVThirdNormalizedTool(string odCSV, bool thirdNormalized, bool includeHeader,
                                                                        string matrixID, string centroidconfig, string vehicleType,
                                                                        string initialTime, string durationTime)
         {
             string modulePath = Helper.BuildModulePath("inputOutput\\importMatrixFromCSVThirdNormalized.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
-                MatrixCSV = matrixCSV,
                 ODCSV = odCSV,
                 ThirdNormalized = thirdNormalized,
                 IncludesHeader = includeHeader,

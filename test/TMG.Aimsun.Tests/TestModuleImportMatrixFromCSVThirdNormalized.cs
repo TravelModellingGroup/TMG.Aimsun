@@ -33,8 +33,7 @@ namespace TMG.Aimsun.Tests
             string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetworkWithTransitSchedule.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
 
-            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownMatrixList.csv"),
-                                                              Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
+            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
                                                               true, true, "testOD", "baseCentroidConfig",
                                                               "Car Class ", "06:00:00:000", "03:00:00:000");
         }
@@ -47,9 +46,8 @@ namespace TMG.Aimsun.Tests
             string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetworkWithOd.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
 
-            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownMatrixList.csv"),
-                                                              Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
-                                                              true, true, "transitOD", "ped_baseCentroidConfig",
+            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
+                                                              true, true, "transitOD", "baseCentroidConfig",
                                                               "transit", "06:00:00:000", "03:00:00:000");
         }
 
@@ -60,8 +58,7 @@ namespace TMG.Aimsun.Tests
             string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetworkWithTransitSchedule.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
 
-            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownMatrixList.csv"),
-                                                              Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
+            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
                                                               true, true, "testOD", "baseCentroidConfig",
                                                               "Car Class ", "06:00:00:000", "03:00:00:000");
 
@@ -78,9 +75,8 @@ namespace TMG.Aimsun.Tests
             string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetworkWithOd.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
 
-            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownMatrixList.csv"),
-                                                              Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
-                                                              true, true, "transitOD", "ped_baseCentroidConfig",
+            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
+                                                              true, true, "transitOD", "baseCentroidConfig",
                                                               "transit", "06:00:00:000", "03:00:00:000");
 
             //build an output file location of where to save the file
