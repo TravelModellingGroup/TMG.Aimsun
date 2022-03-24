@@ -119,5 +119,23 @@ namespace TMG.Aimsun.Tests
             });
             Helper.Modeller.Run(null, modulePath, jsonParameters);
         }
+
+        /// <summary>
+        /// Method to export a matrix to a filepath
+        /// </summary>
+        /// <param name="filePath">The file path location of where to save the file</param>
+        /// <param name="extensionFormat">The type of file to save example csv, mtx</param>
+        /// <param name="fileName">The name of the file to export</param>
+        public static void RunExportTool(string filePath, string extensionFormat, string fileName)
+        {
+            string modulePath = Helper.BuildModulePath("inputOutput\\exportMatrix.py");
+            string jsonParameters = JsonConvert.SerializeObject(new
+            {
+                FilePath = filePath,
+                ExtensionFormat = extensionFormat,
+                FileName = fileName
+            });
+            Helper.Modeller.Run(null, modulePath, jsonParameters);
+        }
     }
 }

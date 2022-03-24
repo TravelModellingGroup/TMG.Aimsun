@@ -107,7 +107,7 @@ def _execute(inputModel, console, xtmf_parameters):
     system.executeAction("execute", experiment, [], "static assignment")
     experiment.getStatsManager().createTrafficState()
     # extract the road assignment skim matrices
-    res = experiment.getOutputData().getSkimMatrices()
+    skim_matrix_list = experiment.getOutputData().getSkimMatrices()
     print ('experiment ran successfully')
     
 def runFromConsole(inputArgs):

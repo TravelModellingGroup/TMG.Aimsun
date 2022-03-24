@@ -29,7 +29,7 @@ namespace TMG.Aimsun.Tests
         public void RunRoadAssignment()
         {
             //change the network
-            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\FrabitztownNetworkWithOd2.ang");
+            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\road.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
 
             Utility.RunAssignmentTool("assignment\\roadAssignment.py", "testOD", 360.0, 180.0, "transitOD");
@@ -63,11 +63,23 @@ namespace TMG.Aimsun.Tests
                                                               true, true, "transitOD", "baseCentroidConfig",
                                                               "Transit Users", "06:00:00:000", "03:00:00:000");
             Utility.RunAssignmentTool("assignment\\roadAssignment.py", "testOD", 360.0, 180.0, "transitOD");
+
             // if we don't do this here we won't get out transit matrices
             Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\road.ang"));
             Helper.Modeller.SwitchModel(null, Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\road.ang"));
             Utility.RunAssignmentTool("assignment\\transitAssignment.py", "testOD", 360.0, 180.0, "transitOD");
             Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\transit.ang"));
+        }
+
+        [TestMethod]
+        public void TestExtractTool()
+        {
+            //change the network
+            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\road.ang");
+            Helper.Modeller.SwitchModel(null, newNetwork);
+            Utility.RunAssignmentTool("assignment\\roadAssignment.py", "testOD", 360.0, 180.0, "transitOD");
+            Utility.RunExportTool(Helper.BuildFilePath("aimsunFiles\\results\\"), "csv", "Skim - Cost: Car Class  ");
+            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\Road2.ang"));
         }
     }
 }

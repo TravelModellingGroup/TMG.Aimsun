@@ -75,7 +75,7 @@ def create_PublicTransit_plan(model):
 def save_network(outputNetworkFile, console, model,  trafficDemand, ptPlan, skimMatrices=None, 
                  scenario=None, ptScenario=None, experiment=None, ptExperiment=None):
     """
-    Save to the network file
+    Function to save the skim matrices for road and transit assignment
     """
     folderName = "GKCentroidConfiguration::matrices"
     folder = model.getCreateRootFolder().findFolder(folderName)
@@ -86,14 +86,17 @@ def save_network(outputNetworkFile, console, model,  trafficDemand, ptPlan, skim
     #if skim matrices exists 
     if skimMatrices != None:
         for matrix in skimMatrices:
-            m = model.getCatalog().find(matrix)
+            # first get the id of the matrix object 
+            skim_matrix_id = matrix.getId()
+            # extract the matrix object
+            m = model.getCatalog().find(skim_matrix_id)
             print(m.getName())
             print(m.getTotalTrips())
-            m.setExternalId(f"skimMatrix{matrix}")
+            m.setExternalId(f"skimmatrix{matrix}")
             m.setStoreId(1)
             m.setStoreType(0)
-            m.setCentroidConfiguration(ptCentroidConf)
-            m.setEnableStore(True)
+            #m.setCentroidConfiguration(ptCentroidConf)
+            #m.setEnableStore(true)
             folder.append(m)
             m.storeExternalMatrix()
     folderName = "GKModel::top::scenarios"
