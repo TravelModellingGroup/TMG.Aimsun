@@ -40,20 +40,17 @@ def exportMatrix(model, console, filePath, matrix):
     centroids = matrix.getCentroidConfiguration().getCentroidsInOrder()
     print (centroids)
     file.write( '%u %s\n' % (matrix.getId(), matrix.getName())  )
-    if matrix.getVehicle() != None:
+    if matrix.getVehicle() is not None:
         file.write( '%u %s\n' % (matrix.getVehicle().getId(), matrix.getVehicle().getName())  )
     else:
         file.write( '0 None\n' )
     #file.write( '%s\n' % matrix.getFrom().toString() )
     #file.write( '%s\n' % matrix.getDuration().toString() )
     for origin in centroids:
-	    for destination in centroids:
-		    if origin != destination:
-			    trips = matrix.getTrips( origin, destination )
-			    if trips > 0:
-				    file.write( '%u %u %f\n' % (origin.getId(), destination.getId(), trips)  )
-    file.write( '\n' )
-    print ('end')
+        for destination in centroids:
+            trips = matrix.getTrips(origin, destination)
+            if trips > 0:
+                file.write('%u %u %f\n' % (origin.getId(), destination.getId(), trips))
 
 def run_xtmf(parameters, model, console):
     """
@@ -63,9 +60,10 @@ def run_xtmf(parameters, model, console):
     # extract the parameters and save to dictionary
     xtmf_parameters = {
          "filePath": parameters["FilePath"],
-         "extensionFormat": parameters["ExtensionFormat"],
+         "format": parameters["Format"],
          "matrixName": parameters["MatrixName"]
-    }    
+    }
+    print (parameters)
     _execute(model, console, xtmf_parameters)
     
 def _execute(inputModel, console, xtmf_parameters):
@@ -92,6 +90,6 @@ def _execute(inputModel, console, xtmf_parameters):
                 # run the export matrix function to export the matrix to the desired path and format
                 print ('exporting file')
                 name = str(item.getName()).strip().replace(":", "")
-                file_path = xtmf_parameters["filePath"] + name + "." + xtmf_parameters["extensionFormat"]
+                file_path = xtmf_parameters["filePath"] + name + "." + xtmf_parameters["format"]
                 exportMatrix(model, console, file_path, item)
     print ('export was successful')

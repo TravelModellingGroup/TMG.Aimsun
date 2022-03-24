@@ -18,7 +18,6 @@
 */
 
 using System;
-using System.IO;
 using TMG.Input;
 using XTMF;
 
@@ -28,19 +27,38 @@ namespace TMG.Aimsun.InputOutput
     /// A tool to export a given matrix to a specified file path
     /// </summary>
     [ModuleInformation(Description = "A tool to export a given matrix to a specified file path")]
-    public class ExportModel: IAimsunTool
+    public class ExportMatrix: IAimsunTool
     {
         public const string ToolName = "InputOutput/exportMatrix.py";
 
         [SubModelInformation(Required = true, Description = "The filepath location where to save the csv")]
         public FileLocation FilePath;
 
-        [RunParameter("Extension Format", "csv", "The file format eg csv or mtx")]
-        public string ExtensionFormat;
+        [RunParameter("Format", FileType.CSV, "The file format eg csv or txt you wish to save the file as")]
+        public FileType Format;
 
-        [RunParameter("Matrix Name", "", "The name of the file user wishes to export")]
+        [RunParameter("Matrix Name", "", "The name of the matrix file user wishes to export")]
         public string MatrixName;
 
+        public enum FileType
+        {
+            CSV,
+            TXT
+        }
+
+        private string ReadFormatter() 
+        {
+            switch(Format)
+            {
+                case FileType.CSV:
+                    return "csv";
+                case FileType.TXT:
+                    return "txt";
+                default:
+                    throw new XTMFRuntimeException(this, $"Unknown file type extension {Enum.GetName(typeof(FileType), Format)}");
+            }
+        }
+        
         public string Name { get; set; }
 
         public float Progress => 0f;
@@ -58,8 +76,8 @@ namespace TMG.Aimsun.InputOutput
                 {
                     writer.WritePropertyName("FilePath");
                     writer.WriteValue(FilePath);
-                    writer.WritePropertyName("ExtensionFormat");
-                    writer.WriteValue(ExtensionFormat);
+                    writer.WritePropertyName("Format");
+                    writer.WriteValue(ReadFormatter());
                     writer.WritePropertyName("MatrixName");
                     writer.WriteValue(MatrixName);
                 }));

@@ -126,13 +126,13 @@ namespace TMG.Aimsun.Tests
         /// <param name="filePath">The file path location of where to save the file</param>
         /// <param name="extensionFormat">The type of file to save example csv, mtx</param>
         /// <param name="fileName">The name of the file to export</param>
-        public static void RunExportTool(string filePath, string extensionFormat, string matrixName)
+        public static void RunExportTool(string filePath, string format, string matrixName)
         {
             string modulePath = Helper.BuildModulePath("inputOutput\\exportMatrix.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
                 FilePath = filePath,
-                ExtensionFormat = extensionFormat,
+                Format = format,
                 MatrixName = matrixName
             });
             Helper.Modeller.Run(null, modulePath, jsonParameters);
