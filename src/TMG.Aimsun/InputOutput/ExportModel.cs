@@ -38,8 +38,8 @@ namespace TMG.Aimsun.InputOutput
         [RunParameter("Extension Format", "csv", "The file format eg csv or mtx")]
         public string ExtensionFormat;
 
-        [RunParameter("FileName", "", "The name of the file user wishes to export")]
-        public string FileName;
+        [RunParameter("Matrix Name", "", "The name of the file user wishes to export")]
+        public string MatrixName;
 
         public string Name { get; set; }
 
@@ -60,8 +60,8 @@ namespace TMG.Aimsun.InputOutput
                     writer.WriteValue(FilePath);
                     writer.WritePropertyName("ExtensionFormat");
                     writer.WriteValue(ExtensionFormat);
-                    writer.WritePropertyName("FileName");
-                    writer.WriteValue(FileName);
+                    writer.WritePropertyName("MatrixName");
+                    writer.WriteValue(MatrixName);
                 }));
         }
 

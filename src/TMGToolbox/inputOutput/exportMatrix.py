@@ -64,7 +64,7 @@ def run_xtmf(parameters, model, console):
     xtmf_parameters = {
          "filePath": parameters["FilePath"],
          "extensionFormat": parameters["ExtensionFormat"],
-         "fileName": parameters["FileName"]
+         "matrixName": parameters["MatrixName"]
     }    
     _execute(model, console, xtmf_parameters)
     
@@ -74,7 +74,7 @@ def _execute(inputModel, console, xtmf_parameters):
     """
     model = inputModel
     system = GKSystem.getSystem()
-    file_name = xtmf_parameters["fileName"]
+    matrix_name = xtmf_parameters["matrixName"]
     
     # get the macro static experiment object. This is the pymacrokernelplugin
     macro_exp_object = model.getType("MacroExperiment")
@@ -88,7 +88,7 @@ def _execute(inputModel, console, xtmf_parameters):
         # iterate over the skim matrix list and check if the name is equal to the input filter name
         for item in skim_matrix_list:
             print (item.getId(), item.getName())
-            if file_name in item.getName():
+            if matrix_name in item.getName():
                 # run the export matrix function to export the matrix to the desired path and format
                 print ('exporting file')
                 name = str(item.getName()).strip().replace(":", "")
