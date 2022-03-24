@@ -27,6 +27,7 @@ namespace TMG.Aimsun.InputOutput
     /// <summary>
     /// A tool to export a given matrix to a specified file path
     /// </summary>
+    [ModuleInformation(Description = "A tool to export a given matrix to a specified file path")]
     public class ExportModel: IAimsunTool
     {
         public const string ToolName = "InputOutput/exportMatrix.py";
