@@ -31,60 +31,11 @@ namespace TMG.Aimsun.InputOutput
     {
         public const string ToolName = "InputOutput/exportMatrix.py";
 
-        [RunParameter("Scenario Type", ScenarioType.RoadAssignment, "The experiment scenario type where the matrix is for")]
-        public ScenarioType ExperimentType;
-
         [SubModelInformation(Required = true, Description = "The filepath location where to save the csv")]
         public FileLocation FilePath;
 
-        [RunParameter("Format", FileType.CSV, "The file format eg csv or txt you wish to save the file as")]
-        public FileType Format;
-
         [RunParameter("Matrix Name", "", "The name of the matrix file user wishes to export")]
         public string MatrixName;
-
-        public enum FileType
-        {
-            CSV,
-            TXT
-        }
-        private string ReadFormatter() 
-        {
-            switch(Format)
-            {
-                case FileType.CSV:
-                    return "csv";
-                case FileType.TXT:
-                    return "txt";
-                default:
-                    throw new XTMFRuntimeException(this, $"Unknown file type extension {Enum.GetName(typeof(FileType), Format)}");
-            }
-        }
-
-        public enum ScenarioType
-        {
-            RoadAssignment,
-            TransitAssignment,
-        }
-        
-        /// <summary>
-        /// Method to determine if the matrix to export is from a road assignment or a transit 
-        /// assignment experiment
-        /// </summary>
-        /// <returns>A string of the experiment object type</returns>
-        /// <exception cref="XTMFRuntimeException"></exception>
-        private string ReturnExperimentType()
-        {
-            switch(ExperimentType)
-            {
-                case ScenarioType.RoadAssignment:
-                    return "MacroExperiment";
-                case ScenarioType.TransitAssignment:
-                    return "MacroPTExperiment";
-                default:
-                    throw new XTMFRuntimeException(this, $"Unknown Experiment Type chosen {Enum.GetName(typeof(ScenarioType), Format)}");
-            }
-        }
 
         public string Name { get; set; }
 
@@ -101,12 +52,8 @@ namespace TMG.Aimsun.InputOutput
             return aimsunController.Run(this, ToolName,
                 JsonParameterBuilder.BuildParameters(writer =>
                 {
-                    writer.WritePropertyName("ScenarioType");
-                    writer.WriteValue(ReturnExperimentType());
                     writer.WritePropertyName("FilePath");
                     writer.WriteValue(FilePath);
-                    writer.WritePropertyName("Format");
-                    writer.WriteValue(ReadFormatter());
                     writer.WritePropertyName("MatrixName");
                     writer.WriteValue(MatrixName);
                 }));

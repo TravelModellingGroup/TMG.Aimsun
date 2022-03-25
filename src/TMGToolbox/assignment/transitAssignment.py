@@ -91,8 +91,6 @@ def _execute(inputModel, console, xtmf_parameters):
     ptScenario = build_transit_scenario(model, system, trafficDemand, ptPlan)
     trans_experiment = create_transit_experiment(model, ptScenario)
     system.executeAction('execute', trans_experiment, [], "")
-    # extract the road assignment skim matrices
-    res = trans_experiment.getOutputData().getSkimMatrices()
     print('transit assignment successfully completed')
 
 def runFromConsole(inputArgs):
