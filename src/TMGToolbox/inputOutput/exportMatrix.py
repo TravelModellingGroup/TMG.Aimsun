@@ -59,6 +59,7 @@ def run_xtmf(parameters, model, console):
     """
     # extract the parameters and save to dictionary
     xtmf_parameters = {
+        "scenarioType": parameters["ScenarioType"],
          "filePath": parameters["FilePath"],
          "format": parameters["Format"],
          "matrixName": parameters["MatrixName"]
@@ -75,7 +76,7 @@ def _execute(inputModel, console, xtmf_parameters):
     matrix_name = xtmf_parameters["matrixName"]
     
     # get the macro static experiment object. This is the pymacrokernelplugin
-    macro_exp_object = model.getType("MacroExperiment")
+    macro_exp_object = model.getType( xtmf_parameters["scenarioType"] ) #"MacroExperiment")
     # returns back a dictionary of {id: pymacrokernel} object
     macro_exp_dict = model.getCatalog().getObjectsByType(macro_exp_object)
     # iterate over the dictionary keys and extract the experiment object

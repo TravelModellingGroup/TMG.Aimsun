@@ -68,6 +68,8 @@ namespace TMG.Aimsun.Tests
             Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\road.ang"));
             Helper.Modeller.SwitchModel(null, Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\road.ang"));
             Utility.RunAssignmentTool("assignment\\transitAssignment.py", "testOD", 360.0, 180.0, "transitOD");
+            Utility.RunExportTool("MacroExperiment", Helper.BuildFilePath("aimsunFiles\\results\\"), "csv", "Skim - Cost: Car Class  ");
+            Utility.RunExportTool("MacroPTExperiment", Helper.BuildFilePath("aimsunFiles\\results\\"), "csv", "Transit Skim - Initial Waiting Time: ");
             Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\transit.ang"));
         }
 
@@ -78,7 +80,7 @@ namespace TMG.Aimsun.Tests
             string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\road.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
             Utility.RunAssignmentTool("assignment\\roadAssignment.py", "testOD", 360.0, 180.0, "transitOD");
-            Utility.RunExportTool(Helper.BuildFilePath("aimsunFiles\\results\\"), "csv", "Skim - Cost: Car Class  ");
+            Utility.RunExportTool("MacroExperiment", Helper.BuildFilePath("aimsunFiles\\results\\"), "csv", "Skim - Cost: Car Class  ");
             Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\Road2.ang"));
         }
     }
