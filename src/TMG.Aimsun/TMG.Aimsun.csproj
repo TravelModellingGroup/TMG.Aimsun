@@ -52,6 +52,7 @@
     <Compile Include="AimsunTool.cs" />
     <Compile Include="assignment\RoadAssignment.cs" />
     <Compile Include="assignment\TransitAssignment.cs" />
+    <Compile Include="InputOutput\ExportMatrix.cs" />
     <Compile Include="LoadAimsunController.cs" />
     <Compile Include="ExecuteToolsFromModellerResource.cs" />
     <Compile Include="IAimsunTool.cs" />

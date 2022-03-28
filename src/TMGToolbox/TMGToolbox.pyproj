@@ -41,6 +41,7 @@
     <Compile Include="common\__init__.py" />
     <Compile Include="inputOutput\common\common.py" />
     <Compile Include="inputOutput\common\__init__.py" />
+    <Compile Include="inputOutput\exportMatrix.py" />
     <Compile Include="inputOutput\exportNetworkPackage.py" />
     <Compile Include="inputOutput\importNetwork.py" />
     <Compile Include="inputOutput\importPedestrians.py" />
