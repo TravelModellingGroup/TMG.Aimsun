@@ -45,7 +45,6 @@ def exportMatrix(model, console, filePath, matrix):
                 trips = matrix.getTrips(origin, destination)
                 if trips > 0:
                     matfile.write('%u,%u,%f\n' %(origin.getId(), destination.getId(), trips))
-        matfile.close()
 
 def run_xtmf(parameters, model, console):
     """
