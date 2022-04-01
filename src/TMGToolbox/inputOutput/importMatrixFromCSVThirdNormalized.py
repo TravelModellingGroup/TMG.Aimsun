@@ -28,13 +28,8 @@ from PyMacroToolPlugin import *
 from PyMacroAdjustmentPlugin import *
 from PyMacroPTPlugin import *
 import sys
-import os
-import warnings as _warn
-import traceback as _tb
-import subprocess as _sp
 from datetime import time
 from common.common import loadModel
-
 
 def run_xtmf(parameters, model, console):
     """
@@ -65,14 +60,7 @@ def build_matrix(model, catalog, console, vehicleEID, matrixId, centroidConfigur
     """
     function to build and create a new matrix
     """
-    # Create new matrix
-    # set the type of OD matrix if is transit or not
-    matrix = None
-    if vehicleEID == 'transit':
-        matrix = GKSystem.getSystem().newObject("GKPedestrianODMatrix", model)
-        print("Adding transit OD matrix")
-    else:
-        matrix = GKSystem.getSystem().newObject("GKODMatrix", model)
+    matrix = GKSystem.getSystem().newObject("GKODMatrix", model)
     matrix.setExternalId(matrixId)
     matrix.setName(matrixId)
     matrix.setStoreId( 2 ) # use external ID when storing
@@ -81,20 +69,13 @@ def build_matrix(model, catalog, console, vehicleEID, matrixId, centroidConfigur
     matrix.setValueToAllCells(0.0)
     matrix.setEnableStore(True)
 
-    if vehicleEID != 'transit':
-        sectionType = model.getType("GKVehicle")
-        if catalog.findByName(vehicleEID, sectionType) is None:
-            raise Exception(f"The specified vehicle type '{vehicleEID}' does not exist")
-        else:
-            vehicleType = catalog.findByName(vehicleEID, sectionType)
-            matrix.setVehicle(vehicleType)
-    elif vehicleEID == 'transit':
-        sectionType = model.getType("GKPedestrianType")
-        if catalog.findByName("Pedestrian", sectionType) is None:
-            raise Exception(f"The specified vehicle type Pedestrian does not exist")
-        else:
-            vehicleType = catalog.findByName("Pedestrian", sectionType)
-            matrix.setVehicle(vehicleType)
+    #if vehicleEID != 'transit':
+    sectionType = model.getType("GKVehicle")
+    if catalog.findByName(vehicleEID, sectionType) is None:
+        raise Exception(f"The specified vehicle type '{vehicleEID}' does not exist")
+    else:
+        vehicleType = catalog.findByName(vehicleEID, sectionType)
+        matrix.setVehicle(vehicleType)
 
     initialTime = initialTime.split(":")
     startTime = time(int(initialTime[0]),int(initialTime[1]),int(initialTime[2]),int(initialTime[3]))
@@ -112,8 +93,8 @@ def extract_OD_Data(fileLocation, model, catalog, console, header, thirdNormaliz
     with open(fileLocation) as csvfile:
         reader = csv.reader(csvfile)
         sectionType = model.getType("GKCentroid")
-        entranceCentroidType = model.getType("GKPedestrianEntranceCentroid")
-        exitCentroidType = model.getType("GKPedestrianExitCentroid")
+        entranceCentroidType = model.getType("GKCenConnection") #GKPedestrianEntranceCentroid")
+        exitCentroidType = model.getType("GKCenConnection") #GKPedestrianExitCentroid")
 
         if header is True:
             next(reader)
@@ -122,16 +103,11 @@ def extract_OD_Data(fileLocation, model, catalog, console, header, thirdNormaliz
                 value = float(line[2])
                 # Only create object if OD value is non zero
                 if value != 0.0:
-                    if vehicleEID == 'transit':
-                        originEID = f"ped_entrance_centroid_{line[0]}"
-                        destinationEID = f"ped_exit_centroid_{line[1]}"
-                        origin = catalog.findObjectByExternalId(originEID, entranceCentroidType)
-                        destination = catalog.findObjectByExternalId(destinationEID, exitCentroidType)
-                    else:
-                        originEID = f"centroid_{line[0]}"
-                        destinationEID = f"centroid_{line[1]}"
-                        origin = catalog.findObjectByExternalId(originEID, sectionType)
-                        destination = catalog.findObjectByExternalId(destinationEID, sectionType)
+                    originEID = f"centroid_{line[0]}"
+                    destinationEID = f"centroid_{line[1]}"
+                    origin = catalog.findObjectByExternalId(originEID, sectionType)
+                    destination = catalog.findObjectByExternalId(destinationEID, sectionType)
+                    
                     if origin is None:
                         raise Exception(f"The specified centroid '{originEID}' does not exist")
                     if destination is None:
