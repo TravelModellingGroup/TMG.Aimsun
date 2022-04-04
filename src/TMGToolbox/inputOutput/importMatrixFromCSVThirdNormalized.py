@@ -38,7 +38,7 @@ def run_xtmf(parameters, model, console):
     """
     _execute(model, console, parameters)
 
-def find_centroid_configuration(model, catalog, console, centroidConfigurationId, matrixId):
+def find_centroid_configuration(model, catalog, centroidConfigurationId, matrixId):
     """
     Function to find the centroid configuration
     """
@@ -56,7 +56,7 @@ def find_centroid_configuration(model, catalog, console, centroidConfigurationId
 
     return centroidConfiguration
 
-def build_matrix(model, catalog, console, vehicleEID, matrixId, centroidConfiguration, initialTime, durationTime):
+def build_matrix(model, catalog, vehicleEID, matrixId, centroidConfiguration, initialTime, durationTime):
     """
     function to build and create a new matrix
     """
@@ -68,8 +68,7 @@ def build_matrix(model, catalog, console, vehicleEID, matrixId, centroidConfigur
     matrix.setCentroidConfiguration(centroidConfiguration)
     matrix.setValueToAllCells(0.0)
     matrix.setEnableStore(True)
-
-    #if vehicleEID != 'transit':
+    
     sectionType = model.getType("GKVehicle")
     if catalog.findByName(vehicleEID, sectionType) is None:
         raise Exception(f"The specified vehicle type '{vehicleEID}' does not exist")
@@ -85,7 +84,7 @@ def build_matrix(model, catalog, console, vehicleEID, matrixId, centroidConfigur
     
     return matrix
 
-def extract_OD_Data(fileLocation, model, catalog, console, header, thirdNormalized, vehicleEID, matrix):
+def extract_OD_Data(fileLocation, model, catalog, header, thirdNormalized, vehicleEID, matrix):
     """
     Function to extract the data from the OD csv file 
     """
@@ -133,13 +132,13 @@ def _execute(model, console, parameters):
     durationTime = str(parameters["DurationTime"])
     
     # find the centroid configuration
-    centroidConfiguration = find_centroid_configuration(model, catalog, console, centroidConfigurationId, matrixId)
+    centroidConfiguration = find_centroid_configuration(model, catalog, centroidConfigurationId, matrixId)
 
     # Create new matrix
-    matrix = build_matrix(model, catalog, console, vehicleEID, matrixId, centroidConfiguration, initialTime, durationTime)
+    matrix = build_matrix(model, catalog, vehicleEID, matrixId, centroidConfiguration, initialTime, durationTime)
 
     # extract data from the OD Data csv file read file and import
-    extract_OD_Data(fileLocation, model, catalog, console, header, thirdNormalized, vehicleEID, matrix)
+    extract_OD_Data(fileLocation, model, catalog, header, thirdNormalized, vehicleEID, matrix)
     
     # Save add the matrix to the network file
     folderName = "GKCentroidConfiguration::matrices"
