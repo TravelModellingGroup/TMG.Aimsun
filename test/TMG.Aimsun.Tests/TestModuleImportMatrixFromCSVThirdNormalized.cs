@@ -30,58 +30,31 @@ namespace TMG.Aimsun.Tests
         public void TestImportMatrixFromCSVThirdNormalizedTestOD()
         {
             //change the network
-            string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetworkWithTransitSchedule.ang");
+            string newNetwork = Helper.BuildFilePath("aimsunFiles\\transch.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
 
             Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
                                                               true, true, "testOD", "baseCentroidConfig",
                                                               "Car Class ", "06:00:00:000", "03:00:00:000");
+            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
+                                                              true, true, "transitOD", "baseCentroidConfig",
+                                                              "Transit Users", "06:00:00:000", "03:00:00:000");
+            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
+                                                              true, true, "RoadOD", "baseCentroidConfig",
+                                                              "Car Class ", "06:00:00:000", "03:00:00:000");
+            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\helloworld3.ang"));
         }
 
         [TestMethod]
         public void TestImportMatrixFromCSVThirdNormalizedTransitOD()
         {
-            // This unit test is used to test when transitOD is passed
-            // change the network
-            string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetworkWithOd.ang");
-            Helper.Modeller.SwitchModel(null, newNetwork);
-
-            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
-                                                              true, true, "transitOD", "baseCentroidConfig",
-                                                              "transit", "06:00:00:000", "03:00:00:000");
-        }
-
-        [TestMethod]
-        public void TestSaveImportMatrixFromCSVThirdNormalizedTestOD()
-        {
             //change the network
-            string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetworkWithTransitSchedule.ang");
+            string newNetwork = Helper.BuildFilePath("aimsunFiles\\transch.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
 
             Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
                                                               true, true, "testOD", "baseCentroidConfig",
                                                               "Car Class ", "06:00:00:000", "03:00:00:000");
-
-            //build an output file location of where to save the file
-            string outputPath = Helper.BuildFilePath("aimsunFiles\\test3\\FrabitztownNetworkWithOd.ang");
-            Helper.Modeller.SaveNetworkModel(null, outputPath);
-        }
-
-        [TestMethod]
-        public void TestSaveImportMatrixFromCSVThirdNormalizedTransitOD()
-        {
-            // This unit test is used to test when transitOD is passed
-            // change the network
-            string newNetwork = Helper.BuildFilePath("aimsunFiles\\FrabitztownNetworkWithOd.ang");
-            Helper.Modeller.SwitchModel(null, newNetwork);
-
-            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
-                                                              true, true, "transitOD", "baseCentroidConfig",
-                                                              "transit", "06:00:00:000", "03:00:00:000");
-
-            //build an output file location of where to save the file
-            string outputPath = Helper.BuildFilePath("aimsunFiles\\test3\\FrabitztownNetworkWithOd2.ang");
-            Helper.Modeller.SaveNetworkModel(null, outputPath);
         }
     }
 }

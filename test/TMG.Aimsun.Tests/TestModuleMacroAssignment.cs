@@ -56,21 +56,21 @@ namespace TMG.Aimsun.Tests
             //run the remaining tools
             Utility.RunImportTransitScheduleTool(networkPath, Helper.BuildFilePath("inputFiles\\frab_service_table.csv"));
         
-            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
-                                                              true, true, "testOD", "baseCentroidConfig",
-                                                              "Car Class ", "06:00:00:000", "03:00:00:000");
-            Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
-                                                              true, true, "transitOD", "baseCentroidConfig",
-                                                              "Transit Users", "06:00:00:000", "03:00:00:000");
-            Utility.RunAssignmentTool("assignment\\roadAssignment.py", "testOD", 360.0, 180.0, "transitOD");
+            //Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
+            //                                                  true, true, "testOD", "baseCentroidConfig",
+            //                                                  "Car Class ", "06:00:00:000", "03:00:00:000");
+            //Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
+            //                                                  true, true, "transitOD", "baseCentroidConfig",
+            //                                                  "Transit Users", "06:00:00:000", "03:00:00:000");
+            //Utility.RunAssignmentTool("assignment\\roadAssignment.py", "testOD", 360.0, 180.0, "transitOD");
 
             // if we don't do this here we won't get out transit matrices
-            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\road.ang"));
-            Helper.Modeller.SwitchModel(null, Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\road.ang"));
-            Utility.RunAssignmentTool("assignment\\transitAssignment.py", "testOD", 360.0, 180.0, "transitOD");
-            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\transit.ang"));
-            Utility.RunExportTool(Helper.BuildFilePath("aimsunFiles\\results\\test1.csv"), "Skim - Cost: Car Class  ");
-            Utility.RunExportTool(Helper.BuildFilePath("aimsunFiles\\results\\test2.csv"), "Transit Skim - Initial Waiting Time: ");
+            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\transch.ang"));
+            //Helper.Modeller.SwitchModel(null, Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\road.ang"));
+            //Utility.RunAssignmentTool("assignment\\transitAssignment.py", "testOD", 360.0, 180.0, "transitOD");
+            //Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\transit.ang"));
+            //Utility.RunExportTool(Helper.BuildFilePath("aimsunFiles\\results\\test1.csv"), "Skim - Cost: Car Class  ");
+            //Utility.RunExportTool(Helper.BuildFilePath("aimsunFiles\\results\\test2.csv"), "Transit Skim - Initial Waiting Time: ");
         }
 
         [TestMethod]
