@@ -92,8 +92,8 @@ def extract_OD_Data(fileLocation, model, catalog, header, thirdNormalized, vehic
     with open(fileLocation) as csvfile:
         reader = csv.reader(csvfile)
         sectionType = model.getType("GKCentroid")
-        entranceCentroidType = model.getType("GKCenConnection") #GKPedestrianEntranceCentroid")
-        exitCentroidType = model.getType("GKCenConnection") #GKPedestrianExitCentroid")
+        entranceCentroidType = model.getType("GKCenConnection")
+        exitCentroidType = model.getType("GKCenConnection")
 
         if header is True:
             next(reader)
