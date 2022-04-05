@@ -29,11 +29,10 @@ namespace TMG.Aimsun.Tests
 {
     /// <summary>
     /// Property class of all json parameters for traffic demand
-    /// Four input parameters
-    /// NameODMatrix: Name of OD matrix being used to create traffic demand
-    /// InitialTime: Initial time in minutes
-    /// Duration: Duration of demand in minutes
-    /// DemandName: The name of the Traffic Demand object
+    /// <param name="NameODMatrix">Name of OD matrix being used to create traffic demand</param>
+    /// <param name="InitialTime">Initial time in minutes</param>
+    /// <param name="Duration">Duration of demand in minutes</param>
+    /// <param name="DemandName">The name of the Traffic Demand object</param>
     /// </summary>
     public class TrafficDemandClassParameters
     {
