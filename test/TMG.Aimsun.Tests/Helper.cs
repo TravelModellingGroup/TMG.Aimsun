@@ -28,6 +28,23 @@ using System.Collections.Generic;
 namespace TMG.Aimsun.Tests
 {
     /// <summary>
+    /// Property class of all json parameters for traffic demand
+    /// Four input parameters
+    /// NameODMatrix: Name of OD matrix being used to create traffic demand
+    /// InitialTime: Initial time in minutes
+    /// Duration: Duration of demand in minutes
+    /// NewNameofTrafficDemand: The name of the Traffic Demand object 
+    /// </summary>
+    public class TrafficDemandData
+    {
+        public string NameODMatrix;
+        public double InitialTime;
+        public double Duration;
+        //ToDo: Implement once Aimsun is up again
+        //public string NewNameofTrafficDemand;
+    }
+
+    /// <summary>
     /// a property class of all the json configuration keys. 
     /// When we parse a json file we save the result to this class
     /// json object of files of interest.
