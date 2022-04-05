@@ -27,7 +27,7 @@ namespace TMG.Aimsun.assignment
     [ModuleInformation(Description = "Module to generate and build the Aimsun Traffic Demand object")]
     public class CreateTrafficDemand : IAimsunTool
     {
-        public const string ToolName = "assignment/trafficDemand.py";
+        public const string ToolName = "assignment/createTrafficDemand.py";
 
         [ModuleInformation(Description = "Module to Add the inputs for actually creating multiple traffic demand objects")]
         public class DemandParameters : IModule

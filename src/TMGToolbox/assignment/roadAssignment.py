@@ -28,7 +28,6 @@ from PyMacroPTPlugin import *
 from PyFrankWolfePlugin import *
 import sys
 import commonModule as CM
-import trafficDemand as TD
 
 def create_scenario(model, trafficDemand, ptPlan):
     """
