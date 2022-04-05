@@ -33,17 +33,17 @@ namespace TMG.Aimsun.Tests
             string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\helloworld3.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
 
-            List<TrafficDemandClassParameters> myList = new List<TrafficDemandClassParameters>()
+            List<TrafficDemandClassParameters> MatrixParameters1 = new List<TrafficDemandClassParameters>()
             {
                 new TrafficDemandClassParameters() {NameODMatrix="testOD", InitialTime=360.0, Duration=180.0},
                 new TrafficDemandClassParameters() {NameODMatrix="transitOD", InitialTime=360.0, Duration=60.0}
             };
-            Utility.RunTrafficDemand(myList);
-            List<TrafficDemandClassParameters> myList2 = new List<TrafficDemandClassParameters>()
+            Utility.RunTrafficDemand(MatrixParameters1);
+            List<TrafficDemandClassParameters> MatrixParameters2 = new List<TrafficDemandClassParameters>()
             {
                 new TrafficDemandClassParameters() {NameODMatrix="RoadOD", InitialTime=360.0, Duration=180.0}
             };
-            Utility.RunTrafficDemand(myList2);
+            Utility.RunTrafficDemand(MatrixParameters2);
             Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\roadTest3.ang"));
         }
 
