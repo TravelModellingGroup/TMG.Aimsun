@@ -29,7 +29,6 @@ from PyFrankWolfePlugin import *
 import sys
 import commonModule as CM
 
-
 def create_scenario(model, trafficDemand, ptPlan):
     """
     Function to create the static road assignmment scenario

@@ -32,6 +32,7 @@
       <Link>aimsunBridge.py</Link>
     </Compile>
     <Compile Include="assignment\commonModule.py" />
+    <Compile Include="assignment\createTrafficDemand.py" />
     <Compile Include="assignment\transitAssignment.py" />
     <Compile Include="assignment\dynamicAssignment.py" />
     <Compile Include="assignment\macroAssignment.py" />
