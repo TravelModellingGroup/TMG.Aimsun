@@ -125,11 +125,12 @@ namespace TMG.Aimsun.Tests
         /// Method to create a traffic demand object that is then used by road and transit assignment
         /// </summary>
         /// <param name="matrixParameters">Nested List of all input parameters for the Aimsun traffic demand object</param>
-        public static void RunTrafficDemand(List<TMG.Aimsun.Tests.TrafficDemandClassParameters> matrixParameters)
+        public static void RunTrafficDemand(string demandName, List<TMG.Aimsun.Tests.TrafficDemandClassParameters> matrixParameters)
         {
             string modulePath = Helper.BuildModulePath("assignment\\createTrafficDemand.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
+                demandObjectName = demandName,
                 demandParams = matrixParameters
             });
             Helper.Modeller.Run(null, modulePath, jsonParameters);

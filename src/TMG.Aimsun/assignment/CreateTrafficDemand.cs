@@ -29,6 +29,9 @@ namespace TMG.Aimsun.assignment
     {
         public const string ToolName = "assignment/createTrafficDemand.py";
 
+        [RunParameter("TrafficDemandName", "", "The new name of the traffic demand object created.")]
+        public string demandName;
+
         [ModuleInformation(Description = "Module to Add the inputs for actually creating multiple traffic demand objects")]
         public class DemandParameters : IModule
         {
@@ -71,6 +74,8 @@ namespace TMG.Aimsun.assignment
             return aimsunController.Run(this, ToolName,
                 JsonParameterBuilder.BuildParameters(writer =>
                 {
+                    writer.WritePropertyName("demandObjectName");
+                    writer.WriteValue(demandName);
                     writer.WritePropertyName("demandParams");
                     writer.WriteStartArray();
                     for (int i = 0; i < DemandParams.Length; i++)

@@ -33,15 +33,14 @@ namespace TMG.Aimsun.Tests
     /// NameODMatrix: Name of OD matrix being used to create traffic demand
     /// InitialTime: Initial time in minutes
     /// Duration: Duration of demand in minutes
-    /// NewNameofTrafficDemand: The name of the Traffic Demand object 
+    /// DemandName: The name of the Traffic Demand object
     /// </summary>
     public class TrafficDemandClassParameters
     {
         public string NameODMatrix;
         public double InitialTime;
         public double Duration;
-        //ToDo: Implement once Aimsun is up again
-        //public string NewNameofTrafficDemand;
+        public string DemandName;
     }
 
     /// <summary>
