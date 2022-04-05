@@ -17,6 +17,7 @@
     along with TMGToolbox for Aimsun.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+from ast import Param
 from PyANGBasic import *
 from PyANGKernel import *
 from PyANGConsole import *
@@ -60,6 +61,7 @@ def create_traffic_demand(model, system, xtmf_parameters):
         scheduleDemandItem.setTrafficDemandItem(odMatrix)
         trafficDemand.addToSchedule(scheduleDemandItem)
     
+    trafficDemand.setName(xtmf_parameters["demandName"])
     return trafficDemand
     
 def run_xtmf(parameters, model, console):
@@ -69,6 +71,7 @@ def run_xtmf(parameters, model, console):
     """
     # extract the parameters and save to dictionary
     xtmf_parameters = {
+        "demandName": parameters["demandObjectName"],
         "demandParams": parameters["demandParams"],
     }
     _execute(model, console, xtmf_parameters)

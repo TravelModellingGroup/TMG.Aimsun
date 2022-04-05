@@ -38,12 +38,12 @@ namespace TMG.Aimsun.Tests
                 new TrafficDemandClassParameters() {NameODMatrix="testOD", InitialTime=360.0, Duration=180.0},
                 new TrafficDemandClassParameters() {NameODMatrix="transitOD", InitialTime=360.0, Duration=60.0}
             };
-            Utility.RunTrafficDemand(matrixParameters1);
+            Utility.RunTrafficDemand("DoubleTest1", matrixParameters1);
             List<TrafficDemandClassParameters> matrixParameters2 = new List<TrafficDemandClassParameters>()
             {
                 new TrafficDemandClassParameters() {NameODMatrix="RoadOD", InitialTime=360.0, Duration=180.0}
             };
-            Utility.RunTrafficDemand(matrixParameters2);
+            Utility.RunTrafficDemand("Transit Demand ", matrixParameters2);
             Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\roadTest3.ang"));
         }
 
