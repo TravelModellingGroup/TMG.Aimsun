@@ -102,21 +102,16 @@ namespace TMG.Aimsun.Tests
         /// Method to run the Road Assignment tool and generate the roads in the model
         /// </summary>
         /// <param name="toolPath">string path of which assignment tool to run</param>
-        /// <param name="autodemand">string name of autodemand</param>
-        /// <param name="starttime">double start time in minutes </param>
-        /// <param name="durationtime">double duration time in minutes</param>
-        /// <param name="transitdemand">string name of transit demand</param>
-        public static void RunAssignmentTool(string toolPath, string autodemand, double starttime, 
-                                                    double durationtime, string transitdemand)
+        /// <param name="nameOfTrafficDemand">string name of the traffic demand name</param>
+        /// <param name="nameOfPublicTransitPlan">string name of the public transit plan</param>
+        public static void RunAssignmentTool(string toolPath, string nameOfTrafficDemand, string nameOfPublicTransitPlan)
         {
             string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, toolPath);
             //string modulePath = Helper.BuildModulePath("assignment\\roadAssignment.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
-                autoDemand = autodemand,
-                Start = starttime,
-                Duration = durationtime,
-                transitDemand = transitdemand
+                nameOfTrafficDemand = nameOfTrafficDemand,
+                nameOfPublicTransitPlan = nameOfPublicTransitPlan
             });
             Helper.Modeller.Run(null, modulePath, jsonParameters);
         }

@@ -19,8 +19,6 @@
 
 using System;
 using XTMF;
-using TMG.Input;
-using System.IO;
 
 namespace TMG.Aimsun.assignment
 {
@@ -29,17 +27,11 @@ namespace TMG.Aimsun.assignment
     {
         public const string ToolName = "assignment/roadAssignment.py";
 
-        [RunParameter("AutoDemand", "testOD", "The name of the autoDemand")]
-        public string AutoDemand;
+        [RunParameter("Name of Traffic Demand", "", "The name of the Traffic Demand you wish to use for the simulation")]
+        public string nameOfTrafficDemand;
 
-        [RunParameter("TransitDemand", "transitOD", "The name of the transit demand")]
-        public string TransitDemand;
-
-        [RunParameter("StartTime", 360.0, "The start time in minutes")]
-        public float StartTime;
-
-        [RunParameter("DurationTime", 180.0, "The duration of time in minutes")]
-        public float DurationTime;
+        [RunParameter("Name of Public Transit Plan", "", "The name of the public transit plan")]
+        public string nameOfPublicTransitPlan;
 
         public string Name { get; set; }
         
@@ -61,14 +53,10 @@ namespace TMG.Aimsun.assignment
             return aimsunController.Run(this, ToolName,
                 JsonParameterBuilder.BuildParameters(writer =>
                 {
-                    writer.WritePropertyName("autoDemand");
-                    writer.WriteValue(AutoDemand);
-                    writer.WritePropertyName("transitDemand");
-                    writer.WriteValue(TransitDemand);
-                    writer.WritePropertyName("Start");
-                    writer.WriteValue(StartTime);
-                    writer.WritePropertyName("Duration");
-                    writer.WriteValue(DurationTime);
+                    writer.WritePropertyName("nameOfTrafficDemand");
+                    writer.WriteValue(nameOfTrafficDemand);
+                    writer.WritePropertyName("nameOfPublicTransitPlan");
+                    writer.WriteValue(nameOfPublicTransitPlan);
                 }));
         }
     }
