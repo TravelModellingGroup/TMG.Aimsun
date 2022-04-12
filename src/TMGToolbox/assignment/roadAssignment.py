@@ -80,10 +80,8 @@ def run_xtmf(parameters, model, console):
     """
     # extract the parameters and save to dictionary
     xtmf_parameters = {
-        "autoDemand": parameters["autoDemand"],
-        "start": parameters["Start"],
-        "duration": parameters["Duration"],
-        "transitDemand": parameters["transitDemand"],
+        "trafficDemandName": parameters["nameOfTrafficDemand"],
+        "PublicTransitPlanName": parameters["nameOfPublicTransitPlan"]
     }
     _execute(model, console, xtmf_parameters)
     
@@ -93,12 +91,13 @@ def _execute(inputModel, console, xtmf_parameters):
     """
     model = inputModel
     system = GKSystem.getSystem()
-    # extract the trafficDemand data
-    trafficDemand = CM.create_schedule_demand_item(model, system, xtmf_parameters)
-    # create a PT Plan
-    ptPlan = CM.create_PublicTransit_plan(model)
+    catalog = model.getCatalog()
+    # extract the traffic demand object
+    trafficDemandObject = catalog.findByName(xtmf_parameters["trafficDemandName"])
+    # extract the public transit object
+    publicTransitObject = catalog.findByName(xtmf_parameters["PublicTransitPlanName"])
     # Create the scenario
-    scenario, pathAssignment = create_scenario(model, trafficDemand, ptPlan)
+    scenario, pathAssignment = create_scenario(model, trafficDemandObject, publicTransitObject)
     # generate the experiment
     experiment = create_experiment_for_scenario(model, scenario, pathAssignment)
     # Execute the experiment for road assignment
