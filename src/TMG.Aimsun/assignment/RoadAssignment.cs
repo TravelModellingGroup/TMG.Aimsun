@@ -28,10 +28,10 @@ namespace TMG.Aimsun.assignment
         public const string ToolName = "assignment/roadAssignment.py";
 
         [RunParameter("Name of Traffic Demand", "", "The name of the Traffic Demand you wish to use for the simulation")]
-        public string nameOfTrafficDemand;
+        public string NameOfTrafficDemand;
 
         [RunParameter("Name of Public Transit Plan", "", "The name of the public transit plan")]
-        public string nameOfPublicTransitPlan;
+        public string NameOfPublicTransitPlan;
 
         public string Name { get; set; }
         
@@ -54,9 +54,9 @@ namespace TMG.Aimsun.assignment
                 JsonParameterBuilder.BuildParameters(writer =>
                 {
                     writer.WritePropertyName("nameOfTrafficDemand");
-                    writer.WriteValue(nameOfTrafficDemand);
+                    writer.WriteValue(NameOfTrafficDemand);
                     writer.WritePropertyName("nameOfPublicTransitPlan");
-                    writer.WriteValue(nameOfPublicTransitPlan);
+                    writer.WriteValue(NameOfPublicTransitPlan);
                 }));
         }
     }
