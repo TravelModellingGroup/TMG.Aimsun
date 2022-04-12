@@ -21,19 +21,26 @@ from PyANGBasic import *
 from PyANGKernel import *
 from PyANGConsole import *
 from PyANGDTA import *
-from PyMacroKernelPlugin import *
-from PyMacroToolPlugin import *
-from PyMacroAdjustmentPlugin import *
-from PyMacroPTPlugin import *
-from PyFrankWolfePlugin import *
-import sys
-import os
 
+def build_folder(model, aimsunObject, folderNameObject):
+    """
+    Method to create a folder and add Aimsun objects inside it to show inside the GUI
+    This is useful in validating the network and various components are correctly setup
+    """
+    folder = model.getCreateRootFolder().findFolder(folderNameObject)
+    # if no folder object exists then create a new one otherwise use the existing folder
+    # and append a new object to it
+    if folder == None:
+        folder = GKSystem.getSystem().createFolder(model.getCreateRootFolder(), folderNameObject) 
+    folder.append(aimsunObject)
+
+    return folder
 
 def create_schedule_demand_item(model, system, xtmf_parameters):
     """
     Function which generates and creates the TrafficDemand Data
     TODO need to rename odmatrix into a new variable to make this codebase cleaner
+    ToDO: Delete In next PR of roadAssignment
     """
     # add info from the OD Matrix into a traffic demand item which is used in the model
     trafficDemand = GKSystem.getSystem().newObject("GKTrafficDemand", model)
@@ -62,6 +69,7 @@ def create_schedule_demand_item(model, system, xtmf_parameters):
 def create_PublicTransit_plan(model):
     """
     Create a public transit plan
+    ToDO: Delete In next PR of roadAssignment
     """
     ptPlan = GKSystem.getSystem().newObject("GKPublicLinePlan", model)
     ptPlan.setName("Public Transit Plan")

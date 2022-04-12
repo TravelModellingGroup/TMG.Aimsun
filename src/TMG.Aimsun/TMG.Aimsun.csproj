@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="AimsunController.cs" />
     <Compile Include="AimsunTool.cs" />
+    <Compile Include="assignment\CreatePublicTransitPlan.cs" />
     <Compile Include="assignment\RoadAssignment.cs" />
     <Compile Include="assignment\CreateTrafficDemand.cs" />
     <Compile Include="assignment\TransitAssignment.cs" />

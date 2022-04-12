@@ -23,31 +23,27 @@ from PyANGConsole import *
 from PyANGDTA import *
 import commonModule as CM
 
-def create_traffic_demand(model, system, xtmf_parameters):
+def create_PublicTransit_plan(model, system, xtmf_parameters):
     """
-    Function which generates and creates the TrafficDemand Data
-    # to find a list of all folders qthelp://aimsun.com.aimsun.22.0/doc/UsersManual/ScriptExample1.
+    Method to create a public transit plan used in the scenarios
     """
-    # the name of the folder object we will be creating
-    folderName = "GKModel::trafficDemand"
-    # add info from the OD Matrix into a traffic demand item which is used in the model
-    trafficDemand = system.newObject("GKTrafficDemand", model)
+    ptPlan = system.newObject("GKPublicLinePlan", model)
+    newNameOfPlan = xtmf_parameters["nameOfPlan"]
+    # set the name of the public transit object
+    ptPlan.setName(newNameOfPlan)
+    # remove all whitespaces to create the external name
+    externalIdPlan = newNameOfPlan.replace(" ", "")
+    ptPlan.setExternalId(externalIdPlan)
+    # add all the timetables to the plan
+    timeTableType = model.getType("GKPublicLineTimeTable")
+    timeTables = model.getCatalog().getObjectsByType(timeTableType)
+    for timeTable in iter(timeTables.values()):
+        ptPlan.addTimeTable(timeTable)
 
-    # build traffic demand folder is required
-    CM.build_folder(model, trafficDemand, folderName)
-    
-    scheduleDemandItem = GKScheduleDemandItem()
-    sectionType = model.getType("GKODMatrix") 
-   
-    for item in xtmf_parameters["demandParams"]:
-        odMatrix = model.getCatalog().findObjectByExternalId(item["NameODMatrix"], sectionType)   
-        # TODO make these parameters for the scenario length
-        scheduleDemandItem.setFrom(int(item["InitialTime"] * 60.0))
-        scheduleDemandItem.setDuration(int(item["Duration"] * 60.0))
-        scheduleDemandItem.setTrafficDemandItem(odMatrix)
-        trafficDemand.addToSchedule(scheduleDemandItem)
-    
-    trafficDemand.setName(xtmf_parameters["demandName"])
+    # name of the public plans folder we need to create
+    folderName = "GKModel::publicPlans"
+    # add object to public transit folder
+    CM.build_folder(model, ptPlan, folderName)
     
 def run_xtmf(parameters, model, console):
     """
@@ -56,8 +52,7 @@ def run_xtmf(parameters, model, console):
     """
     # extract the parameters and save to dictionary
     xtmf_parameters = {
-        "demandName": parameters["demandObjectName"],
-        "demandParams": parameters["demandParams"],
+        "nameOfPlan": parameters["NameOfPlan"]
     }
     _execute(model, console, xtmf_parameters)
     
@@ -65,7 +60,8 @@ def _execute(inputModel, console, xtmf_parameters):
     """
     Main execute function to run the simulation
     """
-    model = inputModel
+    model = inputModel 
     system = GKSystem.getSystem()
-    # method to create the traffic demand object
-    create_traffic_demand(model, system, xtmf_parameters)
+    
+    create_PublicTransit_plan(model, system, xtmf_parameters)
+    
