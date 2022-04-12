@@ -27,12 +27,11 @@ namespace TMG.Aimsun.Tests
     public class TestModuleMacroAssignment
     {
         [TestMethod]
-        public void RunTrafficDemand()
+        public void CreateTrafficDemand()
         {
             //change the network
-            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\helloworld3.ang");
+            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\roadTest1.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
-
             List<TrafficDemandClassParameters> matrixParameters1 = new List<TrafficDemandClassParameters>()
             {
                 new TrafficDemandClassParameters() {NameODMatrix="testOD", InitialTime=360.0, Duration=180.0},
@@ -41,20 +40,30 @@ namespace TMG.Aimsun.Tests
             Utility.RunTrafficDemand("DoubleTest1", matrixParameters1);
             List<TrafficDemandClassParameters> matrixParameters2 = new List<TrafficDemandClassParameters>()
             {
-                new TrafficDemandClassParameters() {NameODMatrix="RoadOD", InitialTime=360.0, Duration=180.0}
+                new TrafficDemandClassParameters() {NameODMatrix="transitOD", InitialTime=360.0, Duration=180.0}
             };
             Utility.RunTrafficDemand("Transit Demand ", matrixParameters2);
-            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\roadTest3.ang"));
+            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\TD1.ang"));
+        }
+
+        [TestMethod]
+        public void CreatePublicTransitPlan()
+        {
+            //change the network
+            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\TD1.ang");
+            Helper.Modeller.SwitchModel(null, newNetwork);
+            Utility.RunCreatePublicTransitPlan("TEST PUBLIC PLAN");
+            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\PT1.ang"));
         }
 
         [TestMethod]
         public void RunRoadAssignment()
         {
             //change the network
-            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\helloworld3.ang");
+            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\roadTest3.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
             Utility.RunAssignmentTool("assignment\\roadAssignment.py", "testOD", 360.0, 180.0, "transitOD");
-            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\roadTest1.ang"));
+            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\TestRoadAssignment.ang"));
         }
 
         [TestMethod]
@@ -83,10 +92,24 @@ namespace TMG.Aimsun.Tests
             Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\frabitztownOd.csv"),
                                                               true, true, "transitOD", "baseCentroidConfig",
                                                               "Transit Users", "06:00:00:000", "03:00:00:000");
-           // Utility.RunAssignmentTool("assignment\\roadAssignment.py", "testOD", 360.0, 180.0, "transitOD");
+
+            List<TrafficDemandClassParameters> matrixParameters1 = new List<TrafficDemandClassParameters>()
+            {
+                new TrafficDemandClassParameters() {NameODMatrix="testOD", InitialTime=360.0, Duration=180.0},
+                new TrafficDemandClassParameters() {NameODMatrix="transitOD", InitialTime=360.0, Duration=60.0}
+            };
+            Utility.RunTrafficDemand("DoubleTest1", matrixParameters1);
+            List<TrafficDemandClassParameters> matrixParameters2 = new List<TrafficDemandClassParameters>()
+            {
+                new TrafficDemandClassParameters() {NameODMatrix="transitOD", InitialTime=360.0, Duration=180.0}
+            };
+            Utility.RunTrafficDemand("Transit Demand ", matrixParameters2);
+            Utility.RunCreatePublicTransitPlan("TEST IS  a pipeline test");
+
+            // Utility.RunAssignmentTool("assignment\\roadAssignment.py", "testOD", 360.0, 180.0, "transitOD");
 
             // if we don't do this here we won't get out transit matrices
-            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\roadTest1.ang"));
+            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\roadTest21.ang"));
             //Helper.Modeller.SwitchModel(null, Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\road.ang"));
             //Utility.RunAssignmentTool("assignment\\transitAssignment.py", "testOD", 360.0, 180.0, "transitOD");
             //Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\transit.ang"));

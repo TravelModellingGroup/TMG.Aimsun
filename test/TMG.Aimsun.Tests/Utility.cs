@@ -138,6 +138,20 @@ namespace TMG.Aimsun.Tests
         }
 
         /// <summary>
+        /// Method to create a public transit name for the various scenarios and experiment.
+        /// </summary>
+        /// <param name="name">Name of the public transit plan object created.</param>
+        public static void RunCreatePublicTransitPlan(string name)
+        {
+            string modulePath = Helper.BuildModulePath("assignment\\createPublicTransitPlan.py");
+            string jsonParameters = JsonConvert.SerializeObject(new
+            {
+                NameOfPlan = name,
+            });
+            Helper.Modeller.Run(null, modulePath, jsonParameters);
+        }
+
+        /// <summary>
         /// Method to export a matrix to a filepath
         /// </summary>
         /// <param name="filePath">The file path location of where to save the file</param>
