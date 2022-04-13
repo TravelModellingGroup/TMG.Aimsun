@@ -44,6 +44,9 @@ namespace TMG.Aimsun.Tests
 
     /// <summary>
     /// Property class of all json parameters to change matrix names
+    /// <param name="VehicleType">Type of vehicle</param>
+    /// <param name="ACostName">Name of ACost Matrix</param>
+    /// <param name="AIVTT">Name of AIVTT Matrix</param>
     /// </summary>
     public class MatrixName
     {

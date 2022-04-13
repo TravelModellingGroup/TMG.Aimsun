@@ -109,8 +109,12 @@ namespace TMG.Aimsun.Tests
             };
             Utility.RunTrafficDemand("Transit Demand", matrixParameters2);
             Utility.RunCreatePublicTransitPlan("PublicTransitTest1");
-            //Utility.RunAssignmentTool("assignment\\roadAssignment.py", "Transit Demand", "PublicTransitTest1");
-
+            List<MatrixName> matrixParameters3 = new List<MatrixName>()
+            {
+                new MatrixName() { VehicleType="Car Class ", ACostName="Car Class ACost", AIVTT="Car Class DIstance AIVTT"},
+                new MatrixName() { VehicleType="Transit Users", ACostName="Transit Users ACost", AIVTT="Transit Users DIstance AIVTT"}
+            };
+            Utility.RunAssignmentTool("assignment\\roadAssignment.py", "DoubleTest1", "TEST IS  a pipeline test", matrixParameters3);
             // if we don't do this here we won't get out transit matrices
             Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\roadTest21.ang"));
             //Helper.Modeller.SwitchModel(null, Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\road.ang"));
