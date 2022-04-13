@@ -107,9 +107,12 @@ def _execute(inputModel, console, xtmf_parameters):
     experiment.getStatsManager().createTrafficState()
     # extract the skim matrices 
     skim_matrix_list = experiment.getOutputData().getSkimMatrices()
+    # get id of experiment
     experiment_id = experiment.getId()
+    # matrix prefix
+    matrix_name_prefix = "Skim - "
     # rename the matrix
-    CM.renameMatrix(model, skim_matrix_list, experiment_id, "road", xtmf_parameters["MatrixNames"])
+    CM.renameMatrix(model, skim_matrix_list, experiment_id, matrix_name_prefix, xtmf_parameters["MatrixNames"])
     print ('experiment ran successfully')
     
 def runFromConsole(inputArgs):

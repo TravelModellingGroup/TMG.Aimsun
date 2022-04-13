@@ -67,7 +67,7 @@ namespace TMG.Aimsun.Tests
                 new MatrixName() { VehicleType="Car Class ", ACostName="Car Class ACost", AIVTT="Car Class DIstance AIVTT"},
                 new MatrixName() { VehicleType="Transit Users", ACostName="Transit Users ACost", AIVTT="Transit Users DIstance AIVTT"}
             };
-            Utility.RunAssignmentTool("assignment\\roadAssignment.py", "DoubleTest1", "TEST IS  a pipeline test", matrixParameters1);
+            Utility.RunAssignmentTool("assignment\\roadAssignment.py", "DoubleTest1", "PublicTransitTest1", matrixParameters1);
 
             Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\TestRoadAssignment.ang"));
         }
@@ -114,12 +114,11 @@ namespace TMG.Aimsun.Tests
                 new MatrixName() { VehicleType="Car Class ", ACostName="Car Class ACost", AIVTT="Car Class DIstance AIVTT"},
                 new MatrixName() { VehicleType="Transit Users", ACostName="Transit Users ACost", AIVTT="Transit Users DIstance AIVTT"}
             };
-            Utility.RunAssignmentTool("assignment\\roadAssignment.py", "DoubleTest1", "TEST IS  a pipeline test", matrixParameters3);
+            Utility.RunAssignmentTool("assignment\\roadAssignment.py", "DoubleTest1", "PublicTransitTest1", matrixParameters3);
             // if we don't do this here we won't get out transit matrices
             Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\roadTest21.ang"));
             //Helper.Modeller.SwitchModel(null, Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\road.ang"));
             //Utility.RunAssignmentTool("assignment\\transitAssignment.py", "testOD", 360.0, 180.0, "transitOD");
-            //Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\transit.ang"));
             //Utility.RunExportTool(Helper.BuildFilePath("aimsunFiles\\results\\test1.csv"), "Skim - Cost: Car Class  ");
             //Utility.RunExportTool(Helper.BuildFilePath("aimsunFiles\\results\\test2.csv"), "Transit Skim - Initial Waiting Time: ");
         }
