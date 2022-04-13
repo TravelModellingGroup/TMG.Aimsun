@@ -25,12 +25,15 @@ namespace TMG.Aimsun.assignment
     [ModuleInformation(Description = "Generate a road assignment")]
     public class RoadAssignment : IAimsunTool
     {
+        [ModuleInformation(Description ="SubModule to name the various types of Matrices")]
         public class TrafficClass: IModule
         {
             [RunParameter("Traffic Class Name", "", "Traffic Class Name")]
             public string VehicleType;
+
             [RunParameter("AIVTTMatrix NAme ", "", "Name of the AIVTT Matrix Name")]
             public string AIVTT;
+
             [RunParameter("Acost Matrix", "", "Name of the ACost Matrix")]
             public string ACostName;
 

@@ -68,7 +68,6 @@ namespace TMG.Aimsun.Tests
                 new MatrixName() { VehicleType="Transit Users", ACostName="Transit Users ACost", AIVTT="Transit Users DIstance AIVTT"}
             };
             Utility.RunAssignmentTool("assignment\\roadAssignment.py", "DoubleTest1", "TEST IS  a pipeline test", matrixParameters1);
-            //Utility.RunAssignmentTool("assignment\\roadAssignment.py", "Transit Demand ", "TEST IS  a pipeline test");
 
             Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\TestRoadAssignment.ang"));
         }

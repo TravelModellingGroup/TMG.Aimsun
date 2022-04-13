@@ -98,12 +98,6 @@ namespace TMG.Aimsun.Tests
             Helper.Modeller.Run(null, modulePath, jsonParameters);
         }
 
-        public class Meta
-        {
-            public string VehicleType;
-            public string Name;
-        }
-
         /// <summary>
         /// Method to run the Road Assignment tool and generate the roads in the model
         /// </summary>
