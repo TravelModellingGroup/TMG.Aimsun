@@ -81,7 +81,8 @@ def run_xtmf(parameters, model, console):
     # extract the parameters and save to dictionary
     xtmf_parameters = {
         "trafficDemandName": parameters["nameOfTrafficDemand"],
-        "PublicTransitPlanName": parameters["nameOfPublicTransitPlan"]
+        "PublicTransitPlanName": parameters["nameOfPublicTransitPlan"],
+        "MatrixNames": parameters["matrixName"]
     }
     _execute(model, console, xtmf_parameters)
     
@@ -104,6 +105,11 @@ def _execute(inputModel, console, xtmf_parameters):
     print("Run road assignment experiment")
     system.executeAction("execute", experiment, [], "static assignment")
     experiment.getStatsManager().createTrafficState()
+    # extract the skim matrices 
+    skim_matrix_list = experiment.getOutputData().getSkimMatrices()
+    experiment_id = experiment.getId()
+    # rename the matrix
+    CM.renameMatrix(model, skim_matrix_list, experiment_id, "road", xtmf_parameters["MatrixNames"])
     print ('experiment ran successfully')
     
 def runFromConsole(inputArgs):

@@ -79,3 +79,33 @@ def create_PublicTransit_plan(model):
     for timeTable in iter(timeTables.values()):
         ptPlan.addTimeTable(timeTable)
     return ptPlan
+
+def renameMatrix(model, matrix_list, experiment_id, scenario_type, parameters):
+    """
+    Function to rename the matrix to something else
+    #Transit Skim - Crowding Discomfort: 1590: Transit Users - 
+    Skim - Cost: Transit Users 1597
+    """
+    name = ""
+    # determine if starting name will be from a road or a transit assignment
+    if scenario_type == "road":
+        name = "Skim - "
+    else: 
+        name - "Transit Skim - "
+
+    for matrix_object in matrix_list:
+        matrix_obj_name = matrix_object.getName()
+        # get all matrix name objects out
+        for item in parameters:
+            ACostName = name + "Cost: " + item["VehicleType"] +" " + str(experiment_id)
+            AIVTTName = name + "Distance: " + item["VehicleType"] +" " + str(experiment_id)
+
+            # check and change the names 
+            if matrix_obj_name == ACostName:
+                matrix_object.setName(item["ACostName"])
+            elif matrix_obj_name == AIVTTName:
+                matrix_object.setName(item["AIVTT"])
+            else:
+                print("No match found")
+        
+                

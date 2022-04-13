@@ -43,6 +43,17 @@ namespace TMG.Aimsun.Tests
     }
 
     /// <summary>
+    /// Property class of all json parameters to change matrix names
+    /// </summary>
+    public class MatrixName
+    {
+        public string VehicleType;
+        public string ACostName;
+        public string AIVTT;
+        //public string AToll;
+    }
+
+    /// <summary>
     /// a property class of all the json configuration keys. 
     /// When we parse a json file we save the result to this class
     /// json object of files of interest.

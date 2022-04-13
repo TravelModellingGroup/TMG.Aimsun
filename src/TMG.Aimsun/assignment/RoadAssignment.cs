@@ -25,6 +25,27 @@ namespace TMG.Aimsun.assignment
     [ModuleInformation(Description = "Generate a road assignment")]
     public class RoadAssignment : IAimsunTool
     {
+        public class TrafficClass: IModule
+        {
+            [RunParameter("Traffic Class Name", "", "Traffic Class Name")]
+            public string VehicleType;
+            [RunParameter("AIVTTMatrix NAme ", "", "Name of the AIVTT Matrix Name")]
+            public string AIVTT;
+            [RunParameter("Acost Matrix", "", "Name of the ACost Matrix")]
+            public string ACostName;
+
+            public string Name { get; set; }
+
+            public float Progress => 0f;
+
+            public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(120, 25, 100);
+
+            public bool RuntimeValidation(ref string error)
+            {
+                return true;
+            }
+        }
+
         public const string ToolName = "assignment/roadAssignment.py";
 
         [RunParameter("Name of Traffic Demand", "", "The name of the Traffic Demand you wish to use for the simulation")]
@@ -32,6 +53,9 @@ namespace TMG.Aimsun.assignment
 
         [RunParameter("Name of Public Transit Plan", "", "The name of the public transit plan")]
         public string NameOfPublicTransitPlan;
+
+        [SubModelInformation(Description = "traffic classes", Required = true)]
+        public TrafficClass[] TrafficClasses;
 
         public string Name { get; set; }
         
@@ -57,6 +81,20 @@ namespace TMG.Aimsun.assignment
                     writer.WriteValue(NameOfTrafficDemand);
                     writer.WritePropertyName("nameOfPublicTransitPlan");
                     writer.WriteValue(NameOfPublicTransitPlan);
+                    writer.WritePropertyName("matrixName");
+                    writer.WriteStartArray();
+                    for (int i = 0; i < TrafficClasses.Length; i++)
+                    {
+                        writer.WriteStartObject();
+                        writer.WritePropertyName("ACostName");
+                        writer.WriteValue(TrafficClasses[i].ACostName);
+                        writer.WritePropertyName("AIVTT");
+                        writer.WriteValue(TrafficClasses[i].AIVTT);
+                        writer.WritePropertyName("VehicleType");
+                        writer.WriteValue(TrafficClasses[i].VehicleType);
+                        writer.WriteEndObject();
+                    }
+                    writer.WriteEndArray();
                 }));
         }
     }
