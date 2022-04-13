@@ -57,6 +57,16 @@ namespace TMG.Aimsun.Tests
     }
 
     /// <summary>
+    /// Create a property class to rename matrices for transit assignment
+    /// </summary>
+    public class TransitAssignmentRenameMatrix
+    {
+        public string WalkTimes;
+        public string AToll;
+    }
+
+
+    /// <summary>
     /// a property class of all the json configuration keys. 
     /// When we parse a json file we save the result to this class
     /// json object of files of interest.

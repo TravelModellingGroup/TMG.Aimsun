@@ -80,22 +80,14 @@ def create_PublicTransit_plan(model):
         ptPlan.addTimeTable(timeTable)
     return ptPlan
 
-def renameMatrix(model, matrix_list, experiment_id, matrix_name_prefix, parameters):
+def renameMatrix(model, rename_matrix_dict):
     """
-    Function to rename the matrix to a format the user wishes
+    Function to rename the matrix
     """
-    # iterate over the skim matrix list and compare name
-    # if name matches rename to user specified name
-    for matrix_object in matrix_list:
-        matrix_obj_name = matrix_object.getName()
-        # get all matrix name objects out
-        for item in parameters:
-            ACostName = matrix_name_prefix + "Cost: " + item["VehicleType"] + " " + str(experiment_id)
-            AIVTTName = matrix_name_prefix + "Distance: " + item["VehicleType"] + " " + str(experiment_id)
-            # check and change the names 
-            if matrix_obj_name == ACostName:
-                matrix_object.setName(item["ACostName"])
-            elif matrix_obj_name == AIVTTName:
-                matrix_object.setName(item["AIVTT"])
-            else:
-                print("No match found")
+    # iterate over dictionary keys
+    for item in rename_matrix_dict.keys():
+        #find matrix object by name
+        matrix_object = model.getCatalog().findByName(item)
+        # set new name of the matrix object
+        matrix_object.setName(rename_matrix_dict[item])
+            
