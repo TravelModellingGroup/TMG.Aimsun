@@ -104,14 +104,17 @@ namespace TMG.Aimsun.Tests
         /// <param name="toolPath">string path of which assignment tool to run</param>
         /// <param name="nameOfTrafficDemand">string name of the traffic demand name</param>
         /// <param name="nameOfPublicTransitPlan">string name of the public transit plan</param>
-        public static void RunAssignmentTool(string toolPath, string nameOfTrafficDemand, string nameOfPublicTransitPlan)
+        /// <param name="matrixNames">List of matrix names to change for various skim matrices</param>
+        public static void RunAssignmentTool(string toolPath, string nameOfTrafficDemand, 
+            string nameOfPublicTransitPlan, List<TMG.Aimsun.Tests.MatrixName> matrixNames)
         {
             string modulePath = Path.Combine(Helper.TestConfiguration.ModulePath, toolPath);
             //string modulePath = Helper.BuildModulePath("assignment\\roadAssignment.py");
             string jsonParameters = JsonConvert.SerializeObject(new
             {
                 nameOfTrafficDemand = nameOfTrafficDemand,
-                nameOfPublicTransitPlan = nameOfPublicTransitPlan
+                nameOfPublicTransitPlan = nameOfPublicTransitPlan,
+                matrixName = matrixNames
             });
             Helper.Modeller.Run(null, modulePath, jsonParameters);
         }

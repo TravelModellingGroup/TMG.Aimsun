@@ -62,8 +62,13 @@ namespace TMG.Aimsun.Tests
             //change the network
             string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\roadTest21.ang");
             Helper.Modeller.SwitchModel(null, newNetwork);
-            Utility.RunAssignmentTool("assignment\\roadAssignment.py", "DoubleTest1", "TEST IS  a pipeline test");
-            Utility.RunAssignmentTool("assignment\\roadAssignment.py", "Transit Demand ", "TEST IS  a pipeline test");
+            List<MatrixName> matrixParameters1 = new List<MatrixName>()
+            {
+                new MatrixName() { VehicleType="Car Class ", ACostName="Car Class ACost", AIVTT="Car Class DIstance AIVTT"},
+                new MatrixName() { VehicleType="Transit Users", ACostName="Transit Users ACost", AIVTT="Transit Users DIstance AIVTT"}
+            };
+            Utility.RunAssignmentTool("assignment\\roadAssignment.py", "DoubleTest1", "PublicTransitTest1", matrixParameters1);
+
             Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\TestRoadAssignment.ang"));
         }
 
@@ -104,15 +109,27 @@ namespace TMG.Aimsun.Tests
             };
             Utility.RunTrafficDemand("Transit Demand", matrixParameters2);
             Utility.RunCreatePublicTransitPlan("PublicTransitTest1");
-            Utility.RunAssignmentTool("assignment\\roadAssignment.py", "Transit Demand", "PublicTransitTest1");
+            List<MatrixName> matrixParameters3 = new List<MatrixName>()
+            {
+                new MatrixName() { VehicleType="Car Class ", ACostName="Car Class ACost", AIVTT="Car Class DIstance AIVTT"},
+                new MatrixName() { VehicleType="Transit Users", ACostName="Transit Users ACost", AIVTT="Transit Users DIstance AIVTT"}
+            };
+            Utility.RunAssignmentTool("assignment\\roadAssignment.py", "DoubleTest1", "PublicTransitTest1", matrixParameters3);
+
+            List<MatrixName> matrixParameters4 = new List<MatrixName>()
+            {
+                new MatrixName() { VehicleType="Transit Users", ACostName="TUCOST", AIVTT="TUDIST"}
+            };
+            Utility.RunAssignmentTool("assignment\\roadAssignment.py", "Transit Demand", "PublicTransitTest1", matrixParameters4);
 
             // if we don't do this here we won't get out transit matrices
-            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\roadTest21.ang"));
+            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\Test1.ang"));
+            Utility.RunExportTool(Helper.BuildFilePath("aimsunFiles\\results\\test1.csv"), "TUCOST");
+            Utility.RunExportTool(Helper.BuildFilePath("aimsunFiles\\results\\test2.csv"), "TUDIST");
+
             //Helper.Modeller.SwitchModel(null, Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\road.ang"));
             //Utility.RunAssignmentTool("assignment\\transitAssignment.py", "testOD", 360.0, 180.0, "transitOD");
-            //Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\transit.ang"));
-            //Utility.RunExportTool(Helper.BuildFilePath("aimsunFiles\\results\\test1.csv"), "Skim - Cost: Car Class  ");
-            //Utility.RunExportTool(Helper.BuildFilePath("aimsunFiles\\results\\test2.csv"), "Transit Skim - Initial Waiting Time: ");
+
         }
 
         [TestMethod]

@@ -79,3 +79,13 @@ def create_PublicTransit_plan(model):
     for timeTable in iter(timeTables.values()):
         ptPlan.addTimeTable(timeTable)
     return ptPlan
+
+def renameMatrix(model, aimsun_matrix_object, new_name):
+    """
+    Function to rename the matrix
+    """
+    #find matrix object by name
+    matrix_object = model.getCatalog().findByName(aimsun_matrix_object)
+    # set new name of the matrix object
+    matrix_object.setName(new_name)
+    

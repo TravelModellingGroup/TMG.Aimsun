@@ -43,6 +43,30 @@ namespace TMG.Aimsun.Tests
     }
 
     /// <summary>
+    /// Property class of all json parameters to change matrix names
+    /// <param name="VehicleType">Type of vehicle</param>
+    /// <param name="ACostName">Name of ACost Matrix</param>
+    /// <param name="AIVTT">Name of AIVTT Matrix</param>
+    /// </summary>
+    public class MatrixName
+    {
+        public string VehicleType;
+        public string ACostName;
+        public string AIVTT;
+        //public string AToll;
+    }
+
+    /// <summary>
+    /// Create a property class to rename matrices for transit assignment
+    /// </summary>
+    public class TransitAssignmentRenameMatrix
+    {
+        public string WalkTimes;
+        public string AToll;
+    }
+
+
+    /// <summary>
     /// a property class of all the json configuration keys. 
     /// When we parse a json file we save the result to this class
     /// json object of files of interest.

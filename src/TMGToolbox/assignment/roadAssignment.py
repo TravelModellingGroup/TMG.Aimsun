@@ -81,10 +81,27 @@ def run_xtmf(parameters, model, console):
     # extract the parameters and save to dictionary
     xtmf_parameters = {
         "trafficDemandName": parameters["nameOfTrafficDemand"],
-        "PublicTransitPlanName": parameters["nameOfPublicTransitPlan"]
+        "PublicTransitPlanName": parameters["nameOfPublicTransitPlan"],
+        "MatrixNames": parameters["matrixName"]
     }
     _execute(model, console, xtmf_parameters)
-    
+
+def buildOriginalAimsunMatrixName(model, experiment_id, parameters):
+    """
+    Function to create the original aimsun matrix names which will then be renamed 
+    in the renameMatrix() function
+    """
+    # matrix prefix for road assignment it is Skim
+    matrix_name_prefix = "Skim - "
+    # iterate over the matrix list and create the aimsun names
+    for item in parameters:
+        # create the names
+        ACostName = matrix_name_prefix + "Cost: " + item["VehicleType"] + " " + str(experiment_id)
+        AIVTTName = matrix_name_prefix + "Distance: " + item["VehicleType"] + " " + str(experiment_id)
+        # rename the matrices
+        CM.renameMatrix(model, AcostName, userName)
+        CM.renameMatrix(model, AIVTTNAME, userName)
+
 def _execute(inputModel, console, xtmf_parameters):
     """
     Main execute function to run the simulation
@@ -104,6 +121,12 @@ def _execute(inputModel, console, xtmf_parameters):
     print("Run road assignment experiment")
     system.executeAction("execute", experiment, [], "static assignment")
     experiment.getStatsManager().createTrafficState()
+    # extract the skim matrices 
+    skim_matrix_list = experiment.getOutputData().getSkimMatrices()
+    # get id of experiment
+    experiment_id = experiment.getId()
+    # build the original aimsun matrix 
+    buildOriginalAimsunMatrixName(model, experiment_id, xtmf_parameters["MatrixNames"])
     print ('experiment ran successfully')
     
 def runFromConsole(inputArgs):
