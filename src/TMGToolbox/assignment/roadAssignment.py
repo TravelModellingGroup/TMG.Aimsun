@@ -98,10 +98,9 @@ def buildOriginalAimsunMatrixName(model, experiment_id, parameters):
         # create the names
         ACostName = matrix_name_prefix + "Cost: " + item["VehicleType"] + " " + str(experiment_id)
         AIVTTName = matrix_name_prefix + "Distance: " + item["VehicleType"] + " " + str(experiment_id)
-        # create a dictionary where key is aimsun name and value is the users chosen new name
-        rename_matrix_dict = {ACostName: item["ACostName"], AIVTTName: item["AIVTT"]}
-        # run the rename matrix to rename the matrices 
-        CM.renameMatrix(model, rename_matrix_dict)
+        # rename the matrices
+        CM.renameMatrix(model, AcostName, userName)
+        CM.renameMatrix(model, AIVTTNAME, userName)
 
 def _execute(inputModel, console, xtmf_parameters):
     """

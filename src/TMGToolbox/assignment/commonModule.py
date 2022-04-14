@@ -80,14 +80,12 @@ def create_PublicTransit_plan(model):
         ptPlan.addTimeTable(timeTable)
     return ptPlan
 
-def renameMatrix(model, rename_matrix_dict):
+def renameMatrix(model, aimsun_matrix_object, new_name):
     """
     Function to rename the matrix
     """
-    # iterate over dictionary keys
-    for item in rename_matrix_dict.keys():
-        #find matrix object by name
-        matrix_object = model.getCatalog().findByName(item)
-        # set new name of the matrix object
-        matrix_object.setName(rename_matrix_dict[item])
-            
+    #find matrix object by name
+    matrix_object = model.getCatalog().findByName(aimsun_matrix_object)
+    # set new name of the matrix object
+    matrix_object.setName(new_name)
+    
