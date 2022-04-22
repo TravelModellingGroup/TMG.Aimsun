@@ -98,9 +98,11 @@ def buildOriginalAimsunMatrixName(model, experiment_id, parameters):
         # create the names
         ACostName = matrix_name_prefix + "Cost: " + item["VehicleType"] + " " + str(experiment_id)
         AIVTTName = matrix_name_prefix + "Distance: " + item["VehicleType"] + " " + str(experiment_id)
+        ATollName = matrix_name_prefix + "tolls: " + item["VehicleType"] + " " + str(experiment_id)
         # rename the matrices
-        CM.renameMatrix(model, AcostName, userName)
-        CM.renameMatrix(model, AIVTTNAME, userName)
+        CM.renameMatrix(model, ACostName, item["ACostName"])
+        CM.renameMatrix(model, AIVTTName, item["AIVTT"])
+        CM.renameMatrix(model, ATollName, item["AToll"])
 
 def _execute(inputModel, console, xtmf_parameters):
     """
