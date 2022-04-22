@@ -126,10 +126,6 @@ namespace TMG.Aimsun.Tests
             Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\PipelineTest1.ang"));
             Utility.RunExportTool(Helper.BuildFilePath("aimsunFiles\\results\\test1.csv"), "Skim T2 - TUCOST");
             Utility.RunExportTool(Helper.BuildFilePath("aimsunFiles\\results\\test2.csv"), "Skim T2 - TUDIST");
-
-            //Helper.Modeller.SwitchModel(null, Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\road.ang"));
-            //Utility.RunAssignmentTool("assignment\\transitAssignment.py", "testOD", 360.0, 180.0, "transitOD");
-
         }
 
         [TestMethod]
@@ -141,9 +137,6 @@ namespace TMG.Aimsun.Tests
             Utility.RunImportMatrixFromCSVThirdNormalizedTool(Helper.BuildFilePath("inputFiles\\1000.csv"),
                                                               true, true, "1000CarClass", "baseCentroidConfig",
                                                               "Car Class ", "06:00:00:000", "03:00:00:000");
-
-            //Utility.RunExportTool(Helper.BuildFilePath("aimsunFiles\\results\\Cartest2.csv"), "Skim - Cost: Car Class  Static Assignment Experiment 2264");
-            //Utility.RunExportTool(Helper.BuildFilePath("aimsunFiles\\results\\carwith0pcutest2.csv"), "Skim - Cost: CarWith0PCU Static Assignment Experiment 2264");
             Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\Road-Ghost.ang"));
         }
     }
