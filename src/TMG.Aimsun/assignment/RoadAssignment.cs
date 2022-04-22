@@ -31,11 +31,14 @@ namespace TMG.Aimsun.assignment
             [RunParameter("Traffic Class Name", "", "Traffic Class Name")]
             public string VehicleType;
 
-            [RunParameter("AIVTTMatrix NAme ", "", "Name of the AIVTT Matrix Name")]
+            [RunParameter("AIVTT Matrix Name ", "", "Name of the AIVTT Matrix Name")]
             public string AIVTT;
 
-            [RunParameter("Acost Matrix", "", "Name of the ACost Matrix")]
+            [RunParameter("Cost Matrix", "", "Name of the Cost Matrix")]
             public string ACostName;
+
+            [RunParameter("Toll Matrix", "", "Name of the Toll Matrix")]
+            public string AToll;
 
             public string Name { get; set; }
 
@@ -93,6 +96,8 @@ namespace TMG.Aimsun.assignment
                         writer.WriteValue(TrafficClasses[i].ACostName);
                         writer.WritePropertyName("AIVTT");
                         writer.WriteValue(TrafficClasses[i].AIVTT);
+                        writer.WritePropertyName("AToll");
+                        writer.WriteValue(TrafficClasses[i].AToll);
                         writer.WritePropertyName("VehicleType");
                         writer.WriteValue(TrafficClasses[i].VehicleType);
                         writer.WriteEndObject();

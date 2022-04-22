@@ -53,7 +53,7 @@ namespace TMG.Aimsun.Tests
         public string VehicleType;
         public string ACostName;
         public string AIVTT;
-        //public string AToll;
+        public string AToll;
     }
 
     /// <summary>
