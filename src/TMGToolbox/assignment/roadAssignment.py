@@ -120,7 +120,6 @@ def _execute(inputModel, console, xtmf_parameters):
 
     # extract the skim matrices based on name
     for item in xtmf_parameters["MatrixNames"]:
-        print (item)
         CM.deleteAimsunObject(model, catalog, "GKODMatrix", item["ACostName"])
         CM.deleteAimsunObject(model, catalog, "GKODMatrix", item["AIVTT"])
         CM.deleteAimsunObject(model, catalog, "GKODMatrix", item["AToll"])

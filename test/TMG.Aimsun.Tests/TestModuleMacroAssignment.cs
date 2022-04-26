@@ -153,13 +153,11 @@ namespace TMG.Aimsun.Tests
                 new TrafficDemandClassParameters() {NameODMatrix="transitOD", InitialTime=360.0, Duration=60.0}
             };
             Utility.RunTrafficDemand("CarAndTransitDemand", matrixParameters1);
-            //traffic demand 2
             List<TrafficDemandClassParameters> matrixParameters2 = new List<TrafficDemandClassParameters>()
             {
                 new TrafficDemandClassParameters() {NameODMatrix="transitOD", InitialTime=360.0, Duration=180.0}
             };
             Utility.RunTrafficDemand("Transit Demand", matrixParameters2);
-
             List<MatrixName> matrixParameters3 = new List<MatrixName>()
             {
                 new MatrixName() { VehicleType="Car Class ", ACostName="Skim T1 - Car Class ACost", AIVTT="Skim T1 - Car Class DIstance AIVTT", AToll="Skim T1 Car Class Toll"},
@@ -171,9 +169,7 @@ namespace TMG.Aimsun.Tests
             {
                 new MatrixName() { VehicleType="Transit Users", ACostName="Skim T2 - TUCOST", AIVTT="Skim T2 - TUDIST", AToll="Skim T2 - TUToll"}
             };
-
             Utility.RunAssignmentTool("assignment\\roadAssignment.py", "Transit Demand", "PublicTransitTest1", matrixParameters4);
-            
             Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\DeletedAimsunObjects.ang"));
         }
     }
