@@ -17,6 +17,7 @@
     along with TMGToolbox for Aimsun.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+import sys
 import csv
 from ctypes import ArgumentError
 from PyANGBasic import *
@@ -27,9 +28,8 @@ from PyMacroKernelPlugin import *
 from PyMacroToolPlugin import *
 from PyMacroAdjustmentPlugin import *
 from PyMacroPTPlugin import *
-import sys
 from datetime import time
-from common.common import loadModel
+from common.common import loadModel, deleteAimsunObject
 
 def run_xtmf(parameters, model, console):
     """
@@ -120,7 +120,6 @@ def _execute(model, console, parameters):
     Main execute function to run the simulation.
     """
     catalog = model.getCatalog()
-
     #extract the json parameters
     fileLocation = str(parameters["ODCSV"])
     thirdNormalized = bool(parameters["ThirdNormalized"])
@@ -131,6 +130,9 @@ def _execute(model, console, parameters):
     initialTime = str(parameters["InitialTime"])
     durationTime = str(parameters["DurationTime"])
     
+    # check and delete all pre-existing Aimsun objects
+    deleteAimsunObject(model, catalog, "GKODMatrix", matrixId)
+
     # find the centroid configuration
     centroidConfiguration = find_centroid_configuration(model, catalog, centroidConfigurationId, matrixId)
 

@@ -88,4 +88,64 @@ def renameMatrix(model, aimsun_matrix_object, new_name):
     matrix_object = model.getCatalog().findByName(aimsun_matrix_object)
     # set new name of the matrix object
     matrix_object.setName(new_name)
+
+def deleteAimsunObject(model, catalog, objectType, matrixId=''):
+    """
+    Method to delete the various aimsun objects 
+    duplicated from assignment/commonModule.py
+    """
+    sectionType = model.getType(objectType)
+    for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
+        for s in iter(types.values()):
+            # delete the objects using the getDelCmd()
+            if s != None:
+                # check if the name matches. Since it matches we then delete the object 
+                if matrixId == s.getName():
+                    cmd = s.getDelCmd()
+                    model.getCommander().addCommand(cmd)
+
+
+                  
+
+
+def deleteAimsunObject2(model, catalog):
+    """
+    Method to delete the various aimsun objects
+    """
+    #sectionType2 = model.getType("MacroExperiment")
+    #for types in model.getCatalog().getUsedSubTypesFromType( sectionType2 ):
+    #    for s in iter(types.values()):
+    #        if s != None:
+    #            cmd = s.getDelCmd()
+    #            model.getCommander().addCommand(cmd)
+
+    #sectionType = model.getType("MacroScenario")
+    #for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
+    #    for s in iter(types.values()):
+    #        if s != None:
+    #            cmd = s.getDelCmd()
+    #            model.getCommander().addCommand(cmd)
+
+    #sectionType2 = model.getType("GKTrafficDemand")
+    #for types in model.getCatalog().getUsedSubTypesFromType( sectionType2 ):
+    #    for s in iter(types.values()):
+    #        if s != None:
+    #            cmd = s.getDelCmd()
+    #            model.getCommander().addCommand(cmd)
+
+    #sectionType2 = model.getType("GKPublicLinePlan")
+    #for types in model.getCatalog().getUsedSubTypesFromType( sectionType2 ):
+    #    for s in iter(types.values()):
+    #        if s != None:
+    #            cmd = s.getDelCmd()
+    #            model.getCommander().addCommand(cmd)
+
+    sectionType2 = model.getType("GKODMatrix")
+    for types in model.getCatalog().getUsedSubTypesFromType( sectionType2 ):
+        for s in iter(types.values()):
+            if s != None:
+                cmd = s.getDelCmd()
+                model.getCommander().addCommand(cmd)
+
     
+                

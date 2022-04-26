@@ -73,18 +73,11 @@ def create_experiment_for_scenario(model, scenario, PathAssignment):
     
     return experiment
 
-def run_xtmf(parameters, model, console):
+def deleteUneededSkimMatrices(model):
     """
-    A general function called in all python modules called by bridge. Responsible
-    for extracting data and running appropriate functions.
+    function to delete all skim matrices users don't need and rename
     """
-    # extract the parameters and save to dictionary
-    xtmf_parameters = {
-        "trafficDemandName": parameters["nameOfTrafficDemand"],
-        "PublicTransitPlanName": parameters["nameOfPublicTransitPlan"],
-        "MatrixNames": parameters["matrixName"]
-    }
-    _execute(model, console, xtmf_parameters)
+
 
 def buildOriginalAimsunMatrixName(model, experiment_id, parameters):
     """
@@ -104,6 +97,19 @@ def buildOriginalAimsunMatrixName(model, experiment_id, parameters):
         CM.renameMatrix(model, AIVTTName, item["AIVTT"])
         CM.renameMatrix(model, ATollName, item["AToll"])
 
+def run_xtmf(parameters, model, console):
+    """
+    A general function called in all python modules called by bridge. Responsible
+    for extracting data and running appropriate functions.
+    """
+    # extract the parameters and save to dictionary
+    xtmf_parameters = {
+        "trafficDemandName": parameters["nameOfTrafficDemand"],
+        "PublicTransitPlanName": parameters["nameOfPublicTransitPlan"],
+        "MatrixNames": parameters["matrixName"]
+    }
+    _execute(model, console, xtmf_parameters)
+
 def _execute(inputModel, console, xtmf_parameters):
     """
     Main execute function to run the simulation
@@ -111,6 +117,17 @@ def _execute(inputModel, console, xtmf_parameters):
     model = inputModel
     system = GKSystem.getSystem()
     catalog = model.getCatalog()
+
+    # extract the skim matrices based on name
+    for item in xtmf_parameters["MatrixNames"]:
+        print (item)
+        CM.deleteAimsunObject(model, catalog, "GKODMatrix", item["ACostName"])
+        CM.deleteAimsunObject(model, catalog, "GKODMatrix", item["AIVTT"])
+        CM.deleteAimsunObject(model, catalog, "GKODMatrix", item["AToll"])
+    # delete all experiments and scenarios
+    CM.deleteAimsunObject(model, catalog, "MacroExperiment")
+    CM.deleteAimsunObject(model, catalog, "MacroScenario")
+
     # extract the traffic demand object
     trafficDemandObject = catalog.findByName(xtmf_parameters["trafficDemandName"])
     # extract the public transit object
