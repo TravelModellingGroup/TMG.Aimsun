@@ -28,21 +28,6 @@ import shlex
 import zipfile
 import io
 
-def deleteAimsunObject(model, catalog, objectType, matrixId=''):
-    """
-    Method to delete the various aimsun objects 
-    duplicated from assignment/commonModule.py
-    """
-    sectionType = model.getType(objectType)
-    for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
-        for s in iter(types.values()):
-            # delete the objects using the getDelCmd()
-            if s is not None:
-                # check if the name matches. Since it matches we then delete the object 
-                if matrixId == s.getName():
-                    cmd = s.getDelCmd()
-                    model.getCommander().addCommand(cmd)
-
 def extract_network_packagefile(network_package_file):
     """
     Function which takes a zipped file in this case the networkpackage file and

@@ -91,8 +91,7 @@ def renameMatrix(model, aimsun_matrix_object, new_name):
 
 def deleteAimsunObject(model, catalog, objectType, matrixId=''):
     """
-    Method to delete the various aimsun objects 
-    duplicated from assignment/commonModule.py
+    Method to delete the various aimsun objects
     """
     sectionType = model.getType(objectType)
     for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):

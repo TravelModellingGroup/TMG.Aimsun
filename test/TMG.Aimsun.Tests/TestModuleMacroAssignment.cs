@@ -113,17 +113,17 @@ namespace TMG.Aimsun.Tests
             List<MatrixName> matrixParameters3 = new List<MatrixName>()
             {
                 new MatrixName() { VehicleType="Car Class ", ACostName="Skim T1 - Car Class ACost", AIVTT="Skim T1 - Car Class DIstance AIVTT", AToll="Skim T1 Car Class Toll"},
-                new MatrixName() { VehicleType="Transit Users", ACostName="Skim T1 - Transit Users ACost", AIVTT="Skim T1 - Transit Users DIstance AIVTT",  AToll="Skim T1 Transit Users Toll"}
+                new MatrixName() { VehicleType="Transit Users", ACostName="T1 - Transit Users ACost", AIVTT="T1 - Transit Users DIstance AIVTT",  AToll="T1 Transit Users Toll"}
             };
             Utility.RunAssignmentTool("assignment\\roadAssignment.py", "CarAndTransitDemand", "PublicTransitTest1", matrixParameters3);
             List<MatrixName> matrixParameters4 = new List<MatrixName>()
             {
-                new MatrixName() { VehicleType="Transit Users", ACostName="Skim T2 - TUCOST", AIVTT="Skim T2 - TUDIST", AToll="Skim T2 - TUToll"}
+                new MatrixName() { VehicleType="Transit Users", ACostName="T2 - TUCOST", AIVTT="T2 - TUDIST", AToll="T2 - TUToll"}
             };
             Utility.RunAssignmentTool("assignment\\roadAssignment.py", "Transit Demand", "PublicTransitTest1", matrixParameters4);
             Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\PipelineTest1.ang"));
-            //Utility.RunExportTool(Helper.BuildFilePath("aimsunFiles\\results\\test1.csv"), "Skim T2 - TUCOST");
-            //Utility.RunExportTool(Helper.BuildFilePath("aimsunFiles\\results\\test2.csv"), "Skim T2 - TUDIST");
+            Utility.RunExportTool(Helper.BuildFilePath("aimsunFiles\\results\\test1.csv"), "T2 - TUCOST");
+            Utility.RunExportTool(Helper.BuildFilePath("aimsunFiles\\results\\test2.csv"), "T2 - TUDIST");
         }
 
         [TestMethod]
@@ -161,13 +161,13 @@ namespace TMG.Aimsun.Tests
             List<MatrixName> matrixParameters3 = new List<MatrixName>()
             {
                 new MatrixName() { VehicleType="Car Class ", ACostName="Skim T1 - Car Class ACost", AIVTT="Skim T1 - Car Class DIstance AIVTT", AToll="Skim T1 Car Class Toll"},
-                new MatrixName() { VehicleType="Transit Users", ACostName="Skim T1 - Transit Users ACost", AIVTT="Skim T1 - Transit Users DIstance AIVTT",  AToll="Skim T1 Transit Users Toll"}
+                new MatrixName() { VehicleType="Transit Users", ACostName="T1 - Transit Users ACost", AIVTT="T1 - Transit Users DIstance AIVTT",  AToll="T1 Transit Users Toll"}
             };
             Utility.RunAssignmentTool("assignment\\roadAssignment.py", "CarAndTransitDemand", "PublicTransitTest1", matrixParameters3);
 
             List<MatrixName> matrixParameters4 = new List<MatrixName>()
             {
-                new MatrixName() { VehicleType="Transit Users", ACostName="Skim T2 - TUCOST", AIVTT="Skim T2 - TUDIST", AToll="Skim T2 - TUToll"}
+                new MatrixName() { VehicleType="Transit Users", ACostName="T2 - TUCOST", AIVTT="T2 - TUDIST", AToll="T2 - TUToll"}
             };
             Utility.RunAssignmentTool("assignment\\roadAssignment.py", "Transit Demand", "PublicTransitTest1", matrixParameters4);
             Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\DeletedAimsunObjects.ang"));

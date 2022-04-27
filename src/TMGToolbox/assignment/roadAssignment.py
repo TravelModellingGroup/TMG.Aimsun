@@ -73,10 +73,29 @@ def create_experiment_for_scenario(model, scenario, PathAssignment):
     
     return experiment
 
-def deleteUneededSkimMatrices(model):
+def deleteUnneededSkimMatrices(model, catalog, matrixNameList):
     """
     function to delete all skim matrices users don't need and rename
     """
+    # extract the skim matrices based on name
+    for item in matrixNameList: # xtmf_parameters["MatrixNames"]:
+        CM.deleteAimsunObject(model, catalog, "GKODMatrix", item["ACostName"])
+        CM.deleteAimsunObject(model, catalog, "GKODMatrix", item["AIVTT"])
+        CM.deleteAimsunObject(model, catalog, "GKODMatrix", item["AToll"])
+    # delete all experiments and scenarios
+    CM.deleteAimsunObject(model, catalog, "MacroExperiment")
+    CM.deleteAimsunObject(model, catalog, "MacroScenario")
+
+    # iterate and delete all the unnamed skim matrices
+    sectionType = model.getType("GKODMatrix")
+    for types in model.getCatalog().getUsedSubTypesFromType( sectionType ):
+        for s in iter(types.values()):
+            # delete the objects using the getDelCmd()
+            if s is not None:
+                # check if the name matches. Since it matches we then delete the object 
+                if "Skim" in s.getName():
+                    cmd = s.getDelCmd()
+                    model.getCommander().addCommand(cmd)
 
 
 def buildOriginalAimsunMatrixName(model, experiment_id, parameters):
@@ -118,15 +137,9 @@ def _execute(inputModel, console, xtmf_parameters):
     system = GKSystem.getSystem()
     catalog = model.getCatalog()
 
-    # extract the skim matrices based on name
-    for item in xtmf_parameters["MatrixNames"]:
-        CM.deleteAimsunObject(model, catalog, "GKODMatrix", item["ACostName"])
-        CM.deleteAimsunObject(model, catalog, "GKODMatrix", item["AIVTT"])
-        CM.deleteAimsunObject(model, catalog, "GKODMatrix", item["AToll"])
-    # delete all experiments and scenarios
-    CM.deleteAimsunObject(model, catalog, "MacroExperiment")
-    CM.deleteAimsunObject(model, catalog, "MacroScenario")
-
+    # delete all the other remaining unnamed skim matrices as well
+    deleteUnneededSkimMatrices(model, catalog, xtmf_parameters["MatrixNames"])
+    
     # extract the traffic demand object
     trafficDemandObject = catalog.findByName(xtmf_parameters["trafficDemandName"])
     # extract the public transit object

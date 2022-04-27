@@ -27,7 +27,7 @@ namespace TMG.Aimsun.InputOutput
     [ModuleInformation(Description = "Import the OD matrixes into the network.")]
     public class ImportMatrixFromCSVThirdNormalized : IAimsunTool
     {
-        private const string ToolName = "InputOutput/ImportMatrixFromCSVThirdNormalized.py";
+        private const string ToolName = "inputOutput/ImportMatrixFromCSVThirdNormalized.py";
 
         [SubModelInformation(Required = true, Description = "The file location of the OD CSV file")]
         public FileLocation ODCSV;
