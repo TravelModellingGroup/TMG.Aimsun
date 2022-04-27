@@ -29,8 +29,7 @@ from PyMacroToolPlugin import *
 from PyMacroAdjustmentPlugin import *
 from PyMacroPTPlugin import *
 from datetime import time
-from common.common import loadModel
-from assignment.commonModule import deleteAimsunObject
+from common.common import loadModel, deleteAimsunObject
 
 def run_xtmf(parameters, model, console):
     """

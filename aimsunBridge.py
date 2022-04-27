@@ -155,16 +155,7 @@ class AimSunBridge:
             # we need to append the Toolbox/InputPut folder path so all relative imports will work
             toolDirectory = os.path.dirname(moduleDict["toolPath"])
             sys.path.append(toolDirectory)
-            # add the base TMG toolbox path to the sys paths so we can access the common module
-            print (moduleDict["toolPath"])
-            # check if the tool is from the inputOutput so we can parse the url
-            if "inputOutput" in moduleDict["toolPath"]:
-                # use re to parse the last elements of the string url so only the 
-                # TMGToolbox part of the url is appended to the sys path
-                folderPath = re.sub(r'inputOutput.*', "", moduleDict["toolPath"])
-                print (folderPath)
-                sys.path.append(folderPath)
-
+            
             spec = importlib.util.spec_from_file_location(
                 "tool", moduleDict["toolPath"]
             )
