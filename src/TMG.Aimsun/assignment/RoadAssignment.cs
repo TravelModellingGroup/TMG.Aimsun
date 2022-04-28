@@ -54,6 +54,12 @@ namespace TMG.Aimsun.assignment
 
         public const string ToolName = "assignment/roadAssignment.py";
 
+        [RunParameter("Name of Scenario", "", "The name of the road assignment scenario")]
+        public string NameOfRoadScenario;
+
+        [RunParameter("Name of Experiment", "", "The name of the road assignment experiment")]
+        public string NameOfRoadExperiment;
+
         [RunParameter("Name of Traffic Demand", "", "The name of the Traffic Demand you wish to use for the simulation")]
         public string NameOfTrafficDemand;
 
@@ -83,6 +89,10 @@ namespace TMG.Aimsun.assignment
             return aimsunController.Run(this, ToolName,
                 JsonParameterBuilder.BuildParameters(writer =>
                 {
+                    writer.WritePropertyName("scenarioName");
+                    writer.WriteValue(NameOfRoadScenario);
+                    writer.WritePropertyName("experimentName");
+                    writer.WriteValue(NameOfRoadExperiment);
                     writer.WritePropertyName("nameOfTrafficDemand");
                     writer.WriteValue(NameOfTrafficDemand);
                     writer.WritePropertyName("nameOfPublicTransitPlan");
