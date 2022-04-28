@@ -83,9 +83,6 @@ def deleteNamedSkimMatrices(model, catalog, matrixNameList):
         CM.deleteAimsunObject(model, catalog, "GKODMatrix", item["ACostName"])
         CM.deleteAimsunObject(model, catalog, "GKODMatrix", item["AIVTT"])
         CM.deleteAimsunObject(model, catalog, "GKODMatrix", item["AToll"])
-    ## delete all experiments and scenarios
-    #CM.deleteAimsunObject(model, catalog, "MacroExperiment")
-    #CM.deleteAimsunObject(model, catalog, "MacroScenario")
 
 def deleteExperimentMatrices(model, skimMatrixList, matrixList):
     """
@@ -101,7 +98,7 @@ def deleteExperimentMatrices(model, skimMatrixList, matrixList):
             model.getCommander().addCommand(cmd)
 
 
-def buildOriginalAimsunMatrixName(model, experiment_id, parameters, skimMatrixList):
+def buildOriginalAimsunMatrixName(model, experiment_id, parameters, skimMatrixList, catalog):
     """
     Function to create the original aimsun matrix names which will then be renamed 
     in the renameMatrix() function
@@ -109,7 +106,11 @@ def buildOriginalAimsunMatrixName(model, experiment_id, parameters, skimMatrixLi
     matrixList = []
     # matrix prefix for road assignment it is Skim
     matrix_name_prefix = "Skim - "
-    # iterate over the matrix list and create the aimsun names
+
+    # delete the named matrices of the previous experiment 
+    deleteNamedSkimMatrices(model, catalog, parameters)
+
+    # iterate over the matrix list and create new named skim matrices
     for item in parameters:
         # create the names
         ACostName = matrix_name_prefix + "Cost: " + item["VehicleType"] + " " + str(experiment_id)
@@ -151,9 +152,6 @@ def _execute(inputModel, console, xtmf_parameters):
     system = GKSystem.getSystem()
     catalog = model.getCatalog()
 
-    # delete all the other remaining unnamed skim matrices as well before the start
-    # of the experiment
-    deleteNamedSkimMatrices(model, catalog, xtmf_parameters["MatrixNames"])
     # delete all scenarios and experiments
     CM.deleteAimsunObject(model, catalog, "MacroExperiment", xtmf_parameters["experimentName"])
     CM.deleteAimsunObject(model, catalog, "MacroScenario", xtmf_parameters["scenarioName"])
@@ -175,7 +173,7 @@ def _execute(inputModel, console, xtmf_parameters):
     # get id of experiment
     experiment_id = experiment.getId()
     # build the original aimsun matrix 
-    buildOriginalAimsunMatrixName(model, experiment_id, xtmf_parameters["MatrixNames"], skimMatrixList)
+    buildOriginalAimsunMatrixName(model, experiment_id, xtmf_parameters["MatrixNames"], skimMatrixList, catalog)
     print ('experiment ran successfully')
     
 def runFromConsole(inputArgs):
