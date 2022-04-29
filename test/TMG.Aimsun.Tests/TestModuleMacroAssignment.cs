@@ -77,15 +77,6 @@ namespace TMG.Aimsun.Tests
         }
 
         [TestMethod]
-        public void RunTransitAssignment()
-        {
-            //change the network
-            string newNetwork = Path.Combine(Helper.TestConfiguration.NetworkFolder, "aimsunFiles\\roadAssignment.ang");
-            Helper.Modeller.SwitchModel(null, newNetwork);
-            Helper.Modeller.SaveNetworkModel(null, Helper.BuildFilePath("aimsunFiles\\transitassignment4.ang"));
-        }
-
-        [TestMethod]
         public void TestToolPipeline()
         {
             string networkPath = Helper.BuildFilePath("inputFiles\\Frabitztown.nwp");

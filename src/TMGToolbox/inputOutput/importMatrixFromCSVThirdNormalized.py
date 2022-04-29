@@ -23,11 +23,6 @@ from ctypes import ArgumentError
 from PyANGBasic import *
 from PyANGKernel import *
 from PyANGConsole import *
-from PyANGDTA import *
-from PyMacroKernelPlugin import *
-from PyMacroToolPlugin import *
-from PyMacroAdjustmentPlugin import *
-from PyMacroPTPlugin import *
 from datetime import time
 from common.common import loadModel, deleteAimsunObject
 

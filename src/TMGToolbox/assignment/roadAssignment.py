@@ -76,18 +76,15 @@ def create_experiment_for_scenario(model, scenario, PathAssignment, xtmf_paramet
 
 def deleteExperimentMatrices(model, skimMatrixList, matrixList):
     """
-    function to delete experiment output skim matrices
+    Function to delete experiment output skim matrices which are not needed
     """
     # loop through the generated output skim matrix list
     for matrix in skimMatrixList:
-        # if the name matches don't delete otherwise delete the matrix
-        if matrix.getName() in matrixList:
-            pass
-        else:
+        if matrix.getName() not in matrixList:
             cmd = matrix.getDelCmd()
             model.getCommander().addCommand(cmd)
 
-def buildOriginalAimsunMatrixName(model, experiment_id, parameters, skimMatrixList, catalog):
+def renameSkimMatrices(model, experiment_id, parameters, skimMatrixList, catalog):
     """
     Function to create the original aimsun matrix names which will then be renamed 
     in the renameMatrix() function
@@ -157,8 +154,8 @@ def _execute(inputModel, console, xtmf_parameters):
     skimMatrixList = experiment.getOutputData().getSkimMatrices()
     # get id of experiment
     experiment_id = experiment.getId()
-    # build the original aimsun matrix 
-    buildOriginalAimsunMatrixName(model, experiment_id, xtmf_parameters["MatrixNames"], skimMatrixList, catalog)
+    # rename generated skim matrices 
+    renameSkimMatrices(model, experiment_id, xtmf_parameters["MatrixNames"], skimMatrixList, catalog)
     print ('experiment ran successfully')
     
 def runFromConsole(inputArgs):
