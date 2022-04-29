@@ -63,8 +63,8 @@ def create_experiment_for_scenario(model, scenario, PathAssignment, xtmf_paramet
     model.getCommander().addCommand(macroExperimentCmd)
     experiment = macroExperimentCmd.createdObject()
     params = experiment.getParameters()
-    params.setMaxIterations(50)
-    params.setMaxRelativeGap(0.001)
+    params.setMaxIterations(100)
+    params.setMaxRelativeGap(0.00001)
     params.setFrankWolfeMethod(CFrankWolfeParams.eNormal)
     #attach the experiment to the scenario
     experiment.setParameters(params)
@@ -73,16 +73,6 @@ def create_experiment_for_scenario(model, scenario, PathAssignment, xtmf_paramet
     experiment.setOutputPathAssignment(PathAssignment)
     
     return experiment
-
-def deleteNamedSkimMatrices(model, catalog, matrixNameList):
-    """
-    function to delete user named skim matrices before the run of the experiment
-    """
-    # extract the skim matrices based on name
-    for item in matrixNameList:
-        CM.deleteAimsunObject(model, catalog, "GKODMatrix", item["ACostName"])
-        CM.deleteAimsunObject(model, catalog, "GKODMatrix", item["AIVTT"])
-        CM.deleteAimsunObject(model, catalog, "GKODMatrix", item["AToll"])
 
 def deleteExperimentMatrices(model, skimMatrixList, matrixList):
     """
@@ -97,7 +87,6 @@ def deleteExperimentMatrices(model, skimMatrixList, matrixList):
             cmd = matrix.getDelCmd()
             model.getCommander().addCommand(cmd)
 
-
 def buildOriginalAimsunMatrixName(model, experiment_id, parameters, skimMatrixList, catalog):
     """
     Function to create the original aimsun matrix names which will then be renamed 
@@ -106,10 +95,6 @@ def buildOriginalAimsunMatrixName(model, experiment_id, parameters, skimMatrixLi
     matrixList = []
     # matrix prefix for road assignment it is Skim
     matrix_name_prefix = "Skim - "
-
-    # delete the named matrices of the previous experiment 
-    deleteNamedSkimMatrices(model, catalog, parameters)
-
     # iterate over the matrix list and create new named skim matrices
     for item in parameters:
         # create the names
@@ -153,8 +138,8 @@ def _execute(inputModel, console, xtmf_parameters):
     catalog = model.getCatalog()
 
     # delete all scenarios and experiments
-    CM.deleteAimsunObject(model, catalog, "MacroExperiment", xtmf_parameters["experimentName"])
-    CM.deleteAimsunObject(model, catalog, "MacroScenario", xtmf_parameters["scenarioName"])
+    CM.deleteAimsunObject(model, "MacroExperiment", xtmf_parameters["experimentName"])
+    CM.deleteAimsunObject(model, "MacroScenario", xtmf_parameters["scenarioName"])
 
     # extract the traffic demand object
     trafficDemandObject = catalog.findByName(xtmf_parameters["trafficDemandName"])

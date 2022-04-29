@@ -84,12 +84,14 @@ def renameMatrix(model, aimsun_matrix_object, new_name):
     """
     Function to rename the matrix
     """
+    # first check if this matrix name already exists
+    deleteAimsunObject(model, "GKODMatrix", new_name)
     #find matrix object by name
     matrix_object = model.getCatalog().findByName(aimsun_matrix_object)
     # set new name of the matrix object
     matrix_object.setName(new_name)
 
-def deleteAimsunObject(model, catalog, objectType, matrixId=''):
+def deleteAimsunObject(model, objectType, matrixId=''):
     """
     Method to delete the various aimsun objects
     """
