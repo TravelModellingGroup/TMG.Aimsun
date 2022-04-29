@@ -67,5 +67,10 @@ def _execute(inputModel, console, xtmf_parameters):
     """
     model = inputModel
     system = GKSystem.getSystem()
+    catalog = model.getCatalog()
+
+    # delete the existing traffic demand objects
+    CM.deleteAimsunObject(model, "GKTrafficDemand", xtmf_parameters["demandName"])
+
     # method to create the traffic demand object
     create_traffic_demand(model, system, xtmf_parameters)

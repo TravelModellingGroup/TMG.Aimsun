@@ -29,15 +29,16 @@ from PyFrankWolfePlugin import *
 import sys
 import commonModule as CM
 
-def create_scenario(model, trafficDemand, ptPlan):
+def create_scenario(model, trafficDemand, ptPlan, xtmf_parameters):
     """
-    Function to create the static road assignmment scenario
+    Function to create the static road assignment scenario
     """
     cmd = model.createNewCmd(model.getType("MacroScenario"))
     model.getCommander().addCommand(cmd)
     scenario = cmd.createdObject()
     scenario.setDemand(trafficDemand)
     scenario.setPublicLinePlan(ptPlan)
+    scenario.setName(xtmf_parameters["scenarioName"])
     print(f"Create scenario {scenario.getId()}")
 
     cmd1 = model.createNewCmd(model.getType("GKPathAssignment"))
@@ -51,7 +52,7 @@ def create_scenario(model, trafficDemand, ptPlan):
 
     return (scenario, PathAssignment)
 
-def create_experiment_for_scenario(model, scenario, PathAssignment):
+def create_experiment_for_scenario(model, scenario, PathAssignment, xtmf_parameters):
     """
     Function to create the experiment
     """
@@ -62,8 +63,8 @@ def create_experiment_for_scenario(model, scenario, PathAssignment):
     model.getCommander().addCommand(macroExperimentCmd)
     experiment = macroExperimentCmd.createdObject()
     params = experiment.getParameters()
-    params.setMaxIterations(50)
-    params.setMaxRelativeGap(0.001)
+    params.setMaxIterations(100)
+    params.setMaxRelativeGap(0.00001)
     params.setFrankWolfeMethod(CFrankWolfeParams.eNormal)
     #attach the experiment to the scenario
     experiment.setParameters(params)
@@ -73,27 +74,25 @@ def create_experiment_for_scenario(model, scenario, PathAssignment):
     
     return experiment
 
-def run_xtmf(parameters, model, console):
+def deleteExperimentMatrices(model, skimMatrixList, matrixList):
     """
-    A general function called in all python modules called by bridge. Responsible
-    for extracting data and running appropriate functions.
+    Function to delete experiment output skim matrices which are not needed
     """
-    # extract the parameters and save to dictionary
-    xtmf_parameters = {
-        "trafficDemandName": parameters["nameOfTrafficDemand"],
-        "PublicTransitPlanName": parameters["nameOfPublicTransitPlan"],
-        "MatrixNames": parameters["matrixName"]
-    }
-    _execute(model, console, xtmf_parameters)
+    # loop through the generated output skim matrix list
+    for matrix in skimMatrixList:
+        if matrix.getName() not in matrixList:
+            cmd = matrix.getDelCmd()
+            model.getCommander().addCommand(cmd)
 
-def buildOriginalAimsunMatrixName(model, experiment_id, parameters):
+def renameSkimMatrices(model, experiment_id, parameters, skimMatrixList, catalog):
     """
     Function to create the original aimsun matrix names which will then be renamed 
     in the renameMatrix() function
     """
+    matrixList = []
     # matrix prefix for road assignment it is Skim
     matrix_name_prefix = "Skim - "
-    # iterate over the matrix list and create the aimsun names
+    # iterate over the matrix list and create new named skim matrices
     for item in parameters:
         # create the names
         ACostName = matrix_name_prefix + "Cost: " + item["VehicleType"] + " " + str(experiment_id)
@@ -104,6 +103,29 @@ def buildOriginalAimsunMatrixName(model, experiment_id, parameters):
         CM.renameMatrix(model, AIVTTName, item["AIVTT"])
         CM.renameMatrix(model, ATollName, item["AToll"])
 
+        #append the original names to a list for comparison
+        matrixList.append(item["ACostName"])
+        matrixList.append(item["AIVTT"])
+        matrixList.append(item["AToll"])
+
+    # delete the unnamed skim matrices
+    deleteExperimentMatrices(model, skimMatrixList, matrixList)
+
+def run_xtmf(parameters, model, console):
+    """
+    A general function called in all python modules called by bridge. Responsible
+    for extracting data and running appropriate functions.
+    """
+    # extract the parameters and save to dictionary
+    xtmf_parameters = {
+        "scenarioName": parameters["scenarioName"],
+        "experimentName": parameters["experimentName"],
+        "trafficDemandName": parameters["nameOfTrafficDemand"],
+        "PublicTransitPlanName": parameters["nameOfPublicTransitPlan"],
+        "MatrixNames": parameters["matrixName"]
+    }
+    _execute(model, console, xtmf_parameters)
+
 def _execute(inputModel, console, xtmf_parameters):
     """
     Main execute function to run the simulation
@@ -111,24 +133,29 @@ def _execute(inputModel, console, xtmf_parameters):
     model = inputModel
     system = GKSystem.getSystem()
     catalog = model.getCatalog()
+
+    # delete all scenarios and experiments
+    CM.deleteAimsunObject(model, "MacroExperiment", xtmf_parameters["experimentName"])
+    CM.deleteAimsunObject(model, "MacroScenario", xtmf_parameters["scenarioName"])
+
     # extract the traffic demand object
     trafficDemandObject = catalog.findByName(xtmf_parameters["trafficDemandName"])
     # extract the public transit object
     publicTransitObject = catalog.findByName(xtmf_parameters["PublicTransitPlanName"])
     # Create the scenario
-    scenario, pathAssignment = create_scenario(model, trafficDemandObject, publicTransitObject)
+    scenario, pathAssignment = create_scenario(model, trafficDemandObject, publicTransitObject, xtmf_parameters)
     # generate the experiment
-    experiment = create_experiment_for_scenario(model, scenario, pathAssignment)
+    experiment = create_experiment_for_scenario(model, scenario, pathAssignment, xtmf_parameters)
     # Execute the experiment for road assignment
     print("Run road assignment experiment")
     system.executeAction("execute", experiment, [], "static assignment")
     experiment.getStatsManager().createTrafficState()
     # extract the skim matrices 
-    skim_matrix_list = experiment.getOutputData().getSkimMatrices()
+    skimMatrixList = experiment.getOutputData().getSkimMatrices()
     # get id of experiment
     experiment_id = experiment.getId()
-    # build the original aimsun matrix 
-    buildOriginalAimsunMatrixName(model, experiment_id, xtmf_parameters["MatrixNames"])
+    # rename generated skim matrices 
+    renameSkimMatrices(model, experiment_id, xtmf_parameters["MatrixNames"], skimMatrixList, catalog)
     print ('experiment ran successfully')
     
 def runFromConsole(inputArgs):

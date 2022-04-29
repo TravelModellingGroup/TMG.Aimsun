@@ -36,6 +36,7 @@ from PyANGBasic import *
 from PyANGKernel import *
 from PyANGConsole import *
 import time
+import re
 
 class AimSunBridge:
     """this class is the aimsun bridge we are building that is based off the Emme bridge"""
@@ -151,10 +152,10 @@ class AimSunBridge:
             #check if the tool exists in the path if it doesn't output an error
             if not os.path.exists(moduleDict["toolPath"]):
                 raise Exception("Unable to find the tool '" + moduleDict["toolPath"] + "'.")
-
             # we need to append the Toolbox/InputPut folder path so all relative imports will work
             toolDirectory = os.path.dirname(moduleDict["toolPath"])
             sys.path.append(toolDirectory)
+            
             spec = importlib.util.spec_from_file_location(
                 "tool", moduleDict["toolPath"]
             )
@@ -190,7 +191,7 @@ class AimSunBridge:
             # send to the pipe that we ran the message successfully
             self.sendSuccess()
         except Exception as e:
-            # output the calll stack and pass to XTMF
+            # output the call stack and pass to XTMF
             etype, evalue, etb = sys.exc_info()
             stackList = traceback.extract_tb(etb)
             msg = "%s: %s\n\nStack trace below:" % (evalue.__class__.__name__, str(evalue))
